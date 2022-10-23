@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "801199768182",
+    "firebase_url": "https://biyahe-database-default-rtdb.firebaseio.com",
+    "project_id": "biyahe-database",
+    "storage_bucket": "biyahe-database.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:801199768182:android:c362a9a7d865b6e58b5557",
+        "android_client_info": {
+          "package_name": "com.example.biyahe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "801199768182-0icau9gcttdvvkvohnlqhitbkfa3hbnd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAh10AorhYE9eA7WxFA80PzO6CkoT2WkKk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "801199768182-0icau9gcttdvvkvohnlqhitbkfa3hbnd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

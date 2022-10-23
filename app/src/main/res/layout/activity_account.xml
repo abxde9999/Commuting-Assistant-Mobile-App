@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Account"
+    android:background="@color/background_color">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:elevation="20dp"
+        android:background="@color/white"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true">
+
+        <TextView
+            android:id="@+id/tvCallHomeAct"
+            android:layout_width="64dp"
+            android:layout_height="54dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="31dp"
+            android:layout_marginTop="7dp"
+            android:drawableTop="@drawable/ic_home"
+            android:drawablePadding="-10dp"
+            android:gravity="center"
+            android:text="Home"
+            android:textSize="10sp" />
+
+        <TextView
+            android:layout_width="64dp"
+            android:layout_height="54dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="131dp"
+            android:layout_marginTop="7dp"
+            android:drawableTop="@drawable/ic_sos"
+            android:drawablePadding="-10dp"
+            android:gravity="center"
+            android:text="SOS"
+            android:textSize="10sp" />
+
+        <TextView
+            android:layout_width="60dp"
+            android:layout_height="53dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="221dp"
+            android:layout_marginTop="7dp"
+            android:drawableTop="@drawable/ic_search"
+            android:drawablePadding="-10dp"
+            android:gravity="center"
+            android:text="Search"
+            android:textSize="10sp" />
+
+        <TextView
+            android:layout_width="60dp"
+            android:layout_height="53dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="307dp"
+            android:layout_marginTop="7dp"
+            android:drawableTop="@drawable/ic_account2"
+            android:drawablePadding="-10dp"
+            android:gravity="center"
+            android:text="Account"
+            android:textSize="10sp" />
+
+    </RelativeLayout>
+
+</RelativeLayout>
