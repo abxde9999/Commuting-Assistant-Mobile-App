@@ -7,20 +7,11 @@
     tools:context=".Signup"
     android:background="@color/background_color">
 
-    <TextView
-        android:id="@+id/tvCallWelcomeAct"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="-20dp"
-        android:text="←"
-        android:textSize="50sp" />
-
     <ImageView
         android:id="@+id/imgSignup"
         android:layout_width="match_parent"
         android:layout_height="214dp"
-        android:layout_below="@id/tvCallWelcomeAct"
-        android:layout_marginTop="20sp"
+        android:layout_marginTop="70sp"
         android:src="@drawable/ic_imgsignup"
         android:textColor="@color/black"
         android:textSize="20sp" />

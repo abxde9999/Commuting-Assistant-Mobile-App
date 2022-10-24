@@ -12,6 +12,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,13 +27,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
 import java.io.IOException;
 import java.util.List;
 
 public class Home extends FragmentActivity implements OnMapReadyCallback {
 
-    private TextView tvCallAccountAct;
     private Location currentLocation;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private static final int PERMISSION_REQUEST_CODE = 1000;
@@ -41,14 +43,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
-        tvCallAccountAct = (TextView) findViewById(R.id.tvCallAccountAct);
-        tvCallAccountAct.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                callAccountAct();
-            }
-        });
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         getCurrentLocation();
@@ -106,11 +100,5 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                 }
                     break;
         }
-    }
-
-    //Call Account Activity
-    public void callAccountAct() {
-        Intent intent = new Intent(Home.this, Account.class);
-        startActivity(intent);
     }
 }

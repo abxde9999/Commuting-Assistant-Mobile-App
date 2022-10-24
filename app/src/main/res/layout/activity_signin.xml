@@ -7,14 +7,6 @@
     tools:context=".Signin"
     android:background="@color/background_color">
 
-    <TextView
-        android:id="@+id/tvCallWelcomeAct"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="-20dp"
-        android:text="←"
-        android:textSize="50sp" />
-
     <ImageView
         android:id="@+id/imglogin"
         android:layout_width="wrap_content"

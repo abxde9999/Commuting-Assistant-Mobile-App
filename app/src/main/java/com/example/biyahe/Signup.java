@@ -45,7 +45,6 @@ public class Signup extends AppCompatActivity {
 
     TextInputLayout inputtxtfname, inputtxtemail, inputtxtphonenum, inputtxtpassword;
     Button btnSignup;
-    private TextView tvCallWelcomeAct;
     private ProgressBar progressBar;
 
     FirebaseAuth mAuth;
@@ -56,14 +55,6 @@ public class Signup extends AppCompatActivity {
         setContentView(R.layout.activity_signup);
 
         mAuth = FirebaseAuth.getInstance();
-
-        tvCallWelcomeAct = (TextView) findViewById(R.id.tvCallWelcomeAct);
-        tvCallWelcomeAct.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                callWelcomeAct();
-            }
-        });
 
         btnSignup = (Button) findViewById(R.id.btnSignup);
         btnSignup.setOnClickListener(new View.OnClickListener() {
@@ -81,11 +72,6 @@ public class Signup extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
 
-    public void callWelcomeAct() {
-        startActivity(new Intent(Signup.this, Welcome.class));
-        finish();
-    }
-
     private void userSignup() {
         String full_name = inputtxtfname.getEditText().getText().toString().trim();
         String email_address = inputtxtemail.getEditText().getText().toString().trim();
@@ -93,44 +79,37 @@ public class Signup extends AppCompatActivity {
         String password = inputtxtpassword.getEditText().getText().toString().trim();
 
         if (full_name.isEmpty()) {
-            inputtxtfname.setError("Name is required!");
-            inputtxtfname.requestFocus();
+            Toast.makeText(this, "name is required", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (email_address.isEmpty()) {
-            inputtxtemail.setError("Email address is required!");
-            inputtxtemail.requestFocus();
+            Toast.makeText(this, "email address is required", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(email_address).matches()) {
-            inputtxtemail.setError("Please provide a valid email address!");
-            inputtxtemail.requestFocus();
+            Toast.makeText(this, "please provide a valid email address", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (phone_number.isEmpty()) {
-            inputtxtphonenum.setError("Phone number is required!");
-            inputtxtphonenum.requestFocus();
+            Toast.makeText(this, "phone number is required", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!PHONE_NUMBER.matcher(phone_number).matches()) {
-            inputtxtphonenum.setError("Please provide a valid phone number!");
-            inputtxtphonenum.requestFocus();
+            Toast.makeText(this, "please provide a valid phone number", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (password.isEmpty()) {
-            inputtxtpassword.setError("Password is required!");
-            inputtxtpassword.requestFocus();
+            Toast.makeText(this, "password is required", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!PASSWORD.matcher(password).matches()) {
-            inputtxtpassword.setError("Password Strength: WEAK!");
-            inputtxtpassword.requestFocus();
+            Toast.makeText(this, "password must be atleast 8 characters, must contain uc, lc, sc & numeric", Toast.LENGTH_SHORT).show();
             return;
         }
 

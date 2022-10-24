@@ -25,7 +25,6 @@ public class ForgotPassword extends AppCompatActivity {
     public static final Pattern EMAIL_ADDRESS =
             Pattern.compile("[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}" + "\\@" + "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" + "(" + "\\." + "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" + ")+");
 
-    private TextView tvCallSigninAct;
     private TextInputLayout inputtxtemail;
     private Button btnSend;
     private ProgressBar progressBar;
@@ -36,13 +35,6 @@ public class ForgotPassword extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forgot_password);
 
-        tvCallSigninAct = (TextView) findViewById(R.id.tvCallSigninAct);
-        tvCallSigninAct.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                callSigninAct();
-            }
-        });
         inputtxtemail = (TextInputLayout) findViewById(R.id.inputtxtemail);
         btnSend = (Button) findViewById(R.id.btnSend);
         btnSend.setOnClickListener(new View.OnClickListener() {
@@ -56,22 +48,15 @@ public class ForgotPassword extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
     }
 
-    public void callSigninAct() {
-        startActivity(new Intent(ForgotPassword.this, Signin.class));
-        finish();
-    }
-
     private void userSend() {
         String email_address = inputtxtemail.getEditText().getText().toString().trim();
         if (email_address.isEmpty()) {
-            inputtxtemail.setError("Email address is required!");
-            inputtxtemail.requestFocus();
+            Toast.makeText(this, "please enter your email address", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(email_address).matches()) {
-            inputtxtemail.setError("Please provide a valid email address!");
-            inputtxtemail.requestFocus();
+            Toast.makeText(this, "please enter a valid email address", Toast.LENGTH_SHORT).show();
             return;
         }
 

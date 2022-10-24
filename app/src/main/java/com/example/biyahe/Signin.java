@@ -35,7 +35,7 @@ public class Signin extends AppCompatActivity {
 
     private TextInputLayout inputtxtemail, inputtxtpassword;
     private Button btnSignin;
-    private TextView tvCallWelcomeAct, tvCallForgotPassword, tvCallSignupAct;
+    private TextView tvCallForgotPassword, tvCallSignupAct;
     ProgressBar progressBar;
     private FirebaseAuth mAuth;
     public static String PREF_NAME = "MyPrefsFile";
@@ -49,14 +49,6 @@ public class Signin extends AppCompatActivity {
         inputtxtpassword = findViewById(R.id.inputtxtpassword);
         progressBar = findViewById(R.id.progressBar);
 
-        tvCallWelcomeAct = findViewById(R.id.tvCallWelcomeAct);
-        tvCallWelcomeAct.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                callWelcomeAct();
-            }
-        });
-
         tvCallForgotPassword = findViewById(R.id.tvCallForgotPassword);
         tvCallForgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,12 +61,6 @@ public class Signin extends AppCompatActivity {
         btnSignin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SharedPreferences sharedPreferences = getSharedPreferences(Signin.PREF_NAME, 0);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-
-                editor.putBoolean("hasSignedIn", true);
-                editor.commit();
-
                 userSignin();
             }
         });
@@ -90,19 +76,12 @@ public class Signin extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
     }
 
-    public void callWelcomeAct() {
-        startActivity(new Intent(Signin.this, Welcome.class));
-        finish();
-    }
-
     public void callForgotPassword() {
         startActivity(new Intent(Signin.this, ForgotPassword.class));
-        finish();
     }
 
     public void callSignupAct() {
         startActivity(new Intent(Signin.this, Signup.class));
-        finish();
     }
 
     private void userSignin() {
@@ -110,20 +89,17 @@ public class Signin extends AppCompatActivity {
         String password = inputtxtpassword.getEditText().getText().toString().trim();
 
         if (email_address.isEmpty()) {
-            inputtxtemail.setError("Email address is required!");
-            inputtxtemail.requestFocus();
+            Toast.makeText(this, "please enter your email address", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (!Patterns.EMAIL_ADDRESS.matcher(email_address).matches()) {
-            inputtxtemail.setError("Please provide a valid email address!");
-            inputtxtemail.requestFocus();
+            Toast.makeText(this, "please enter a valid email address", Toast.LENGTH_SHORT).show();
             return;
         }
 
         if (password.isEmpty()) {
-            inputtxtpassword.setError("Password is required!");
-            inputtxtpassword.requestFocus();
+            Toast.makeText(this, "Oops! you forgot to enter a password", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -148,5 +124,14 @@ public class Signin extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    //Skip SignIn and SignUp if already SignedIn
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mAuth.getCurrentUser() != null) {
+            startActivity(new Intent(Signin.this, Home.class));
+        }
     }
 }
