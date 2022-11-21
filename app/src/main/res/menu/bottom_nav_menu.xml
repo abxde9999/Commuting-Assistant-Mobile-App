@@ -8,8 +8,8 @@
         android:title="SOS"
         android:icon="@drawable/ic_sos"/>
     <item android:id="@+id/search"
-        android:title="Search"
-        android:icon="@drawable/ic_search"/>
+        android:title="Settings"
+        android:icon="@drawable/ic_settings"/>
     <item android:id="@+id/account"
         android:title="Account"
         android:icon="@drawable/ic_account"/>

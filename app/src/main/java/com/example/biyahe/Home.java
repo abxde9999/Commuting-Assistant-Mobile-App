@@ -3,7 +3,10 @@ package com.example.biyahe;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.Manifest;
 import android.content.Intent;
@@ -17,6 +20,9 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.biyahe.Fragment.AccountFragment;
+import com.example.biyahe.Fragment.SosFragment;
+import com.example.biyahe.databinding.ActivityMainBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -35,19 +41,49 @@ import java.util.List;
 
 public class Home extends FragmentActivity implements OnMapReadyCallback {
 
+
+    BottomNavigationView navigationView;
     private Location currentLocation;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private static final int PERMISSION_REQUEST_CODE = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ActivityMainBinding binding;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         getCurrentLocation();
 
+        navigationView = findViewById(R.id.bottomNav);
+
+        navigationView.setSelectedItemId(R.id.home);
+
+        navigationView.setOnItemSelectedListener(item -> {
+
+            switch (item.getItemId()){
+
+                case R.id.sos:
+                    startActivity(new Intent(getApplicationContext()
+                            ,SOS.class));
+                    return true;
+
+                case R.id.account:
+                    startActivity(new Intent(getApplicationContext()
+                    ,Account.class));
+                    return true;
+            }
+            return true;
+        });
     }
+
+    /* private void replaceFragment(Fragment fragment){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frame_layout,fragment);
+        fragmentTransaction.commit();
+    }*/
 
     private void getCurrentLocation() {
 

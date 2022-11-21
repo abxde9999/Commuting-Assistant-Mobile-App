@@ -18,6 +18,20 @@
         android:theme="@style/Theme.Biyahe"
         tools:targetApi="31">
         <activity
+            android:name=".SOS"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".Account"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".Main"
             android:exported="true">
             <intent-filter>

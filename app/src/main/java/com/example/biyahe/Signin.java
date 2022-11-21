@@ -13,6 +13,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.biyahe.Fragment.AccountFragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
@@ -110,7 +111,7 @@ public class Signin extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                     if (user.isEmailVerified()) {
-                        Toast.makeText(Signin.this, "Sign in Succesfully!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Signin.this, "Sign in Successfully!", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(Signin.this, Home.class));
                         finish();
                     } else {
