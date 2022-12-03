@@ -10,7 +10,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 
 public class SOS extends AppCompatActivity {
-
     BottomNavigationView navigationView;
     @SuppressLint("MissingInflatedId")
     @Override

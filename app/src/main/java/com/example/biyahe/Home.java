@@ -19,9 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.example.biyahe.Fragment.AccountFragment;
-import com.example.biyahe.Fragment.SosFragment;
 import com.example.biyahe.databinding.ActivityMainBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;

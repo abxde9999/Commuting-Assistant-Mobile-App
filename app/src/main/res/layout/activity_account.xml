@@ -94,7 +94,6 @@
                 android:background="@android:color/darker_gray"
                 android:id="@+id/divider_email"/>
 
-
         </RelativeLayout>
     </LinearLayout>
 
