@@ -1,7 +1,6 @@
 package com.example.biyahe;
 
 public class User {
-
     public String full_name, email_address, phone_number;
 
     public User() {
