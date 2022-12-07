@@ -25,7 +25,7 @@
         android:fontFamily="@font/secular_one"
         android:gravity="center"
         android:textSize="20sp"
-        android:text="Welcome Back!"
+        android:text="WELCOME!"
         android:textColor="@color/black" />
 
     <TextView
@@ -70,7 +70,6 @@
         android:layout_marginTop="5dp"
         android:hint="Password"
         app:endIconMode="password_toggle"
-
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -107,39 +106,40 @@
         android:layout_centerHorizontal="true"
         android:layout_marginStart="72dp"
         android:gravity="center"
+        android:textStyle="bold"
         android:text="Forgot Password?"
         android:textColor="@color/black"
         android:textSize="12sp" />
 
-    <TextView
-        android:id="@+id/textstring11"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tvCallForgotPassword"
-        android:layout_alignParentStart="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="103dp"
-        android:layout_marginTop="50dp"
-        android:fontFamily="@font/poppins_medium"
-        android:gravity="center"
-        android:text="Don't have an account?"
-        android:textColor="@color/black"
-        android:textSize="12sp" />
 
     <TextView
-        android:id="@+id/tvCallSignupAct"
+        android:id="@+id/linee"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tvCallForgotPassword"
-        android:layout_alignParentStart="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginStart="250sp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="18dp"
+        android:textColorHint="#DADBDD"
+        android:hint="-------------------------      or      -------------------------" />
+
+    <Button
+        android:id="@+id/btnSignup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/linee"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="10dp"
+        android:backgroundTint="@color/green"
         android:fontFamily="@font/poppins_medium"
-        android:gravity="center"
-        android:text="Sign up"
-        android:textColor="@color/black"
-        android:textSize="12sp" />
+        android:shadowColor="#000000"
+        android:shadowDx="1.5"
+        android:shadowDy="1.3"
+        android:text="CREATE NEW ACCOUNT"
+        android:textAllCaps="false"
+        android:textSize="10dp"
+        android:textStyle="bold" />
 
     <ProgressBar
         android:id="@+id/progressBar"

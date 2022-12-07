@@ -34,7 +34,7 @@ public class Signin extends AppCompatActivity {
             Pattern.compile("[a-zA-Z0-9\\+\\.\\_\\%\\-\\+]{1,256}" + "\\@" + "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,64}" + "(" + "\\." + "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" + ")+");
 
     private TextInputLayout inputtxtemail, inputtxtpassword;
-    private Button btnSignin;
+    private Button btnSignin, btnSignup;
     private TextView tvCallForgotPassword, tvCallSignupAct;
     ProgressBar progressBar;
     private FirebaseAuth mAuth;
@@ -65,8 +65,8 @@ public class Signin extends AppCompatActivity {
             }
         });
 
-        tvCallSignupAct = findViewById(R.id.tvCallSignupAct);
-        tvCallSignupAct.setOnClickListener(new View.OnClickListener() {
+        btnSignup = findViewById(R.id.btnSignup);
+        btnSignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 callSignupAct();
@@ -74,6 +74,7 @@ public class Signin extends AppCompatActivity {
         });
 
         mAuth = FirebaseAuth.getInstance();
+
     }
 
     public void callForgotPassword() {
@@ -110,9 +111,21 @@ public class Signin extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                     if (user.isEmailVerified()) {
-                        Toast.makeText(Signin.this, "Sign in Succesfully!", Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(Signin.this, Home.class));
-                        finish();
+                        FirebaseDatabase.getInstance().getReference("user_information").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                FetchData.currentUser = snapshot.getValue(User.class);
+                                Intent intent = new Intent(Signin.this, Home.class);
+                                startActivity(intent);
+                                Toast.makeText(Signin.this, "Sign in Succesfully!", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
                     } else {
                         user.sendEmailVerification();
                         Toast.makeText(Signin.this, "Sign in Failed! Please verify your email address!", Toast.LENGTH_SHORT).show();
@@ -130,7 +143,7 @@ public class Signin extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (mAuth.getCurrentUser() != null) {
+        if (mAuth.getCurrentUser() != null && mAuth.getCurrentUser().isEmailVerified()) {
             startActivity(new Intent(Signin.this, Home.class));
         }
     }

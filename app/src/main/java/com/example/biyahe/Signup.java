@@ -2,15 +2,11 @@ package com.example.biyahe;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -18,15 +14,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
-
-
-import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class Signup extends AppCompatActivity {
@@ -37,14 +25,14 @@ public class Signup extends AppCompatActivity {
 
     //Password Pattern
     public static final Pattern PASSWORD =
-            Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$");
+            Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&*+=])(?=\\S+$).{8,}$");
 
-    //Phone Number pattern
+    //Phone Number Pattern
     public static final Pattern PHONE_NUMBER =
-            Pattern.compile("^(?=.*[0-9])(?=\\S+$).{11,}$");
+            Pattern.compile("^(09|\\+639)\\d{9}$");
 
     TextInputLayout inputtxtfname, inputtxtemail, inputtxtphonenum, inputtxtpassword;
-    Button btnSignup;
+    private Button btnSignup;
     private ProgressBar progressBar;
 
     FirebaseAuth mAuth;
@@ -54,9 +42,13 @@ public class Signup extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        mAuth = FirebaseAuth.getInstance();
+        inputtxtfname = (TextInputLayout) findViewById(R.id.inputtxtfname);
+        inputtxtemail = (TextInputLayout) findViewById(R.id.inputtxtemail);
+        inputtxtphonenum= (TextInputLayout) findViewById(R.id.inputtxtphonenum);
+        inputtxtpassword = (TextInputLayout) findViewById(R.id.inputtxtpassword);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-        btnSignup = (Button) findViewById(R.id.btnSignup);
+        btnSignup = findViewById(R.id.btnSignup);
         btnSignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -64,12 +56,7 @@ public class Signup extends AppCompatActivity {
             }
         });
 
-        inputtxtfname = (TextInputLayout) findViewById(R.id.inputtxtfname);
-        inputtxtemail = (TextInputLayout) findViewById(R.id.inputtxtemail);
-        inputtxtphonenum= (TextInputLayout) findViewById(R.id.inputtxtphonenum);
-        inputtxtpassword = (TextInputLayout) findViewById(R.id.inputtxtpassword);
-
-        progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        mAuth = FirebaseAuth.getInstance();
     }
 
     private void userSignup() {
@@ -88,7 +75,7 @@ public class Signup extends AppCompatActivity {
             return;
         }
 
-        if (!Patterns.EMAIL_ADDRESS.matcher(email_address).matches()) {
+        if (!EMAIL_ADDRESS.matcher(email_address).matches()) {
             Toast.makeText(this, "please provide a valid email address", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -121,16 +108,14 @@ public class Signup extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             User user = new User(full_name, email_address, phone_number);
 
-                            FirebaseDatabase.getInstance().getReference("user_information")
-                                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                    .setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            FirebaseDatabase.getInstance().getReference("user_information").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
-                                                Toast.makeText(Signup.this, "Sign up Successfully!", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(Signup.this, "Sign up Successful!", Toast.LENGTH_SHORT).show();
+                                                Intent intent = new Intent(Signup.this, Signin.class);
+                                                startActivity(intent);
                                                 progressBar.setVisibility(View.GONE);
-                                                startActivity(new Intent(Signup.this, Signin.class));
-                                                finish();
                                             } else {
                                                 Toast.makeText(Signup.this, "Sign up Failed!", Toast.LENGTH_SHORT).show();
                                                 progressBar.setVisibility(View.GONE);
@@ -138,7 +123,7 @@ public class Signup extends AppCompatActivity {
                                         }
                                     });
                         } else {
-                            Toast.makeText(Signup.this, "Email address has already been taken!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Signup.this, "Email address had already been taken!", Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.GONE);
                         }
                     }

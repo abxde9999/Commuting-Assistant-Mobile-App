@@ -3,7 +3,6 @@ package com.example.biyahe;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -14,12 +13,9 @@ public class Main extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-       new Handler().postDelayed(new Runnable() {
-           @Override
-           public void run() {
-               startActivity(new Intent(Main.this, Signin.class));
-               finish();
-           }
+       new Handler().postDelayed(() -> {
+           startActivity(new Intent(Main.this, Signin.class));
+           finish();
        }, 3000);
     }
 }

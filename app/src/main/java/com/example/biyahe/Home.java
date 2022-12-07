@@ -4,16 +4,27 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewTreeViewModelKt;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,12 +39,26 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import org.checkerframework.checker.units.qual.C;
 
 import java.io.IOException;
 import java.util.List;
 
 public class Home extends FragmentActivity implements OnMapReadyCallback {
+
+    FloatingActionButton explore;
+    BottomNavigationView bottomNav;
 
     private Location currentLocation;
     private FusedLocationProviderClient fusedLocationProviderClient;
@@ -47,8 +72,38 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         getCurrentLocation();
 
+        explore = findViewById(R.id.explore);
+
+        explore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(Home.this, "This Button will be use to start Navigation", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        bottomNav = findViewById(R.id.bottomNav);
+        bottomNav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+
+                switch (item.getItemId()) {
+                    case R.id.sos:
+                        Intent intent = new Intent(Home.this, SOS.class);
+                        startActivity(intent);
+                        Toast.makeText(Home.this, "This Button will be use to send SOS", Toast.LENGTH_LONG).show();
+                        break;
+
+                    case R.id.account:
+                        startActivity(new Intent(Home.this, Profile.class));
+                        break;
+                }
+                return true;
+            }
+        });
     }
 
+
+    //Get Current Location
     private void getCurrentLocation() {
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
