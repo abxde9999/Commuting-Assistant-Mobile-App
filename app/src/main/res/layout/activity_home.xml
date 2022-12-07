@@ -4,8 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:sothree="http://schemas.android.com/apk/res-auto"
     tools:context=".Home"
     android:background="@color/background_color">
+
 
     <fragment
         android:id="@+id/mapFragment"
@@ -13,31 +15,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout
+        android:id="@+id/sliding_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="10dp"
-        android:layout_marginHorizontal="10dp"
-        android:elevation="10dp"
-        app:boxBackgroundColor="@color/white"
-        app:boxStrokeColor="@color/white"
-        app:boxStrokeWidth="0dp"
-        app:endIconMode="clear_text"
-        app:hintEnabled="false"
-        app:layout_anchorGravity="bottom|center">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edtPlaceName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_search"
-            android:drawablePadding="5dp"
-            android:hint="Search Place"
-            android:inputType="text"
-            android:maxLines="1"/>
-
-    </com.google.android.material.textfield.TextInputLayout>
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        android:layout_alignParentTop= "true"
+        android:layout_above="@id/bottomNav"
+        sothree:umanoDragView="@+id/dragView"
+        sothree:umanoOverlay="true"
+        sothree:umanoShadowHeight="0dp"
+        sothree:umanoParallaxOffset="100dp"
+        sothree:umanoPanelHeight="90dp"
+        sothree:umanoScrollableView="@+id/list">
 
     <FrameLayout
         android:id="@+id/frame_layout"
@@ -48,6 +38,31 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
     </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:focusable="false"
+            android:background="@drawable/rounded_corner"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:drawableTop="@drawable/ic_horizontal">
+
+            </TextView>
+
+            <androidx.appcompat.widget.SearchView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent">
+
+            </androidx.appcompat.widget.SearchView>
+
+        </LinearLayout>
+
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
