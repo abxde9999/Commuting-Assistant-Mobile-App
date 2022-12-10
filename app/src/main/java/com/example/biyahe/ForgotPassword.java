@@ -67,7 +67,12 @@ public class ForgotPassword extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     Toast.makeText(ForgotPassword.this, "Check your email address to change your password!", Toast.LENGTH_SHORT).show();
                     progressBar.setVisibility(View.GONE);
-                    startActivity(new Intent(ForgotPassword.this, Signin.class));
+                    Intent intent = new Intent(ForgotPassword.this, Signin.class);
+                    intent.putExtra("finish", true); // To close all the activities (history)
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK |
+                            Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
                     finish();
                 }  else {
                     Toast.makeText(ForgotPassword.this, "Try again! Something wrong happened!", Toast.LENGTH_SHORT).show();

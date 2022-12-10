@@ -139,7 +139,7 @@ public class Signin extends AppCompatActivity {
         });
     }
 
-    //Skip SignIn and SignUp if already SignedIn
+    //Skip SignIn Activity if already Signed in
     @Override
     protected void onStart() {
         super.onStart();
