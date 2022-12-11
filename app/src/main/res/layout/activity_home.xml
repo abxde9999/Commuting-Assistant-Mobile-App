@@ -25,7 +25,7 @@
         sothree:umanoOverlay="true"
         sothree:umanoShadowHeight="0dp"
         sothree:umanoParallaxOffset="100dp"
-        sothree:umanoPanelHeight="90dp"
+        sothree:umanoPanelHeight="250dp"
         sothree:umanoScrollableView="@+id/list">
 
         <FrameLayout
@@ -46,48 +46,36 @@
             android:background="@drawable/rounder_corner"
             android:orientation="horizontal">
 
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:drawableTop="@drawable/ic_horizontal">
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
 
-            </TextView>
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginHorizontal="30dp"
+                    android:id="@+id/edit_text"
+                    android:drawableLeft="@drawable/ic_destination"
+                    android:hint="Search place"
+                    android:padding="16dp"
+                    android:drawablePadding="16dp"
+                    android:gravity="center_vertical"
+                    android:background="@android:drawable/editbox_background"/>
 
-            <androidx.appcompat.widget.SearchView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent">
-
-            </androidx.appcompat.widget.SearchView>
-
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/text_view1"
+                    android:textColor="@color/black"
+                    android:padding="12dp"
+                    android:layout_marginTop="32dp"/>
+            </LinearLayout>
         </LinearLayout>
 
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginVertical="10dp"
-        android:layout_marginHorizontal="10dp"
-        android:elevation="10dp"
-        app:boxBackgroundColor="@color/white"
-        app:boxStrokeColor="@color/white"
-        app:boxStrokeWidth="0dp"
-        app:endIconMode="clear_text"
-        app:hintEnabled="false"
-        app:layout_anchorGravity="bottom|center">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/edtPlaceName"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_search"
-            android:drawablePadding="5dp"
-            android:hint="Search Place"
-            android:inputType="text"
-            android:maxLines="1"/>
-
-    </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:layout_width="match_parent"

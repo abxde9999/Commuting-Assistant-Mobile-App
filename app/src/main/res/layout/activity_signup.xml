@@ -9,8 +9,9 @@
 
     <ImageView
         android:id="@+id/imgSignup"
-        android:layout_width="match_parent"
-        android:layout_height="315dp"
+        android:layout_centerHorizontal="true"
+        android:layout_width="244dp"
+        android:layout_height="211dp"
         android:layout_marginTop="50sp"
         android:contentDescription="image"
         android:src="@drawable/ic_imgsignup"

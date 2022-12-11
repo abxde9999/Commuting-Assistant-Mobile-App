@@ -108,8 +108,9 @@ public class Signin extends AppCompatActivity {
         mAuth.signInWithEmailAndPassword(email_address,password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
+                FirebaseUser user;
                 if (task.isSuccessful()) {
-                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    user = FirebaseAuth.getInstance().getCurrentUser();
                     if (user.isEmailVerified()) {
                         FirebaseDatabase.getInstance().getReference("user_information").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -127,10 +128,10 @@ public class Signin extends AppCompatActivity {
                             }
                         });
                     } else {
-                        user.sendEmailVerification();
-                        Toast.makeText(Signin.this, "Sign in Failed! Please verify your email address!", Toast.LENGTH_SHORT).show();
-                        progressBar.setVisibility(View.GONE);
-                    }
+                    user.sendEmailVerification();
+                    Toast.makeText(Signin.this, "Sign in Failed! Please verify your email address!", Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
+                }
                 } else {
                     Toast.makeText(Signin.this, "Sign in Failed!", Toast.LENGTH_SHORT).show();
                     progressBar.setVisibility(View.GONE);
@@ -138,7 +139,6 @@ public class Signin extends AppCompatActivity {
             }
         });
     }
-
     //Skip SignIn and SignUp if already SignedIn
     @Override
     protected void onStart() {
