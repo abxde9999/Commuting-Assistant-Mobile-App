@@ -113,7 +113,12 @@ public class Signup extends AppCompatActivity {
                                             if (task.isSuccessful()) {
                                                 Toast.makeText(Signup.this, "Sign up Successful!", Toast.LENGTH_SHORT).show();
                                                 Intent intent = new Intent(Signup.this, Signin.class);
+                                                intent.putExtra("finish", true); // To close all the Activities(history)
+                                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                                                        Intent.FLAG_ACTIVITY_CLEAR_TASK |
+                                                        Intent.FLAG_ACTIVITY_NEW_TASK);
                                                 startActivity(intent);
+                                                finish();
                                                 progressBar.setVisibility(View.GONE);
                                             } else {
                                                 Toast.makeText(Signup.this, "Sign up Failed!", Toast.LENGTH_SHORT).show();
