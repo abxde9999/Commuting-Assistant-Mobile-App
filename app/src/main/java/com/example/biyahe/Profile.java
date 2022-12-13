@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -36,9 +37,10 @@ public class Profile extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_CODE = 1000;
 
     TextView profileName, profileEmail, profilePhone;
-    Button logoutButton;
+    Button logoutButton, settings;
     FloatingActionButton refresh;
     FirebaseAuth mAuth;
+
 
 
     @Override
@@ -56,6 +58,7 @@ public class Profile extends AppCompatActivity {
         profileEmail.setText(FetchData.currentUser.getEmail_address());
         profilePhone.setText(FetchData.currentUser.getPhone_number());
 
+
         logoutButton = findViewById(R.id.logoutButton);
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,6 +72,15 @@ public class Profile extends AppCompatActivity {
                         Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
                 finish();
+            }
+        });
+
+        settings = findViewById(R.id.et_settings);
+        settings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {  Intent intent = new Intent( Profile.this, SOS.class);
+                startActivity(intent);
+
             }
         });
 
