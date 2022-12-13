@@ -26,6 +26,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.TextView;
@@ -68,6 +69,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     private Location currentLocation;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private static final int PERMISSION_REQUEST_CODE = 1000;
+    private View view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +106,18 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                 return true;
             }
         });
+    }
+
+    public void buttonPopupwindow(View view){
+
+        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+
+        View viewPopupwindow = layoutInflater.inflate(R.layout.activity_search_layout, null);
+
+        PopupWindow popupWindow = new PopupWindow(viewPopupwindow, 900, 800, true);
+
+        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+
     }
 
     // Method to get Current Location
