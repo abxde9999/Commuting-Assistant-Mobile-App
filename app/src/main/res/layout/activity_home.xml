@@ -43,7 +43,7 @@
             android:layout_height="match_parent"
             android:layout_marginTop="10dp"
             android:focusable="false"
-            android:background="@drawable/rounder_corner"
+            android:background="@drawable/rounded_corner"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -93,25 +93,6 @@
                     android:layout_margin="15dp"
                     android:background="@color/white">
 
-                    <ImageView
-                        android:layout_width="25dp"
-                        android:layout_height="25dp"
-                        android:background="@drawable/ic_car"
-                        android:id="@+id/ic_car"/>
-
-                    <ImageView
-                        android:layout_width="match_parent"
-                        android:layout_height="20dp"
-                        android:id="@+id/ic_linear_scale"
-                        android:layout_below="@id/ic_car"
-                        android:layout_marginTop="10dp"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:id="@+id/ic_fare"
-                        android:layout_alignStart="@id/ic_linear_scale"
-                        android:textSize="18sp"/>
                 </RelativeLayout>
 
             </LinearLayout>
