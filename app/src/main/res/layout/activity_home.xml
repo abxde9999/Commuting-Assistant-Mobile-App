@@ -58,7 +58,7 @@
                     android:layout_marginTop="35dp"
                     android:layout_marginHorizontal="20dp"
                     android:id="@+id/edit_text"
-                    android:drawableLeft="@drawable/ic_destination"
+
                     android:hint="Search Destination"
                     android:padding="16dp"
                     android:drawablePadding="16dp"
@@ -71,7 +71,7 @@
                     android:layout_marginTop="10dp"
                     android:layout_marginHorizontal="20dp"
                     android:id="@+id/edit_text2"
-                    android:drawableLeft="@drawable/ic_currentloc"
+
                     android:hint="Search Origin"
                     android:padding="16dp"
                     android:drawablePadding="16dp"
