@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.widget.TextView;
 import android.Manifest;
@@ -16,13 +17,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 public class SOS extends AppCompatActivity {
+
+    private static final String SOS_RECEIVER = "sos_receiver.txt";
+    private static final String SOS_MESSAGE = "sos_message.txt";
 
     //Initialization
     EditText etPhone,etMessage,etReceiver;
     Button btSend,btChange;
-    String savedText;
-
+    String rNumber;
+    String mInput;
 
 
 
@@ -55,6 +63,59 @@ public class SOS extends AppCompatActivity {
                 }
             }
         });
+
+        btChange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                OpenHome();
+                Intent intent = new Intent(SOS.this, Home.class);
+                startActivity(intent);
+            }
+        });
+
+    }
+    public void OpenHome() {
+
+        String recNumber = etReceiver.getText().toString();
+        FileOutputStream fosReceiver = null;
+
+        Toast.makeText(this, "Settings Saved", Toast.LENGTH_SHORT).show();
+
+        try {
+            fosReceiver = openFileOutput(SOS_RECEIVER, MODE_PRIVATE);
+            fosReceiver.write(recNumber.getBytes());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            if (fosReceiver != null){
+                try {
+                    fosReceiver.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        String sosSMS = etMessage.getText().toString();
+        FileOutputStream fosMessage = null;
+
+        try {
+            fosMessage = openFileOutput(SOS_MESSAGE, MODE_PRIVATE);
+            fosMessage.write(sosSMS.getBytes());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            if (fosMessage != null){
+                try {
+                    fosMessage.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
     }
 

@@ -43,6 +43,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="SAVE Changes" />
+        android:text="SAVE Changes \n and Return" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Contact Saved:"/>
 
 </LinearLayout>
