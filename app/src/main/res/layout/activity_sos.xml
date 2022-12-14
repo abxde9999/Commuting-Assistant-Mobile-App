@@ -9,7 +9,17 @@
     android:gravity="center_horizontal"
     tools:context=".SOS">
 
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Contact Saved:" />
+    <TextView
+        android:id="@+id/tv_msgRec"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:text="" />
     <EditText
         android:id="@+id/et_receiver"
         android:layout_width="match_parent"
@@ -20,6 +30,23 @@
         android:maxLength="15"
         android:padding="12dp" />
 
+    <Button
+        android:id="@+id/et_changeRec"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="change receiver number" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Current SOS Message:" />
+    <TextView
+        android:id="@+id/tv_msgInp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:text="" />
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -33,6 +60,13 @@
         android:background="@android:drawable/editbox_background"/>
 
     <Button
+        android:id="@+id/et_changeSMS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="change SOS Message" />
+
+    <Button
         android:id="@+id/et_send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -43,11 +77,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="SAVE Changes \n and Return" />
+        android:text="Return to homescreen" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Contact Saved:"/>
+
 
 </LinearLayout>

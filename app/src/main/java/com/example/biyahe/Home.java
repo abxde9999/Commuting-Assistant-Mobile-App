@@ -134,9 +134,9 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         } catch (IOException e) {
             e.printStackTrace();
         }finally {
-            if (fisReceiver != null) {
+            if (fisMessage != null) {
                 try {
-                    fisReceiver.close();
+                    fisMessage.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -161,8 +161,14 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.sos:
-                        sendSOS();
-                        Toast.makeText(Home.this, "SOS Message Sent!", Toast.LENGTH_LONG).show();
+                        if (msgRc != "" && msgI != "") {
+                            sendSOS();
+                            Toast.makeText(Home.this, "SOS Message Sent!", Toast.LENGTH_LONG).show();
+                        }else {
+                            Toast.makeText(Home.this, "Please Set SOS Contact and Message first!", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(Home.this, SOS.class);
+                            startActivity(intent);
+                        }
                         break;
 
                     case R.id.account:
@@ -212,13 +218,16 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                         e.printStackTrace();
                     }
 
-                    //if (!msgR.isEmpty() && !msgI.isEmpty()){
-                        //String message = "SOS";
-                        //String receiver = "09430940014";
+                    if (!msgRc.isEmpty() && !msgI.isEmpty()){
+
                         //Initialize SMS Manager
                         SmsManager smsManager = SmsManager.getDefault();
                         //Send Msg
-                        smsManager.sendTextMessage(msgRc,null,msgI+"\n"+ "Latitude: " + address.getLatitude() + "\nLongitude: " + address.getLongitude() + "\nAddress: " + address.getAddressLine(0) , null, null);
+                        smsManager.sendTextMessage(msgRc,null,msgI+"\n"+ "Latitude: " + address.getLatitude() + "\nLongitude: " + address.getLongitude() + "\nAddress: " + address.getAddressLine(0) , null, null);}
+                    else {
+
+                        Toast.makeText(Home.this, "Please enter a message.", Toast.LENGTH_SHORT).show();
+                    }
 
                 }
             }

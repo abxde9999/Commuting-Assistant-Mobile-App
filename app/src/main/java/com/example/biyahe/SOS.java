@@ -17,9 +17,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 public class SOS extends AppCompatActivity {
 
@@ -28,11 +31,8 @@ public class SOS extends AppCompatActivity {
 
     //Initialization
     EditText etPhone,etMessage,etReceiver;
-    Button btSend,btChange;
-    String rNumber;
-    String mInput;
-
-
+    Button btSend,btChangeRec,btSaveRec,btSaveSMS;
+    TextView tvMsgRec, tvMsgInp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +43,15 @@ public class SOS extends AppCompatActivity {
         etReceiver = findViewById(R.id.et_receiver);
         etMessage = findViewById(R.id.et_message);
         btSend = findViewById(R.id.et_send);
-        btChange = findViewById(R.id.et_change);
+        btChangeRec = findViewById(R.id.et_change);
+        btSaveRec = findViewById(R.id.et_changeRec);
+        btSaveSMS = findViewById(R.id.et_changeSMS);
+        tvMsgRec = findViewById(R.id.tv_msgRec);
+        tvMsgInp = findViewById(R.id.tv_msgInp);
+
+
+        UpdateRec();
+        UpdateSMS();
 
         btSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,22 +72,94 @@ public class SOS extends AppCompatActivity {
             }
         });
 
-        btChange.setOnClickListener(new View.OnClickListener() {
+        btChangeRec.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                OpenHome();
+                //OpenHome();
                 Intent intent = new Intent(SOS.this, Home.class);
                 startActivity(intent);
             }
         });
+        btSaveRec.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveRec();
+                UpdateRec();
+            }
+        });
+        btSaveSMS.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SaveMsg();
+                UpdateSMS();
+            }
+        });
 
     }
-    public void OpenHome() {
+    public void UpdateSMS() {
+        FileInputStream fisMessage = null;
 
+        try {
+            fisMessage = openFileInput(SOS_MESSAGE);
+            InputStreamReader isrMessage = new InputStreamReader(fisMessage);
+            BufferedReader brReceiver = new BufferedReader(isrMessage);
+            StringBuilder sbMessage = new StringBuilder();
+            String msgM;
+
+            while ((msgM = brReceiver.readLine()) != null){
+                sbMessage.append(msgM).append("\n");
+            }
+
+            tvMsgInp.setText(sbMessage.toString());
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            if (fisMessage != null) {
+                try {
+                    fisMessage.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    public void UpdateRec() {
+        FileInputStream fisReceiver = null;
+
+        try {
+            fisReceiver = openFileInput(SOS_RECEIVER);
+            InputStreamReader isrReceiver = new InputStreamReader(fisReceiver);
+            BufferedReader brReceiver = new BufferedReader(isrReceiver);
+            StringBuilder sbReceiver = new StringBuilder();
+            String msgR;
+
+            while ((msgR = brReceiver.readLine()) != null){
+                sbReceiver.append(msgR).append("\n");
+            }
+
+            tvMsgRec.setText(sbReceiver.toString());
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            if (fisReceiver != null) {
+                try {
+                    fisReceiver.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+    public void saveRec(){
         String recNumber = etReceiver.getText().toString();
         FileOutputStream fosReceiver = null;
-
-        Toast.makeText(this, "Settings Saved", Toast.LENGTH_SHORT).show();
 
         try {
             fosReceiver = openFileOutput(SOS_RECEIVER, MODE_PRIVATE);
@@ -97,6 +177,10 @@ public class SOS extends AppCompatActivity {
                 }
             }
         }
+        Toast.makeText(this, "SOS Receiver Number Successfully", Toast.LENGTH_SHORT).show();
+    }
+    public void SaveMsg(){
+
         String sosSMS = etMessage.getText().toString();
         FileOutputStream fosMessage = null;
 
@@ -116,7 +200,7 @@ public class SOS extends AppCompatActivity {
                 }
             }
         }
-
+        Toast.makeText(this, "SOS Message Updated Successfully", Toast.LENGTH_SHORT).show();
     }
 
     @Override
