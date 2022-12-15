@@ -98,11 +98,10 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     String msgRc ;
     String msgI ;
 
-
     FloatingActionButton explore;
     BottomNavigationView bottomNav;
     Marker currentLocationMarker;
-
+    FloatingActionButton search_button;
 
     private Location currentLocation;
     private FusedLocationProviderClient fusedLocationProviderClient;
@@ -128,6 +127,17 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                 explore();
             }
         });
+
+        //Search place
+        search_button = findViewById(R.id.search_button);
+        search_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {  Intent intent = new Intent( Home.this, AutocompleteAddressActivity.class);
+                startActivity(intent);
+
+            }
+        });
+
 
         // Bottom Navigation Bar
         bottomNav = findViewById(R.id.bottomNav);

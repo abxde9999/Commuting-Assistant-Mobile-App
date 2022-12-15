@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="@dimen/spacing_large"
+    tools:context=".AutocompleteAddressActivity">
+
+    <LinearLayout
+        android:id="@+id/autocomplete_scroll_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:orientation="vertical">
+
+        <com.example.biyahe.model.AutocompleteEditText
+            android:id="@+id/autocomplete_address1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:autofillHints=""
+            android:hint="Set Origin"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:padding="13dp"
+            android:layout_marginHorizontal="20dp"
+            android:drawablePadding="16dp"
+            android:background="@android:drawable/editbox_background"/>
+
+        <com.example.biyahe.model.AutocompleteEditText
+            android:id="@+id/autocomplete_address2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:autofillHints=""
+            android:hint="Set Destination"
+            android:padding="13dp"
+            android:layout_marginHorizontal="20dp"
+            android:drawablePadding="16dp"
+            android:imeOptions="actionNext"
+            android:inputType="text"
+            android:background="@android:drawable/editbox_background"/>
+
+        <!-- The map for visual confirmation of the selected address -->
+        <!-- Stub to only load the map after Autocomplete prediction selection -->
+
+    </LinearLayout>
+</ScrollView>
