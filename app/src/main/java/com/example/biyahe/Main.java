@@ -12,10 +12,12 @@ public class Main extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //getSupportActionBar().hide();
 
        new Handler().postDelayed(() -> {
            startActivity(new Intent(Main.this, Signin.class));
            finish();
        }, 3000);
     }
+
 }

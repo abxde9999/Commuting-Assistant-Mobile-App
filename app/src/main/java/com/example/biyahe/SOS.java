@@ -38,6 +38,7 @@ public class SOS extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sos);
+        getSupportActionBar().hide();
 
         //Assign Variable
         etReceiver = findViewById(R.id.et_receiver);
