@@ -53,11 +53,13 @@ import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationSettingsRequest.Builder;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.Priority;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -66,6 +68,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -96,6 +99,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
 import org.checkerframework.checker.units.qual.C;
 
 import java.io.BufferedReader;
@@ -107,9 +111,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-public class Home extends FragmentActivity implements OnMapReadyCallback{
-//
-    private static final String TAG = "ADDRESS_AUTOCOMPLETE";
+public class Home extends FragmentActivity implements OnMapReadyCallback {
+
+    //Real-time Location
+
+    LocationRequest locationRequest;
+
+    int priority;
+
+
+    //
+    private static final String TAG2 = "ADDRESS_AUTOCOMPLETE";
+    private static final String TAG = "MapsActivity";
     private static final String MAP_FRAGMENT_TAG = "MAP";
     private AutocompleteEditText address1Field;
     private AutocompleteEditText address2Field;
@@ -125,6 +138,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
 
     LatLng originLoc;
     LatLng destinationLoc;
+    LocationCallback locationCallback;
 
     View.OnClickListener startAutocompleteIntentListener = view -> {
         view.setOnClickListener(null);
@@ -146,12 +160,12 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
 
                         // Write a method to read the address components from the Place
                         // and populate the form with the address components
-                        Log.d(TAG, "Place: " + place.getAddressComponents());
+                        Log.d(TAG2, "Place: " + place.getAddressComponents());
                         fillInAddress(place);
                     }
                 } else if (result.getResultCode() == Activity.RESULT_CANCELED) {
                     // The user canceled the operation.
-                    Log.i(TAG, "User canceled autocomplete");
+                    Log.i(TAG2, "User canceled autocomplete");
                 }
             });
     private final ActivityResultLauncher<Intent> startAutocomplete2 = registerForActivityResult(
@@ -164,12 +178,12 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
 
                         // Write a method to read the address components from the Place
                         // and populate the form with the address components
-                        Log.d(TAG, "Place: " + place.getAddressComponents());
+                        Log.d(TAG2, "Place: " + place.getAddressComponents());
                         fillInAddress2(place);
                     }
                 } else if (result.getResultCode() == Activity.RESULT_CANCELED) {
                     // The user canceled the operation.
-                    Log.i(TAG, "User canceled autocomplete");
+                    Log.i(TAG2, "User canceled autocomplete");
                 }
             });
 //
@@ -182,16 +196,19 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
     Handler mapHandler = new Handler();
 
     //Initialization of Strings
-    String msgRc ;
-    String msgI ;
+    String msgRc;
+    String msgI;
 
     FloatingActionButton explore;
     BottomNavigationView bottomNav;
     Marker currentLocationMarker;
     Marker markerOrigin;
     Marker markerDestination;
+    Marker userLocationMarker;
+    Circle userLocationAccuracyCircle;
     FloatingActionButton useCurrLoc;
 
+    private Geocoder geocoder;
     private Location currentLocation;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private static final int PERMISSION_REQUEST_CODE = 1000;
@@ -199,15 +216,26 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
         loadSOS();
 
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.mapFragment);
+        mapFragment.getMapAsync(this);
+        geocoder = new Geocoder(this);
+
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
-        onStartMap();
-        startLoop();
+
+        locationRequest = LocationRequest.create();
+        priority = Priority.PRIORITY_HIGH_ACCURACY;
+        locationRequest.setPriority(priority);
+        locationRequest.setInterval(1000);
+        locationRequest.setFastestInterval(500);
 
         //Use Current Location
         useCurrLoc = findViewById(R.id.useCurrentLoc);
@@ -237,7 +265,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
                         if (msgRc != "" && msgI != "") {
                             sendSOS();
                             Toast.makeText(Home.this, "SOS Message Sent!", Toast.LENGTH_LONG).show();
-                        }else {
+                        } else {
                             Toast.makeText(Home.this, "Please Set SOS Contact and Message first!", Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(Home.this, SOS.class);
                             startActivity(intent);
@@ -267,6 +295,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
 //
 
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
@@ -294,6 +323,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
                 .build(this);
         startAutocomplete.launch(intent);
     }
+
     private void startAutocompleteIntent2() {
 
         // Set the fields to specify which types of place data to
@@ -309,7 +339,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         startAutocomplete2.launch(intent);
     }
     // [END maps_solutions_android_autocomplete_intent]
-
 
 
     private void fillInAddress(Place place) {
@@ -356,6 +385,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         // Add a map for visual confirmation of the address
 
     }
+
     private void fillInAddress2(Place place) {
         AddressComponents components = place.getAddressComponents();
         LatLng latLng = place.getLatLng();
@@ -402,43 +432,112 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
 
     // [START maps_solutions_android_autocomplete_map_add]
     public void showOrigin() {
-        if (markerOrigin == null){
+        if (markerOrigin == null) {
             markerOrigin = map.addMarker(new MarkerOptions().position(originLoc).title("Origin"));
             fitAllMarkers();
-        } else{
+        } else {
             markerOrigin.setPosition(originLoc);
             fitAllMarkers();
         }
     }
+
     public void showDestination() {
         Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.checkered_flag);
-        Bitmap smallMarker = Bitmap.createScaledBitmap(icon,125,125, false);
+        Bitmap smallMarker = Bitmap.createScaledBitmap(icon, 125, 125, false);
         BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
-        if (markerDestination == null ){
+        if (markerDestination == null) {
             markerDestination = map.addMarker(new MarkerOptions().position(destinationLoc).title("Destination").icon(smallMarkerIcon));
             fitAllMarkers();
-        }else{
+        } else {
             markerDestination.setPosition(destinationLoc);
             fitAllMarkers();
 
         }
     }
+
     //
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
-       map = googleMap;
-       userLoc();
+        map = googleMap;
+        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                Log.d(TAG, "onLocationResult: " + locationResult.getLastLocation());
+                if (map != null) {
+
+                    startLocationUpdates();
+                    setUserLocationMarker(locationResult.getLastLocation());
+                }
+            }
+        };
+
+        startLocationUpdates();
+
     }
-    public void userLoc(){
+
+    private void setUserLocationMarker(Location location) {
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+        if (userLocationMarker == null) {
+            //Create a new marker
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(latLng);
+            Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.direction);
+            Bitmap smallMarker = Bitmap.createScaledBitmap(icon, 125, 125, false);
+            BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
+            markerOptions.rotation(location.getBearing());
+            markerOptions.anchor((float) 0.5, (float) 0.5);
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+            userLocationMarker = map.addMarker(new MarkerOptions().position(latLng).title("").icon(smallMarkerIcon));
+        } else  {
+            //use the previously created marker
+            userLocationMarker.setPosition(latLng);
+            userLocationMarker.setRotation(location.getBearing());
+
+        }
+
+        if (userLocationAccuracyCircle == null) {
+            CircleOptions circleOptions = new CircleOptions();
+            circleOptions.center(latLng);
+            circleOptions.strokeWidth(4);
+            circleOptions.strokeColor(Color.argb(255, 255, 0, 200));
+            circleOptions.fillColor(Color.argb(32, 255, 0, 200));
+            circleOptions.radius(location.getAccuracy());
+            userLocationAccuracyCircle = map.addCircle(circleOptions);
+        } else {
+            userLocationAccuracyCircle.setCenter(latLng);
+            userLocationAccuracyCircle.setRadius(location.getAccuracy());
+        }
+    }
+
+    private void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+    }
+
+
+    public void userLoc() {
         LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
         Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.person);
-        Bitmap smallMarker = Bitmap.createScaledBitmap(icon,125,125, false);
+        Bitmap smallMarker = Bitmap.createScaledBitmap(icon, 125, 125, false);
         BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
         map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
         if (currentLocationMarker == null) {
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
-            currentLocationMarker =map.addMarker(new MarkerOptions().position(latLng).title("").icon(smallMarkerIcon));
-        }else{
+            currentLocationMarker = map.addMarker(new MarkerOptions().position(latLng).title("").icon(smallMarkerIcon));
+        } else {
             currentLocationMarker.setPosition(latLng);
         }
     }
@@ -447,21 +546,22 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         //Check Condition
-        if (requestCode == 100 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+        if (requestCode == 100 && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             //When permission is Granted
             //Call Method
             sendSOS();
-        }else {
+        } else {
             //When permission is Denied
             //Display Toast
             Toast.makeText(this, "Permission Denied, Please Grant!", Toast.LENGTH_SHORT).show();
         }
     }
+
     public void sendSOS() {
 
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(Home.this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
+            ActivityCompat.requestPermissions(Home.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
             return;
         }
         Task<Location> task = fusedLocationProviderClient.getLastLocation();
@@ -474,20 +574,20 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
                     Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
 
                     try {
-                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(), 1);
+                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                         address = addresses.get(0);
 
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
 
-                    if (!msgRc.isEmpty() && !msgI.isEmpty()){
+                    if (!msgRc.isEmpty() && !msgI.isEmpty()) {
 
                         //Initialize SMS Manager
                         SmsManager smsManager = SmsManager.getDefault();
                         //Send Msg
-                        smsManager.sendTextMessage(msgRc,null,msgI+"\n"+ "Latitude: " + address.getLatitude() + "\nLongitude: " + address.getLongitude() + "\nAddress: " + address.getAddressLine(0) , null, null);}
-                    else {
+                        smsManager.sendTextMessage(msgRc, null, msgI + "\n" + "Latitude: " + address.getLatitude() + "\nLongitude: " + address.getLongitude() + "\nAddress: " + address.getAddressLine(0), null, null);
+                    } else {
 
                         Toast.makeText(Home.this, "Please enter a message.", Toast.LENGTH_SHORT).show();
                     }
@@ -503,7 +603,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
     // Method to get Current Location
     private void explore() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(Home.this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
+            ActivityCompat.requestPermissions(Home.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
             return;
         }
         Task<Location> task = fusedLocationProviderClient.getLastLocation();
@@ -517,7 +617,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
                     Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
 
                     try {
-                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(), 1);
+                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                         address = addresses.get(0);
 
                     } catch (IOException e) {
@@ -530,35 +630,14 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
                     mapFragment.getMapAsync(Home.this);
 
 
-
                     //assert mapFragment != null;
 
                 }
             }
         });
     }
-    private void onStartMap() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(Home.this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
-            return;
-        }
-        Task<Location> task = fusedLocationProviderClient.getLastLocation();
-        task.addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    currentLocation = location;
-                    Address address = null;
-                    Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
-                    SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
-                    mapFragment.getMapAsync(Home.this);
-                    //assert mapFragment != null;
-                }
-            }
-        });
-    }
 
-    public void loadSOS(){
+    public void loadSOS() {
         FileInputStream fisReceiver = null;
 
         try {
@@ -568,7 +647,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
             StringBuilder sbReceiver = new StringBuilder();
             String msgR;
 
-            while ((msgR = brReceiver.readLine()) != null){
+            while ((msgR = brReceiver.readLine()) != null) {
                 sbReceiver.append(msgR).append("\n");
             }
             msgRc = sbReceiver.toString();
@@ -577,7 +656,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             if (fisReceiver != null) {
                 try {
                     fisReceiver.close();
@@ -595,7 +674,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
             StringBuilder sbMessage = new StringBuilder();
             String msgM;
 
-            while ((msgM = brReceiver.readLine()) != null){
+            while ((msgM = brReceiver.readLine()) != null) {
                 sbMessage.append(msgM).append("\n");
             }
             msgI = sbMessage.toString();
@@ -604,7 +683,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             if (fisMessage != null) {
                 try {
                     fisMessage.close();
@@ -614,23 +693,24 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
             }
         }
     }
-    public void fitAllMarkers(){
+
+    public void fitAllMarkers() {
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
 //the include method will calculate the min and max bound.
 
-        if (markerOrigin != null && markerDestination ==null){
+        if (markerOrigin != null && markerDestination == null) {
             builder.include(markerOrigin.getPosition());
-            builder.include(currentLocationMarker.getPosition());
-        }else if (markerOrigin == null && markerDestination !=null){
+            builder.include(userLocationMarker.getPosition());
+        } else if (markerOrigin == null && markerDestination != null) {
             builder.include(markerDestination.getPosition());
-            builder.include(currentLocationMarker.getPosition());
-        }else if (markerOrigin == null && markerDestination == null){
-            builder.include(currentLocationMarker.getPosition());
-        }else{
+            builder.include(userLocationMarker.getPosition());
+        } else if (markerOrigin == null && markerDestination == null) {
+            builder.include(userLocationMarker.getPosition());
+        } else {
             builder.include(markerOrigin.getPosition());
             builder.include(markerDestination.getPosition());
-            builder.include(currentLocationMarker.getPosition());
+            builder.include(userLocationMarker.getPosition());
         }
         LatLngBounds bounds = builder.build();
         int width = getResources().getDisplayMetrics().widthPixels;
@@ -641,10 +721,11 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
 
         map.animateCamera(cu);
     }
-    public void useCurrLoc(){
+
+    public void useCurrLoc() {
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(Home.this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
+            ActivityCompat.requestPermissions(Home.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
             return;
         }
         Task<Location> task = fusedLocationProviderClient.getLastLocation();
@@ -657,41 +738,28 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
                     Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
 
                     try {
-                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(), 1);
+                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                         address = addresses.get(0);
 
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                        address1Field.setText(address.getAddressLine(0));
-                        originLoc = new LatLng(address.getLatitude(),address.getLongitude());
-                        showOrigin();
+                    address1Field.setText(address.getAddressLine(0));
+                    originLoc = new LatLng(address.getLatitude(), address.getLongitude());
+                    showOrigin();
                 }
             }
         });
     }
-    public void calcDistance(){
+
+    public void calcDistance() {
         float[] results = new float[1];
-        Location.distanceBetween(originLoc.latitude,originLoc.longitude,destinationLoc.latitude,destinationLoc.longitude,results);
+        Location.distanceBetween(originLoc.latitude, originLoc.longitude, destinationLoc.latitude, destinationLoc.longitude, results);
         float distance = results[0];
 
-        int kilometer = (int) (distance/1000);
+        int kilometer = (int) (distance / 1000);
 
-        Toast.makeText(this, String.valueOf(kilometer)+ " km", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, String.valueOf(kilometer) + " km", Toast.LENGTH_SHORT).show();
     }
-    public void startLoop(){
-        mapRunnable.run();
-
-    }
-    public void stopLoop(){
-
-    }
-    private Runnable mapRunnable = new Runnable() {
-        @Override
-        public void run() {
-            onStartMap();
-            mapHandler.postDelayed(this, 1000);
-        }
-    };
 
 }
