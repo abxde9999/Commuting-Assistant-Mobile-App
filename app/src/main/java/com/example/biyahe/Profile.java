@@ -47,7 +47,7 @@ public class Profile extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        
+        getSupportActionBar().setTitle("Profile");
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -58,6 +58,7 @@ public class Profile extends AppCompatActivity {
         profileName.setText(FetchData.currentUser.getFull_name());
         profileEmail.setText(FetchData.currentUser.getEmail_address());
         profilePhone.setText(FetchData.currentUser.getPhone_number());
+
 
 
         logoutButton = findViewById(R.id.logoutButton);

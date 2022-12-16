@@ -1,6 +1,11 @@
 package com.example.biyahe;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -9,6 +14,7 @@ import androidx.lifecycle.ViewTreeViewModelKt;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -19,7 +25,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationRequest;
 import android.media.audiofx.Equalizer;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +32,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -42,10 +48,13 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.biyahe.model.AutocompleteEditText;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationSettingsRequest.Builder;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
@@ -64,6 +73,14 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.AddressComponent;
+import com.google.android.libraries.places.api.model.AddressComponents;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -84,10 +101,78 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-public class Home extends FragmentActivity implements OnMapReadyCallback {
+public class Home extends FragmentActivity implements OnMapReadyCallback{
+//
+    private static final String TAG = "ADDRESS_AUTOCOMPLETE";
+    private static final String MAP_FRAGMENT_TAG = "MAP";
+    private AutocompleteEditText address1Field;
+    private AutocompleteEditText address2Field;
+    private LatLng coordinates;
+    private boolean checkProximity = false;
+    private SupportMapFragment mapFragment;
+    private GoogleMap map;
+    private PlacesClient placesClient, placesClient2;
+    private View mapPanel;
+    private LatLng deviceLocation;
+    private static final double acceptedProximity = 150;
+    private String oAddress;
+
+    LatLng originLoc;
+    LatLng destinationLoc;
+
+    View.OnClickListener startAutocompleteIntentListener = view -> {
+        view.setOnClickListener(null);
+        startAutocompleteIntent();
+    };
+    View.OnClickListener startAutocompleteIntentListener2 = view -> {
+        view.setOnClickListener(null);
+        startAutocompleteIntent2();
+    };
+
+    // [START maps_solutions_android_autocomplete_define]
+    private final ActivityResultLauncher<Intent> startAutocomplete = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            (ActivityResultCallback<ActivityResult>) result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent intent = result.getData();
+                    if (intent != null) {
+                        Place place = Autocomplete.getPlaceFromIntent(intent);
+
+                        // Write a method to read the address components from the Place
+                        // and populate the form with the address components
+                        Log.d(TAG, "Place: " + place.getAddressComponents());
+                        fillInAddress(place);
+                    }
+                } else if (result.getResultCode() == Activity.RESULT_CANCELED) {
+                    // The user canceled the operation.
+                    Log.i(TAG, "User canceled autocomplete");
+                }
+            });
+    private final ActivityResultLauncher<Intent> startAutocomplete2 = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            (ActivityResultCallback<ActivityResult>) result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent intent = result.getData();
+                    if (intent != null) {
+                        Place place = Autocomplete.getPlaceFromIntent(intent);
+
+                        // Write a method to read the address components from the Place
+                        // and populate the form with the address components
+                        Log.d(TAG, "Place: " + place.getAddressComponents());
+                        fillInAddress2(place);
+                    }
+                } else if (result.getResultCode() == Activity.RESULT_CANCELED) {
+                    // The user canceled the operation.
+                    Log.i(TAG, "User canceled autocomplete");
+                }
+            });
+//
+
+
     private static final String SOS_RECEIVER = "sos_receiver.txt";
     private static final String SOS_MESSAGE = "sos_message.txt";
 
@@ -101,7 +186,9 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     FloatingActionButton explore;
     BottomNavigationView bottomNav;
     Marker currentLocationMarker;
-    FloatingActionButton search_button;
+    Marker markerOrigin;
+    Marker markerDestination;
+    FloatingActionButton useCurrLoc;
 
     private Location currentLocation;
     private FusedLocationProviderClient fusedLocationProviderClient;
@@ -109,6 +196,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
@@ -119,6 +207,15 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         onStartMap();
         startLoop();
 
+        //Use Current Location
+        useCurrLoc = findViewById(R.id.useCurrentLoc);
+        useCurrLoc.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                useCurrLoc();
+            }
+        });
+
         // Get Location
         explore = findViewById(R.id.explore);
         explore.setOnClickListener(new View.OnClickListener() {
@@ -127,17 +224,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                 explore();
             }
         });
-
-        //Search place
-        search_button = findViewById(R.id.search_button);
-        search_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {  Intent intent = new Intent( Home.this, AutocompleteAddressActivity.class);
-                startActivity(intent);
-
-            }
-        });
-
 
         // Bottom Navigation Bar
         bottomNav = findViewById(R.id.bottomNav);
@@ -164,21 +250,197 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             }
         });
 
+//
+        Places.initialize(getApplicationContext(), "AIzaSyBzKLXS2uFOSVE1Lhr3AOkDn1OkbKfo01M");
+        // Retrieve a PlacesClient (previously initialized - see MainActivity)
+        placesClient = Places.createClient(this);
+
+        address1Field = findViewById(R.id.autocomplete_address1);
+        address2Field = findViewById(R.id.autocomplete_address2);
+
+
+        // Attach an Autocomplete intent to the Address 1 EditText field
+        address1Field.setOnClickListener(startAutocompleteIntentListener);
+        address2Field.setOnClickListener(startAutocompleteIntentListener2);
+//
+
     }
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        address1Field.setOnClickListener(startAutocompleteIntentListener);
+        address2Field.setOnClickListener(startAutocompleteIntentListener2);
+    }
+
+    //
+    //AutoComplete Destination
+
+
+    // [START maps_solutions_android_autocomplete_intent]
+    private void startAutocompleteIntent() {
+
+        // Set the fields to specify which types of place data to
+        // return after the user has made a selection.
+        List<Place.Field> fields = Arrays.asList(Place.Field.ADDRESS_COMPONENTS,
+                Place.Field.LAT_LNG, Place.Field.VIEWPORT);
+
+
+        // Build the autocomplete intent with field, country, and type filters applied
+        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+                .setCountry("PH")
+                .setTypeFilter(TypeFilter.ADDRESS)
+                .build(this);
+        startAutocomplete.launch(intent);
+    }
+    private void startAutocompleteIntent2() {
+
+        // Set the fields to specify which types of place data to
+        // return after the user has made a selection.
+        List<Place.Field> fields = Arrays.asList(Place.Field.ADDRESS_COMPONENTS,
+                Place.Field.LAT_LNG, Place.Field.VIEWPORT);
+
+        // Build the autocomplete intent with field, country, and type filters applied
+        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+                .setCountry("PH")
+                .setTypeFilter(TypeFilter.ADDRESS)
+                .build(this);
+        startAutocomplete2.launch(intent);
+    }
+    // [END maps_solutions_android_autocomplete_intent]
+
+
+
+    private void fillInAddress(Place place) {
+        AddressComponents components = place.getAddressComponents();
+        LatLng latLng = place.getLatLng();
+        StringBuilder address1 = new StringBuilder();
+        StringBuilder postcode = new StringBuilder();
+
+        // Get each component of the address from the place details,
+        // and then fill-in the corresponding field on the form.
+        // Possible AddressComponent types are documented at https://goo.gle/32SJPM1
+        if (components != null) {
+            for (AddressComponent component : components.asList()) {
+                String type = component.getTypes().get(0);
+                switch (type) {
+                    case "street_number": {
+                        address1.insert(0, component.getName());
+                        break;
+                    }
+
+                    case "route": {
+                        address1.append(" ");
+                        address1.append(component.getShortName());
+                        break;
+                    }
+
+                    case "postal_code": {
+                        postcode.insert(0, component.getName());
+                        break;
+                    }
+
+                    case "postal_code_suffix": {
+                        postcode.append("-").append(component.getName());
+                        break;
+                    }
+
+                }
+            }
+        }
+
+        address1Field.setText(address1.toString());
+        originLoc = latLng;
+        showOrigin();
+        // Add a map for visual confirmation of the address
+
+    }
+    private void fillInAddress2(Place place) {
+        AddressComponents components = place.getAddressComponents();
+        LatLng latLng = place.getLatLng();
+        StringBuilder address1 = new StringBuilder();
+        StringBuilder postcode = new StringBuilder();
+
+        // Get each component of the address from the place details,
+        // and then fill-in the corresponding field on the form.
+        // Possible AddressComponent types are documented at https://goo.gle/32SJPM1
+        if (components != null) {
+            for (AddressComponent component : components.asList()) {
+                String type = component.getTypes().get(0);
+                switch (type) {
+                    case "street_number": {
+                        address1.insert(0, component.getName());
+                        break;
+                    }
+
+                    case "route": {
+                        address1.append(" ");
+                        address1.append(component.getShortName());
+                        break;
+                    }
+
+                    case "postal_code": {
+                        postcode.insert(0, component.getName());
+                        break;
+                    }
+
+                    case "postal_code_suffix": {
+                        postcode.append("-").append(component.getName());
+                        break;
+                    }
+
+                }
+            }
+        }
+
+        address2Field.setText(address1.toString());
+        destinationLoc = latLng;
+        // Add a map for visual confirmation of the address
+        showDestination();
+    }
+
+    // [START maps_solutions_android_autocomplete_map_add]
+    public void showOrigin() {
+        if (markerOrigin == null){
+            markerOrigin = map.addMarker(new MarkerOptions().position(originLoc).title("Origin"));
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(originLoc, 18));
+        } else{
+            markerOrigin.setPosition(originLoc);
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(originLoc, 18));
+        }
+    }
+    public void showDestination() {
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.checkered_flag);
+        Bitmap smallMarker = Bitmap.createScaledBitmap(icon,125,125, false);
+        BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
+        if (markerDestination == null ){
+            markerDestination = map.addMarker(new MarkerOptions().position(destinationLoc).title("Destination").icon(smallMarkerIcon));
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(destinationLoc, 18));
+            LatLng newLatLng = destinationLoc;
+        }else{
+            markerDestination.setPosition(destinationLoc);
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(destinationLoc, 18));
+        }
+    }
+    //
+    @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
+       map = googleMap;
+       userLoc();
+    }
+    public void userLoc(){
         LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
         Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.person);
         Bitmap smallMarker = Bitmap.createScaledBitmap(icon,125,125, false);
         BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
+        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
         if (currentLocationMarker == null) {
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
-            currentLocationMarker =googleMap.addMarker(new MarkerOptions().position(latLng).title("My Location").icon(smallMarkerIcon));
-            googleMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+            currentLocationMarker =map.addMarker(new MarkerOptions().position(latLng).title("").icon(smallMarkerIcon));
         }else{
             currentLocationMarker.setPosition(latLng);
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -249,6 +511,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                 if (location != null) {
                     currentLocation = location;
                     Address address = null;
+
                     Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
 
                     try {
@@ -260,7 +523,12 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                     }
                     Toast.makeText(getApplicationContext(), "Latitude: " + address.getLatitude() + "\nLongitude: " + address.getLongitude() + "\nCountry: " + address.getCountryName() + "\nAddress: " + address.getAddressLine(0) + "\nLocality: " + address.getLocality(), Toast.LENGTH_LONG).show();
                     SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
+                    LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
                     mapFragment.getMapAsync(Home.this);
+
+
+
                     //assert mapFragment != null;
 
                 }
@@ -283,60 +551,11 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                     SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
                     mapFragment.getMapAsync(Home.this);
                     //assert mapFragment != null;
-
                 }
             }
         });
     }
 
-
-    //Get Current Location
-    /*private void getCurrentLocation() {
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(Home.this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
-            return;
-        }
-        Task<Location> task = fusedLocationProviderClient.getLastLocation();
-        task.addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    currentLocation = location;
-                    Address address = null;
-                    Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
-
-                    try {
-                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(), 1);
-                        address = addresses.get(0);
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                    Toast.makeText(getApplicationContext(), "Latitude: " + address.getLatitude() + "\nLongitude: " + address.getLongitude() + "\nCountry: " + address.getCountryName() + "\nAddress: " + address.getAddressLine(0) + "\nLocality: " + address.getLocality(), Toast.LENGTH_LONG).show();
-
-
-                    SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
-                    //assert mapFragment != null;
-                    mapFragment.getMapAsync(Home.this);
-                }
-            }
-        });
-    }*/
-
-
-    /*@Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        switch (requestCode) {
-            case PERMISSION_REQUEST_CODE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                }
-                    break;
-        }
-    }*/
     public void loadSOS(){
         FileInputStream fisReceiver = null;
 
@@ -393,6 +612,35 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             }
         }
     }
+    public void useCurrLoc(){
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(Home.this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
+            return;
+        }
+        Task<Location> task = fusedLocationProviderClient.getLastLocation();
+        task.addOnSuccessListener(new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if (location != null) {
+                    currentLocation = location;
+                    Address address = null;
+                    Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
+
+                    try {
+                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(), 1);
+                        address = addresses.get(0);
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                        address1Field.setText(address.getAddressLine(0));
+                        originLoc = new LatLng(address.getLatitude(),address.getLongitude());
+                        showOrigin();
+                }
+            }
+        });
+    }
     public void startLoop(){
         mapRunnable.run();
 
@@ -407,4 +655,5 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             mapHandler.postDelayed(this, 1000);
         }
     };
+
 }

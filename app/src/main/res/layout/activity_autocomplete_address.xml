@@ -1,48 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:sothree="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="@dimen/spacing_large"
-    tools:context=".AutocompleteAddressActivity">
+    android:background="@color/background_color"
+    tools:context=".Home">
 
-    <LinearLayout
-        android:id="@+id/autocomplete_scroll_container"
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_mylocation"
+        app:backgroundTint="@color/background_color"
+        app:layout_anchor="@+id/autocomplete_address1"
+        app:layout_anchorGravity="end|center"
+        app:rippleColor="#00FFFFFF" />
+
+    <com.google.android.gms.maps.MapView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/explore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/white"
+        android:src="@drawable/ic_explore"
+        app:layout_anchor="@id/btmAppBar"
+        app:maxImageSize="35dp" />
+
+    <com.example.biyahe.model.AutocompleteEditText
+        android:id="@+id/autocomplete_address1"
+        android:layout_width="341dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="20dp"
+        android:autofillHints=""
+        android:background="@android:color/background_light"
+        android:drawablePadding="16dp"
+        android:hint="Set Origin"
+        android:imeOptions="actionNext"
+        android:inputType="text"
+        android:padding="13dp" />
+
+    <com.example.biyahe.model.AutocompleteEditText
+        android:id="@+id/autocomplete_address2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:orientation="vertical">
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="75dp"
+        android:autofillHints=""
+        android:background="@android:color/background_light"
+        android:drawablePadding="16dp"
+        android:hint="Set Destination"
+        android:imeOptions="actionNext"
+        android:inputType="text"
+        android:padding="13dp" />
 
-        <com.example.biyahe.model.AutocompleteEditText
-            android:id="@+id/autocomplete_address1"
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/btmAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        app:fabCradleMargin="10dp"
+        app:fabCradleRoundedCornerRadius="30dp"
+        app:fabCradleVerticalOffset="10dp">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottomNav"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:autofillHints=""
-            android:hint="Set Origin"
-            android:imeOptions="actionNext"
-            android:inputType="text"
-            android:padding="13dp"
-            android:layout_marginHorizontal="20dp"
-            android:drawablePadding="16dp"
-            android:background="@android:drawable/editbox_background"/>
+            android:layout_marginRight="18dp"
+            android:background="@drawable/transparent_bg"
+            app:menu="@menu/bottom_nav_menu" />
 
-        <com.example.biyahe.model.AutocompleteEditText
-            android:id="@+id/autocomplete_address2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:autofillHints=""
-            android:hint="Set Destination"
-            android:padding="13dp"
-            android:layout_marginHorizontal="20dp"
-            android:drawablePadding="16dp"
-            android:imeOptions="actionNext"
-            android:inputType="text"
-            android:background="@android:drawable/editbox_background"/>
+    </com.google.android.material.bottomappbar.BottomAppBar>
 
-        <!-- The map for visual confirmation of the selected address -->
-        <!-- Stub to only load the map after Autocomplete prediction selection -->
 
-    </LinearLayout>
-</ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -61,7 +61,7 @@ public class AutocompleteAddressActivity extends AppCompatActivity{
     private SupportMapFragment mapFragment;
     private GoogleMap map;
     private Marker marker;
-    private PlacesClient placesClient;
+    private PlacesClient placesClient, placesClient2;
     private View mapPanel;
     private LatLng deviceLocation;
     private static final double acceptedProximity = 150;
@@ -69,6 +69,10 @@ public class AutocompleteAddressActivity extends AppCompatActivity{
     View.OnClickListener startAutocompleteIntentListener = view -> {
         view.setOnClickListener(null);
         startAutocompleteIntent();
+    };
+    View.OnClickListener startAutocompleteIntentListener2 = view -> {
+        view.setOnClickListener(null);
+        startAutocompleteIntent2();
     };
 
     // [START maps_solutions_android_autocomplete_define]
@@ -90,12 +94,30 @@ public class AutocompleteAddressActivity extends AppCompatActivity{
                     Log.i(TAG, "User canceled autocomplete");
                 }
             });
+    private final ActivityResultLauncher<Intent> startAutocomplete2 = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            (ActivityResultCallback<ActivityResult>) result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    Intent intent = result.getData();
+                    if (intent != null) {
+                        Place place = Autocomplete.getPlaceFromIntent(intent);
+
+                        // Write a method to read the address components from the Place
+                        // and populate the form with the address components
+                        Log.d(TAG, "Place: " + place.getAddressComponents());
+                        fillInAddress2(place);
+                    }
+                } else if (result.getResultCode() == Activity.RESULT_CANCELED) {
+                    // The user canceled the operation.
+                    Log.i(TAG, "User canceled autocomplete");
+                }
+            });
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         address1Field.setOnClickListener(startAutocompleteIntentListener);
-        address2Field.setOnClickListener(startAutocompleteIntentListener);
+        address2Field.setOnClickListener(startAutocompleteIntentListener2);
     }
 
     @Override
@@ -115,11 +137,13 @@ public class AutocompleteAddressActivity extends AppCompatActivity{
 
         // Attach an Autocomplete intent to the Address 1 EditText field
         address1Field.setOnClickListener(startAutocompleteIntentListener);
-        address2Field.setOnClickListener(startAutocompleteIntentListener);
+        address2Field.setOnClickListener(startAutocompleteIntentListener2);
 
 
 
     }
+    //AutoComplete Destination
+
 
     // [START maps_solutions_android_autocomplete_intent]
     private void startAutocompleteIntent() {
@@ -135,6 +159,20 @@ public class AutocompleteAddressActivity extends AppCompatActivity{
                 .setTypeFilter(TypeFilter.ADDRESS)
                 .build(this);
         startAutocomplete.launch(intent);
+    }
+    private void startAutocompleteIntent2() {
+
+        // Set the fields to specify which types of place data to
+        // return after the user has made a selection.
+        List<Place.Field> fields = Arrays.asList(Place.Field.ADDRESS_COMPONENTS,
+                Place.Field.LAT_LNG, Place.Field.VIEWPORT);
+
+        // Build the autocomplete intent with field, country, and type filters applied
+        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+                .setCountry("PH")
+                .setTypeFilter(TypeFilter.ADDRESS)
+                .build(this);
+        startAutocomplete2.launch(intent);
     }
     // [END maps_solutions_android_autocomplete_intent]
 
@@ -178,6 +216,49 @@ public class AutocompleteAddressActivity extends AppCompatActivity{
         }
 
         address1Field.setText(address1.toString());
+
+
+        // Add a map for visual confirmation of the address
+        showMap(place);
+    }
+    private void fillInAddress2(Place place) {
+        AddressComponents components = place.getAddressComponents();
+        StringBuilder address1 = new StringBuilder();
+        StringBuilder postcode = new StringBuilder();
+
+        // Get each component of the address from the place details,
+        // and then fill-in the corresponding field on the form.
+        // Possible AddressComponent types are documented at https://goo.gle/32SJPM1
+        if (components != null) {
+            for (AddressComponent component : components.asList()) {
+                String type = component.getTypes().get(0);
+                switch (type) {
+                    case "street_number": {
+                        address1.insert(0, component.getName());
+                        break;
+                    }
+
+                    case "route": {
+                        address1.append(" ");
+                        address1.append(component.getShortName());
+                        break;
+                    }
+
+                    case "postal_code": {
+                        postcode.insert(0, component.getName());
+                        break;
+                    }
+
+                    case "postal_code_suffix": {
+                        postcode.append("-").append(component.getName());
+                        break;
+                    }
+
+                }
+            }
+        }
+
+        address2Field.setText(address1.toString());
 
 
         // Add a map for visual confirmation of the address
