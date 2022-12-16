@@ -114,7 +114,6 @@ public class Signin extends AppCompatActivity {
                         FirebaseDatabase.getInstance().getReference("user_information").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                FetchData.currentUser = snapshot.getValue(User.class);
                                 Intent intent = new Intent(Signin.this, Home.class);
                                 startActivity(intent);
                                 Toast.makeText(Signin.this, "Sign in Succesfully!", Toast.LENGTH_SHORT).show();

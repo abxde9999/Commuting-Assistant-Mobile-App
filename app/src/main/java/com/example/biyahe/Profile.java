@@ -1,5 +1,6 @@
 package com.example.biyahe;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -27,7 +28,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,10 +44,11 @@ public class Profile extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationProviderClient;
     private static final int PERMISSION_REQUEST_CODE = 1000;
 
-    TextView profileName, profileEmail, profilePhone;
+    private TextView profileName, profileEmail, profilePhone;
+    private String full_name, email_address, phone_num;
+    private FirebaseAuth authProfile;
     Button logoutButton, settings;
     FloatingActionButton refresh;
-    FirebaseAuth mAuth;
 
 
 
@@ -50,18 +56,15 @@ public class Profile extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
-        getSupportActionBar().setTitle("Profile");
 
-        mAuth = FirebaseAuth.getInstance();
+        authProfile = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser = authProfile.getCurrentUser();
 
         profileName = findViewById(R.id.profileName);
         profileEmail = findViewById(R.id.profileEmail);
         profilePhone = findViewById(R.id.profilePhone);
-        
-        profileName.setText(FetchData.currentUser.getFull_name());
-        profileEmail.setText(FetchData.currentUser.getEmail_address());
-        profilePhone.setText(FetchData.currentUser.getPhone_number());
 
+        showProfile(firebaseUser);
 
 
         logoutButton = findViewById(R.id.logoutButton);
@@ -100,6 +103,31 @@ public class Profile extends AppCompatActivity {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
         getCurrentLocation();
 
+    }
+
+    private void showProfile(FirebaseUser firebaseUser) {
+        String userID = firebaseUser.getUid();
+        DatabaseReference referenceProfile = FirebaseDatabase.getInstance().getReference("user_information");
+        referenceProfile.child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User readUser = snapshot.getValue(User.class);
+                if (readUser != null) {
+                    full_name = readUser.full_name;
+                    email_address = readUser.email_address;
+                    phone_num = readUser.phone_number;
+
+                    profileName.setText(full_name);
+                    profileEmail.setText(email_address);
+                    profilePhone.setText(phone_num);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void refreshLoc() {
@@ -167,7 +195,7 @@ public class Profile extends AppCompatActivity {
                     country2.setText(address.getCountryName());
 
                     TextView currCity = (TextView) findViewById(R.id.currCity);
-                    currCity.setText(address.getLocality() + ",");
+                    currCity.setText(address.getLocality());
 
                     TextView currStreet = (TextView) findViewById(R.id.currStreet);
                     currStreet.setText(address.getAddressLine(0));
