@@ -59,6 +59,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -67,6 +68,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -414,11 +416,12 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
         if (markerDestination == null ){
             markerDestination = map.addMarker(new MarkerOptions().position(destinationLoc).title("Destination").icon(smallMarkerIcon));
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(destinationLoc, 18));
+            fitAllMarkers();
             LatLng newLatLng = destinationLoc;
         }else{
             markerDestination.setPosition(destinationLoc);
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(destinationLoc, 18));
+            fitAllMarkers();
+
         }
     }
     //
@@ -612,6 +615,26 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
             }
         }
     }
+    public void fitAllMarkers(){
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+//the include method will calculate the min and max bound.
+
+        builder.include(markerOrigin.getPosition());
+        builder.include(markerDestination.getPosition());
+        builder.include(currentLocationMarker.getPosition());
+
+
+        LatLngBounds bounds = builder.build();
+
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+        int padding = (int) (width * 0.10); // offset from edges of the map 10% of screen
+
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+
+        map.animateCamera(cu);
+    }
     public void useCurrLoc(){
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -640,6 +663,15 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
                 }
             }
         });
+    }
+    public void calcDistance(){
+        float[] results = new float[1];
+        Location.distanceBetween(originLoc.latitude,originLoc.longitude,destinationLoc.latitude,destinationLoc.longitude,results);
+        float distance = results[0];
+
+        int kilometer = (int) (distance/1000);
+
+        Toast.makeText(this, String.valueOf(kilometer)+ " km", Toast.LENGTH_SHORT).show();
     }
     public void startLoop(){
         mapRunnable.run();
