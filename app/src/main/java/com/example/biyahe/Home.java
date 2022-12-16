@@ -404,10 +404,10 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
     public void showOrigin() {
         if (markerOrigin == null){
             markerOrigin = map.addMarker(new MarkerOptions().position(originLoc).title("Origin"));
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(originLoc, 18));
+            fitAllMarkers();
         } else{
             markerOrigin.setPosition(originLoc);
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(originLoc, 18));
+            fitAllMarkers();
         }
     }
     public void showDestination() {
@@ -417,7 +417,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         if (markerDestination == null ){
             markerDestination = map.addMarker(new MarkerOptions().position(destinationLoc).title("Destination").icon(smallMarkerIcon));
             fitAllMarkers();
-            LatLng newLatLng = destinationLoc;
         }else{
             markerDestination.setPosition(destinationLoc);
             fitAllMarkers();
@@ -620,16 +619,23 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
 
 //the include method will calculate the min and max bound.
 
-        builder.include(markerOrigin.getPosition());
-        builder.include(markerDestination.getPosition());
-        builder.include(currentLocationMarker.getPosition());
-
-
+        if (markerOrigin != null && markerDestination ==null){
+            builder.include(markerOrigin.getPosition());
+            builder.include(currentLocationMarker.getPosition());
+        }else if (markerOrigin == null && markerDestination !=null){
+            builder.include(markerDestination.getPosition());
+            builder.include(currentLocationMarker.getPosition());
+        }else if (markerOrigin == null && markerDestination == null){
+            builder.include(currentLocationMarker.getPosition());
+        }else{
+            builder.include(markerOrigin.getPosition());
+            builder.include(markerDestination.getPosition());
+            builder.include(currentLocationMarker.getPosition());
+        }
         LatLngBounds bounds = builder.build();
-
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
-        int padding = (int) (width * 0.10); // offset from edges of the map 10% of screen
+        int padding = (int) (width * 0.20); // offset from edges of the map 10% of screen
 
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
 
