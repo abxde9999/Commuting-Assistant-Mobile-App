@@ -410,7 +410,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
         // Set the fields to specify which types of place data to
         // return after the user has made a selection.
-        List<Place.Field> fields = Arrays.asList(Place.Field.ADDRESS_COMPONENTS,
+        List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.ADDRESS, Place.Field.NAME,
                 Place.Field.LAT_LNG, Place.Field.VIEWPORT);
 
 

@@ -8,16 +8,97 @@
     android:background="@color/background_color"
     tools:context=".Home">
 
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout
+        android:id="@+id/sliding_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom"
+        android:layout_alignParentTop="true"
+        android:layout_above="@id/bottom"
+        sothree:umanoDragView="@+id/dragView"
+        sothree:umanoOverlay="true"
+        sothree:umanoShadowHeight="0dp"
+        sothree:umanoParallaxOffset="100dp"
+        sothree:umanoPanelHeight="150dp"
+        sothree:umanoScrollableView="@+id/list">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/useCurrentLoc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/currloc"
-        app:backgroundTint="@color/background_color"
-        app:layout_anchor="@+id/autocomplete_address1"
-        app:layout_anchorGravity="end|center"
-        app:rippleColor="#00FFFFFF" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <fragment
+                android:id="@+id/mapFragment"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="10dp"
+            android:focusable="false"
+            android:background="@drawable/round_corner2"
+            app:layout_anchor="@id/btmAppBar">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="20dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/useCurrentLoc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignEnd="@id/autocomplete_address1"
+                android:src="@drawable/currloc"
+                app:backgroundTint="@color/background_color"
+                app:rippleColor="#00FFFFFF" />
+
+            <com.example.biyahe.model.AutocompleteEditText
+                android:id="@+id/autocomplete_address1"
+                android:layout_width="332dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="20dp"
+                android:drawableLeft="@drawable/ic_origin"
+                android:outlineAmbientShadowColor="@color/black"
+                android:autofillHints=""
+                android:background="@android:color/background_light"
+                android:drawablePadding="16dp"
+                android:hint="Set Origin"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:padding="13dp" />
+            </RelativeLayout>
+
+            <com.example.biyahe.model.AutocompleteEditText
+                android:id="@+id/autocomplete_address2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginTop="10dp"
+                android:drawableLeft="@drawable/ic_destination"
+                android:autofillHints=""
+                android:background="@android:color/background_light"
+                android:drawablePadding="16dp"
+                android:hint="Set Destination"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:padding="13dp" />
+
+        </LinearLayout>
+
+        </LinearLayout>
+
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
+
 
     <TextView
         android:id="@+id/tv_distance"
@@ -27,39 +108,6 @@
         app:layout_anchor="@+id/explore"
         app:layout_anchorGravity="center" />
 
-    <fragment
-        android:id="@+id/mapFragment"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
-    <com.example.biyahe.model.AutocompleteEditText
-        android:id="@+id/autocomplete_address1"
-        android:layout_width="332dp"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="20dp"
-        android:autofillHints=""
-        android:background="@android:color/background_light"
-        android:drawablePadding="16dp"
-        android:hint="Set Origin"
-        android:imeOptions="actionNext"
-        android:inputType="text"
-        android:padding="13dp" />
-
-    <com.example.biyahe.model.AutocompleteEditText
-        android:id="@+id/autocomplete_address2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="75dp"
-        android:autofillHints=""
-        android:background="@android:color/background_light"
-        android:drawablePadding="16dp"
-        android:hint="Set Destination"
-        android:imeOptions="actionNext"
-        android:inputType="text"
-        android:padding="13dp" />
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/btmAppBar"

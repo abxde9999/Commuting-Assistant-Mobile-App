@@ -10,7 +10,7 @@ import java.net.URL;
 
 public class DowloadURL {
 
-    public String readURL(String myURL){
+    public String readURL(String myURL) {
 
         String data = "";
         InputStream inputStream = null;
@@ -32,6 +32,7 @@ public class DowloadURL {
         }
 
 
+        return data;
     }
 
 }
