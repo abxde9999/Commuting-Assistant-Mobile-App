@@ -16,6 +16,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -27,6 +28,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.media.audiofx.Equalizer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -48,10 +50,20 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.biyahe.model.AutocompleteEditText;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingEvent;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationSettingsRequest.Builder;
@@ -81,7 +93,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AddressComponent;
 import com.google.android.libraries.places.api.model.AddressComponents;
+import com.google.android.libraries.places.api.model.LocationRestriction;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.Autocomplete;
@@ -101,6 +115,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import org.checkerframework.checker.units.qual.C;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -112,6 +128,15 @@ import java.util.List;
 import java.util.Locale;
 
 public class Home extends FragmentActivity implements OnMapReadyCallback {
+
+    //Geofencing
+    private GeofencingClient geofencingClient;
+    private GeofencingHelper geofencingHelper;
+    private float GEOFENCE_RADIUS = 100;
+    private String GEOFENCE_ID = "GEOFENCE";
+    Circle geofenceBounds;
+
+    private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
 
     //Real-time Location
 
@@ -136,6 +161,19 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     private static final double acceptedProximity = 150;
     private String oAddress;
 
+    double NortheastLat = 14.640519;
+    double NortheastLong = 120.941203;
+    double SouthWestLat = 14.553814;
+    double SouthWestLong = 121.026003;
+
+    TextView mTextview;
+
+
+    LatLng Southwest = new LatLng(SouthWestLat, SouthWestLong);
+    LatLng Northeast = new LatLng(NortheastLat, NortheastLong);
+
+
+    LocationRestriction locationRestriction;
     LatLng originLoc;
     LatLng destinationLoc;
     LocationCallback locationCallback;
@@ -218,7 +256,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
 
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
@@ -227,6 +264,9 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
+        geofencingClient = LocationServices.getGeofencingClient(this);
+        geofencingHelper = new GeofencingHelper(this);
+
         geocoder = new Geocoder(this);
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
@@ -236,6 +276,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         locationRequest.setPriority(priority);
         locationRequest.setInterval(1000);
         locationRequest.setFastestInterval(500);
+
+        onStartMap();
 
         //Use Current Location
         useCurrLoc = findViewById(R.id.useCurrentLoc);
@@ -255,6 +297,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             }
         });
 
+        mTextview = findViewById(R.id.tv_distance);
+
         // Bottom Navigation Bar
         bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -263,7 +307,19 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                 switch (item.getItemId()) {
                     case R.id.sos:
                         if (msgRc != "" && msgI != "") {
-                            sendSOS();
+                            //Check permission
+                            if (ContextCompat.checkSelfPermission(Home.this, Manifest.permission.SEND_SMS)
+                                    == PackageManager.PERMISSION_GRANTED){
+                                //When permission is granted
+                                //Create a Method
+
+                                sendSOS();
+                            }else{
+                                //When Permission is not Granted
+                                //Request for Permission
+                                ActivityCompat.requestPermissions(Home.this, new String[]{Manifest.permission.SEND_SMS},
+                                        100);
+                            }
                             Toast.makeText(Home.this, "SOS Message Sent!", Toast.LENGTH_LONG).show();
                         } else {
                             Toast.makeText(Home.this, "Please Set SOS Contact and Message first!", Toast.LENGTH_LONG).show();
@@ -295,7 +351,49 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 //
 
     }
+    private void addGeofence(LatLng latLng, float radius) {
 
+        Geofence geofence = geofencingHelper.getGeofence(GEOFENCE_ID, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
+        GeofencingRequest geofencingRequest = geofencingHelper.getGeofencingRequest(geofence);
+        PendingIntent pendingIntent = geofencingHelper.getPendingIntent();
+
+        geofencingClient.removeGeofences(geofencingHelper.getPendingIntent()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Toast.makeText(Home.this,"Removed Geofence", Toast.LENGTH_LONG).show();
+                Log.d(TAG, "onSuccess: Existing Geofence Removed");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(TAG, "onFailure: Error" );
+            }
+        });
+
+        if (ContextCompat.checkSelfPermission(Home.this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                == PackageManager.PERMISSION_GRANTED){
+            geofencingClient.addGeofences(geofencingRequest, pendingIntent)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Toast.makeText(Home.this,"Latitude" + latLng.latitude + " Longitude" + latLng.longitude, Toast.LENGTH_LONG).show();
+                            Log.d(TAG, "onSuccess: Geofence Added...");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            String errorMessage = geofencingHelper.getErrorString(e);
+                            Log.d(TAG, "onFailure: " + errorMessage);
+                        }
+                    });
+        }else{
+            //When Permission is not Granted
+            //Request for Permission
+            ActivityCompat.requestPermissions(Home.this, new String[]{Manifest.permission.ACCESS_BACKGROUND_LOCATION},
+                    BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+        }
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
@@ -319,7 +417,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         // Build the autocomplete intent with field, country, and type filters applied
         Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
                 .setCountry("PH")
-                .setTypeFilter(TypeFilter.ADDRESS)
+                .setLocationBias(RectangularBounds.newInstance(Southwest, Northeast))
                 .build(this);
         startAutocomplete.launch(intent);
     }
@@ -334,7 +432,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         // Build the autocomplete intent with field, country, and type filters applied
         Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
                 .setCountry("PH")
-                .setTypeFilter(TypeFilter.ADDRESS)
+                .setLocationBias(RectangularBounds.newInstance(Southwest, Northeast))
                 .build(this);
         startAutocomplete2.launch(intent);
     }
@@ -423,17 +521,42 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                 }
             }
         }
-
         address2Field.setText(address1.toString());
         destinationLoc = latLng;
         // Add a map for visual confirmation of the address
         showDestination();
+
+        if (Build.VERSION.SDK_INT >= 29){
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED){
+                addCircle(latLng, GEOFENCE_RADIUS);
+                addGeofence(latLng, GEOFENCE_RADIUS);
+            }else {
+                if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+
+                    ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+
+                }else {
+                    ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                }
+            }
+
+        }else {
+
+            addCircle(latLng, GEOFENCE_RADIUS);
+            addGeofence(latLng, GEOFENCE_RADIUS);
+        }
+
+
     }
 
     // [START maps_solutions_android_autocomplete_map_add]
     public void showOrigin() {
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.pin);
+        Bitmap smallMarker = Bitmap.createScaledBitmap(icon, 125, 125, false);
+        BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
         if (markerOrigin == null) {
-            markerOrigin = map.addMarker(new MarkerOptions().position(originLoc).title("Origin"));
+            markerOrigin = map.addMarker(new MarkerOptions().position(originLoc).title("Origin").icon(smallMarkerIcon));
             fitAllMarkers();
         } else {
             markerOrigin.setPosition(originLoc);
@@ -481,18 +604,32 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     private void setUserLocationMarker(Location location) {
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
+
         if (userLocationMarker == null) {
             //Create a new marker
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            map.setIndoorEnabled(true);
+            map.setTrafficEnabled(true);
+            map.setBuildingsEnabled(true);
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
-            Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.direction);
+            Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.navigation);
             Bitmap smallMarker = Bitmap.createScaledBitmap(icon, 125, 125, false);
             BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
             markerOptions.rotation(location.getBearing());
             markerOptions.anchor((float) 0.5, (float) 0.5);
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
-            userLocationMarker = map.addMarker(new MarkerOptions().position(latLng).title("").icon(smallMarkerIcon));
-        } else  {
+            userLocationMarker = map.addMarker(markerOptions.title("My Location").icon(smallMarkerIcon));
+        } else {
             //use the previously created marker
             userLocationMarker.setPosition(latLng);
             userLocationMarker.setRotation(location.getBearing());
@@ -503,8 +640,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             CircleOptions circleOptions = new CircleOptions();
             circleOptions.center(latLng);
             circleOptions.strokeWidth(4);
-            circleOptions.strokeColor(Color.argb(255, 255, 0, 200));
-            circleOptions.fillColor(Color.argb(32, 255, 0, 200));
+            circleOptions.strokeColor(Color.argb(255, 200, 0, 200));
+            circleOptions.fillColor(Color.argb(32, 200, 0, 200));
             circleOptions.radius(location.getAccuracy());
             userLocationAccuracyCircle = map.addCircle(circleOptions);
         } else {
@@ -527,21 +664,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
 
-
-    public void userLoc() {
-        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.person);
-        Bitmap smallMarker = Bitmap.createScaledBitmap(icon, 125, 125, false);
-        BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
-        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
-        if (currentLocationMarker == null) {
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
-            currentLocationMarker = map.addMarker(new MarkerOptions().position(latLng).title("").icon(smallMarkerIcon));
-        } else {
-            currentLocationMarker.setPosition(latLng);
-        }
-    }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -550,6 +672,13 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             //When permission is Granted
             //Call Method
             sendSOS();
+        } else {
+            //When permission is Denied
+            //Display Toast
+            Toast.makeText(this, "Permission Denied, Please Grant!", Toast.LENGTH_SHORT).show();
+        }
+        if (requestCode == BACKGROUND_LOCATION_ACCESS_REQUEST_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Location Permission Granted", Toast.LENGTH_SHORT).show();
         } else {
             //When permission is Denied
             //Display Toast
@@ -631,6 +760,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
 
                     //assert mapFragment != null;
+                    setUserLocationMarker(location);
 
                 }
             }
@@ -707,6 +837,10 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             builder.include(userLocationMarker.getPosition());
         } else if (markerOrigin == null && markerDestination == null) {
             builder.include(userLocationMarker.getPosition());
+        } else if (userLocationMarker == null && markerOrigin != null) {
+            builder.include(markerOrigin.getPosition());
+        } else if (userLocationMarker == null && markerDestination != null) {
+            builder.include(markerDestination.getPosition());
         } else {
             builder.include(markerOrigin.getPosition());
             builder.include(markerDestination.getPosition());
@@ -762,4 +896,104 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         Toast.makeText(this, String.valueOf(kilometer) + " km", Toast.LENGTH_SHORT).show();
     }
 
+    // Power Save Map Tracking.
+    private void onStartMap() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(Home.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
+            return;
+        }
+        Task<Location> task = fusedLocationProviderClient.getLastLocation();
+        task.addOnSuccessListener(new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if (location != null) {
+                    currentLocation = location;
+                    Address address = null;
+                    Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
+                    SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
+                    mapFragment.getMapAsync(Home.this);
+                    //assert mapFragment != null;
+                    setUserLocationMarker(location);
+                }
+            }
+        });
+    }
+    public void startLoop() {
+        mapRunnable.run();
+
+    }
+
+    public void stopLoop() {
+
+    }
+
+    private Runnable mapRunnable = new Runnable() {
+        @Override
+        public void run() {
+            onStartMap();
+            mapHandler.postDelayed(this, 1000);
+        }
+    };
+
+    public void userLoc() {
+        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.person);
+        Bitmap smallMarker = Bitmap.createScaledBitmap(icon, 125, 125, false);
+        BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
+        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
+        if (currentLocationMarker == null) {
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+            currentLocationMarker = map.addMarker(new MarkerOptions().position(latLng).title("").icon(smallMarkerIcon));
+        } else {
+            currentLocationMarker.setPosition(latLng);
+        }
+    }
+
+    public void desCalc() throws JSONException {
+
+        JSONObject locationJsonObject = new JSONObject();
+        locationJsonObject.put("origin", originLoc);
+        locationJsonObject.put("destination", destinationLoc);
+        LatlngCalc(locationJsonObject);
+    }
+
+    private void LatlngCalc(JSONObject locationJsonObject) throws JSONException {
+
+        RequestQueue queue = Volley.newRequestQueue(Home.this);
+        String url = "https://maps.googleapis.com/maps/api/distancematrix/" +
+                "json?origins=" + locationJsonObject.getString("origin") + "&destinations=" + locationJsonObject.getString("destination") + "&mode=driving&" +
+                "language=en-EN&sensor=false" + "&key=" + "AIzaSyBzKLXS2uFOSVE1Lhr3AOkDn1OkbKfo01M";
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        mTextview.setText("Response is: " + response.substring(0, 500));
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                mTextview.setText("That didn't work!");
+            }
+        });
+        queue.add(stringRequest);
+    }
+
+    private void addCircle(LatLng latLng, float radius) {
+        latLng = destinationLoc;
+
+        if (geofenceBounds == null) {
+            CircleOptions circleOptions = new CircleOptions();
+            circleOptions.center(latLng);
+            circleOptions.radius(radius);
+            circleOptions.strokeColor(Color.argb(255, 255, 0,0));
+            circleOptions.fillColor(Color.argb(64, 255, 0,0));
+            circleOptions.strokeWidth(4);
+            geofenceBounds = map.addCircle(circleOptions);
+        } else {
+            geofenceBounds.setCenter(latLng);
+        }
+
+    }
 }
