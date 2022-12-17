@@ -19,7 +19,7 @@
         sothree:umanoOverlay="true"
         sothree:umanoShadowHeight="0dp"
         sothree:umanoParallaxOffset="100dp"
-        sothree:umanoPanelHeight="150dp"
+        sothree:umanoPanelHeight="95dp"
         sothree:umanoScrollableView="@+id/list">
 
         <FrameLayout
@@ -42,58 +42,58 @@
             android:background="@drawable/round_corner2"
             app:layout_anchor="@id/btmAppBar">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="20dp">
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/useCurrentLoc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignEnd="@id/autocomplete_address1"
-                android:src="@drawable/currloc"
-                app:backgroundTint="@color/background_color"
-                app:rippleColor="#00FFFFFF" />
-
-            <com.example.biyahe.model.AutocompleteEditText
-                android:id="@+id/autocomplete_address1"
-                android:layout_width="332dp"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="20dp"
-                android:drawableLeft="@drawable/ic_origin"
-                android:outlineAmbientShadowColor="@color/black"
-                android:autofillHints=""
-                android:background="@android:color/background_light"
-                android:drawablePadding="16dp"
-                android:hint="Set Origin"
-                android:imeOptions="actionNext"
-                android:inputType="text"
-                android:padding="13dp" />
-            </RelativeLayout>
-
-            <com.example.biyahe.model.AutocompleteEditText
-                android:id="@+id/autocomplete_address2"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="20dp"
-                android:layout_marginTop="10dp"
-                android:drawableLeft="@drawable/ic_destination"
-                android:autofillHints=""
-                android:background="@android:color/background_light"
-                android:drawablePadding="16dp"
-                android:hint="Set Destination"
-                android:imeOptions="actionNext"
-                android:inputType="text"
-                android:padding="13dp" />
+                android:orientation="vertical"
+                android:layout_marginTop="20dp">
 
-        </LinearLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/useCurrentLoc"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignEnd="@id/autocomplete_address1"
+                        android:src="@drawable/currloc"
+                        app:backgroundTint="@color/background_color"
+                        app:rippleColor="#00FFFFFF" />
+
+                    <com.example.biyahe.model.AutocompleteEditText
+                        android:id="@+id/autocomplete_address1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginTop="20dp"
+                        android:drawableLeft="@drawable/ic_origin"
+                        android:outlineAmbientShadowColor="@color/black"
+                        android:autofillHints=""
+                        android:background="@android:color/background_light"
+                        android:drawablePadding="16dp"
+                        android:hint="Set Origin"
+                        android:imeOptions="actionNext"
+                        android:inputType="text"
+                        android:padding="13dp" />
+                </RelativeLayout>
+
+                <com.example.biyahe.model.AutocompleteEditText
+                    android:id="@+id/autocomplete_address2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="10dp"
+                    android:drawableLeft="@drawable/ic_destination"
+                    android:autofillHints=""
+                    android:background="@android:color/background_light"
+                    android:drawablePadding="16dp"
+                    android:hint="Set Destination"
+                    android:imeOptions="actionNext"
+                    android:inputType="text"
+                    android:padding="13dp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
