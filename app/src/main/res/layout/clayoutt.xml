@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cLayout"
+    android:layout_width="match_parent"
+    android:layout_height="118dp"
+    android:background="@color/quantum_amber300"
+    android:textSize="14sp"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/quantum_amber300"
+        android:gravity="left">
+
+        <ImageView
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:src="@drawable/puv_icon1"
+            android:layout_marginStart="17dp"
+            android:layout_marginTop="15dp"
+            ></ImageView>
+
+        <TextView
+            android:id="@+id/pickup"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginStart="75dp"
+            android:layout_marginTop="10dp"
+            android:text="Pickup:"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/pickup_fill"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginStart="135dp"
+            android:layout_marginTop="10dp"
+            android:hint="PUP-Divisoria"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/drop_off"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginStart="75dp"
+            android:layout_below="@+id/pickup"
+            android:text="Drop-off: "
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/dropoff_fill"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_below="@id/pickup_fill"
+            android:layout_marginStart="147dp"
+            android:hint="Recto"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/nxt_ride"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginStart="75dp"
+            android:layout_below="@+id/drop_off"
+            android:layout_marginTop="10dp"
+            android:text="Next: "
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textColor="@color/quantum_grey"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/next_fill"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_below="@id/dropoff_fill"
+            android:layout_marginStart="120dp"
+            android:layout_marginTop="10dp"
+            android:textColorLink="@color/quantum_grey"
+            android:hint="Bacood-Quiapo"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textColor="@color/black"
+            android:textSize="16sp"/>
+
+        <TextView
+            android:id="@+id/fare_est"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginStart="290dp"
+            android:layout_marginTop="10dp"
+            android:text="Fare: ₱"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/fare_fill"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginStart="345dp"
+            android:layout_marginTop="10dp"
+            android:hint="12.00"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/eta"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_below="@id/fare_est"
+            android:layout_marginStart="290dp"
+
+            android:text="ETA: "
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/eta_fill"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_below="@id/fare_fill"
+            android:layout_marginStart="330dp"
+            android:hint="12:00 PM"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+</LinearLayout>

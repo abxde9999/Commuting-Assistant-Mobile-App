@@ -283,7 +283,6 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cLayout3"
         android:layout_width="153dp"
