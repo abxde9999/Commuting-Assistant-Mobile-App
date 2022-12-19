@@ -10,7 +10,7 @@ import java.net.URL;
 
 public class DowloadURL {
 
-    public String readURL(String myURL) {
+    public String readURL(String myURL) throws IOException{
 
         String data = "";
         InputStream inputStream = null;
@@ -25,14 +25,27 @@ public class DowloadURL {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             StringBuffer stringBuffer = new StringBuffer();
 
+            String line = "";
+            while ((line = bufferedReader.readLine()) != null){
+
+                stringBuffer.append(line);
+            }
+
+            data = stringBuffer.toString();
+            bufferedReader.close();
+
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        finally {
+            inputStream.close();
+            urlConnection.disconnect();
+        }
 
         return data;
+
     }
 
 }

@@ -130,7 +130,7 @@ import java.util.List;
 
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
-    private static final String TAG = "GeofenceBroadcastReceiv";
+    private static final String TAG = "GeofenceBroadcastReceiver";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -156,12 +156,12 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
-                Toast.makeText(context, "GEOFENCE_TRANSITION_ENTER", Toast.LENGTH_SHORT).show();
-                notificationHelper.sendHighPriorityNotification("GEOFENCE_TRANSITION_ENTER", "", Home.class);
+                Toast.makeText(context, "You are near the drop off location.", Toast.LENGTH_SHORT).show();
+                notificationHelper.sendHighPriorityNotification("You are near the drop off location", "", Home.class);
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
-                Toast.makeText(context, "GEOFENCE_TRANSITION_DWELL", Toast.LENGTH_SHORT).show();
-                notificationHelper.sendHighPriorityNotification("GEOFENCE_TRANSITION_DWELL", "", Home.class);
+                Toast.makeText(context, "Pickup Location reached.", Toast.LENGTH_SHORT).show();
+                notificationHelper.sendHighPriorityNotification("Pickup Location reached.", "", Home.class);
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 Toast.makeText(context, "GEOFENCE_TRANSITION_EXIT", Toast.LENGTH_SHORT).show();

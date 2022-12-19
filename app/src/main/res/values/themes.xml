@@ -13,16 +13,25 @@
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
-    
+
     <style name="dialogAnimation">
         <item name="android:windowEnterAnimation">@anim/slidein_bottom</item>
         <item name="android:windowExitAnimation">@anim/slideout_bottom</item>
     </style>
 
-   <style name="Popup">
-       <item name="android:windowTranslucentStatus">true</item>
-       <item name="android:windowCloseOnTouchOutside">true</item>
-       <item name="android:backgroundDimEnabled">true</item>
-   </style>
+    <style name="Popup">
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <style name="Theme.Biyahe.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.Biyahe.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Biyahe.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>

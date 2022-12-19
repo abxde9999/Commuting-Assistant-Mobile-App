@@ -38,8 +38,6 @@ public class SOS extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sos);
-        getSupportActionBar().setTitle("SOS Settings");
-        getSupportActionBar().setBackgroundDrawable(getDrawable(R.drawable.background));
 
         //Assign Variable
         etReceiver = findViewById(R.id.et_receiver);

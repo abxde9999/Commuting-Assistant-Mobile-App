@@ -23,14 +23,17 @@
         sothree:umanoScrollableView="@+id/list">
 
         <FrameLayout
+            android:id="@+id/frameLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <fragment
+            <androidx.fragment.app.FragmentContainerView
                 android:id="@+id/mapFragment"
                 android:name="com.google.android.gms.maps.SupportMapFragment"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent"
+                tools:layout="@layout/map_layout" />
+
 
         </FrameLayout>
 
@@ -42,11 +45,30 @@
             android:background="@drawable/round_corner2"
             app:layout_anchor="@id/btmAppBar">
 
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+
                 android:layout_marginTop="20dp">
+                <TextView
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="33dp"
+                android:textColor="@color/black"
+                android:textIsSelectable="true"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:layout_marginLeft="20dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.763"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.666"
+                android:text="Trip\nPlanner"/>
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -58,7 +80,9 @@
                         android:layout_height="wrap_content"
                         android:layout_alignEnd="@id/autocomplete_address1"
                         android:src="@drawable/currloc"
-                        app:backgroundTint="@color/background_color"
+                        app:backgroundTint="@color/quantum_amber300"
+                        android:layout_marginTop="21dp"
+                        app:fabCustomSize="24dp"
                         app:rippleColor="#00FFFFFF" />
 
                     <com.example.biyahe.model.AutocompleteEditText
@@ -84,9 +108,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="20dp"
                     android:layout_marginTop="10dp"
-                    android:drawableLeft="@drawable/ic_destination"
                     android:autofillHints=""
                     android:background="@android:color/background_light"
+                    android:drawableLeft="@drawable/ic_destination"
                     android:drawablePadding="16dp"
                     android:hint="Set Destination"
                     android:imeOptions="actionNext"
@@ -98,16 +122,54 @@
         </LinearLayout>
 
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
-
-
-    <TextView
+    <LinearLayout
         android:id="@+id/tv_distance"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
+        android:layout_height="62dp"
         android:text=""
         app:layout_anchor="@+id/explore"
-        app:layout_anchorGravity="center" />
+        app:layout_anchorGravity="center"
+        android:orientation="horizontal" >
 
+        </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="217dp"
+        android:layout_height="41dp"
+        app:layout_anchor="@+id/linearLayout"
+        app:layout_anchorGravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="227dp"
+        android:layout_height="45dp"
+        android:orientation="horizontal"
+        app:layout_anchor="@+id/tv_distance"
+        app:layout_anchorGravity="top|center" />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/startTrip"
+
+        android:layout_width="151dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="550dp"
+        android:layout_marginBottom="16dp"
+        android:text="Start Trip!"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textStyle="bold"
+        app:backgroundTint="@color/quantum_amber300"
+        app:icon="@drawable/jeepney2"
+        app:layout_anchor="@+id/linearLayout2"
+        app:layout_anchorGravity="end|top"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:rippleColor="@color/places_text_white_alpha_26" />
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/btmAppBar"
@@ -123,7 +185,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginRight="18dp"
-            android:background="@drawable/transparent_bg"
             app:menu="@menu/bottom_nav_menu" />
 
     </com.google.android.material.bottomappbar.BottomAppBar>
@@ -132,9 +193,162 @@
         android:id="@+id/explore"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/white"
-        android:src="@drawable/ic_explore"
+        android:src="@drawable/ic_origin"
+        android:text="Re-center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textAllCaps="true"
+        android:layout_marginBottom="55dp"
+        app:backgroundTint="@color/background_color"
+        app:rippleColor="@color/quantum_amber300"
         app:layout_anchor="@id/btmAppBar"
         app:maxImageSize="35dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cLayout"
+        android:layout_width="match_parent"
+        android:layout_height="118dp"
+        android:background="@color/quantum_amber300"
+        android:textAlignment="center"
+        android:textSize="14sp">
+
+        <TextView
+            android:id="@+id/pickup"
+            android:layout_width="268dp"
+            android:layout_height="82dp"
+            android:layout_marginStart="68dp"
+            android:layout_marginTop="16dp"
+            android:text="Pickup:"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="118dp"
+        android:background="@drawable/rounder_corner3"
+        android:textAlignment="center"
+        android:textSize="14sp">
+
+        <TextView
+            android:id="@+id/currLoc"
+            android:layout_width="279dp"
+            android:layout_height="86dp"
+            android:layout_marginTop="33dp"
+            android:textColor="@color/black"
+            android:textIsSelectable="true"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.763"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.666" />
+
+        <TextView
+
+            android:id="@+id/textView2"
+            android:layout_width="211dp"
+            android:layout_height="35dp"
+            android:text="Your are currently at:"
+            android:textAllCaps="true"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.475"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.192" />
+
+        <ImageView
+            android:layout_width="76dp"
+            android:layout_height="100dp"
+            android:src="@drawable/myplace"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.015"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.111" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cLayout3"
+        android:layout_width="153dp"
+        android:layout_height="153dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:background="@drawable/transparent_bg"
+        app:layout_anchor="@+id/linearLayout"
+        app:layout_anchorGravity="start|top"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/hospitals"
+            android:layout_width="146dp"
+            android:layout_height="43dp"
+
+            android:text="Hospitals"
+            android:textAlignment="center"
+            android:textSize="12sp"
+            app:backgroundTint="@color/quantum_white_100"
+            app:icon="@drawable/pharmacy"
+            app:layout_constraintBottom_toTopOf="@+id/restaurants"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.428"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:rippleColor="@color/quantum_amber300"
+            android:textStyle="bold" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/schools"
+            android:layout_width="146dp"
+            android:layout_height="43dp"
+            android:text="Schools"
+            android:textAlignment="center"
+            app:backgroundTint="@color/quantum_white_100"
+            app:icon="@drawable/classroom"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.428"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/restaurants"
+            app:rippleColor="@color/quantum_amber300"
+            android:textStyle="bold" />
+
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/restaurants"
+            android:layout_width="146dp"
+            android:layout_height="43dp"
+            android:text="Restaurants"
+            android:textAlignment="center"
+            android:textSize="9.5sp"
+            android:textStyle="bold"
+            app:backgroundTint="@color/quantum_white_100"
+            app:icon="@drawable/restaurant"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.428"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:rippleColor="@color/quantum_amber300" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

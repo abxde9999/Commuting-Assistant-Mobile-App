@@ -167,9 +167,9 @@ public class NotificationHelper extends ContextWrapper {
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
 //                .setContentTitle(title)
 //                .setContentText(body)
-                .setSmallIcon(R.drawable.ic_launcher_background)
+                .setSmallIcon(R.drawable.checkered_flag)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setStyle(new NotificationCompat.BigTextStyle().setSummaryText("summary").setBigContentTitle(title).bigText(body))
+                .setStyle(new NotificationCompat.BigTextStyle().setSummaryText("Your Trip").setBigContentTitle(title).bigText(body).setBigContentTitle("Point Reached."))
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
                 .build();
