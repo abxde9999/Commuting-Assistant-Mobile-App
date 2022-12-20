@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -144,6 +145,30 @@ import java.util.Locale;
 
 public class Home extends FragmentActivity implements OnMapReadyCallback{
 
+
+
+    String biyahe;
+
+
+
+    Marker Pickup;
+
+
+    DatabaseReference reference; //Declare Variable
+    TextView pickUp, pickupRoute, dropOff, nextRoute, fare; //Declare variable for Textviews
+    String pickUpSt, pickupRouteSt, dropOffSt, nextRouteSt, fareSt, pu_lat, pu_lng, do_lat, do_lng; //Declare the String Variable
+
+    double pu_latD;
+    double pu_lngD;
+    LatLng puLatLng;
+    double do_latD;
+    double do_lngD;
+    LatLng doLatLng;
+
+    LatLng PuDoLatLng;
+
+    int PuDo;
+
     //Geofencing
     private GeofencingClient geofencingClient;
     private GeofencingHelper geofencingHelper;
@@ -184,7 +209,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
     double SouthWestLong = 121.026003;
 
     TextView currLoc;
-    ConstraintLayout constraintLayout, constraintLayout2, constraintLayout3;
+    ConstraintLayout constraintLayout2, constraintLayout3;
+    LinearLayout constraintLayout;
     SlidingUpPanelLayout slidingUpPanelLayout;
 
     //Nearby
@@ -293,7 +319,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
     String msgI;
 
 
-    ExtendedFloatingActionButton startTrip, hospitals, schools, restaurants;
+    ExtendedFloatingActionButton startTrip, hospitals, schools, restaurants,endTrip;
     FloatingActionButton explore;
     BottomNavigationView bottomNav;
     Marker currentLocationMarker;
@@ -319,8 +345,19 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+
+        //Set the variable to the id of textview in Layout
+        pickUp = findViewById(R.id.pickup_fill);
+        //pickupRoute = findViewById(R.id.pic);
+        dropOff = findViewById(R.id.dropoff_fill);
+        nextRoute = findViewById(R.id.next_fill);
+        fare = findViewById(R.id.fare_fill);
+
         startTrip = findViewById(R.id.startTrip);
         startTrip.setVisibility(View.GONE);
+
+        endTrip = findViewById(R.id.endTrip);
+        endTrip.setVisibility(View.GONE);
 
         currLoc = findViewById(R.id.currLoc);
         constraintLayout = findViewById(R.id.cLayout);
@@ -378,7 +415,23 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         locationRequest.setFastestInterval(500);
 
 
-        startTrip = findViewById(R.id.startTrip);
+        startTrip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                startStartTrip();
+
+            }
+        });
+        endTrip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                endTrip();
+
+            }
+        });
+
         explore = findViewById(R.id.explore);
         onStartMap();
 
@@ -479,6 +532,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
 
     @SuppressLint("MissingPermission")
     private void addGeofence(LatLng latLng, float radius) {
+
 
         Geofence geofence = geofencingHelper.getGeofence(GEOFENCE_ID, latLng, radius, Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_DWELL | Geofence.GEOFENCE_TRANSITION_EXIT);
         GeofencingRequest geofencingRequest = geofencingHelper.getGeofencingRequest(geofence);
@@ -656,27 +710,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         destinationLoc = latLng;
         // Add a map for visual confirmation of the address
         startTrip();
-
-        if (Build.VERSION.SDK_INT >= 29){
-
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED){
-                addCircle(latLng, GEOFENCE_RADIUS);
-                addGeofence(latLng, GEOFENCE_RADIUS);
-            }else {
-                if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
-
-                    ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
-
-                }else {
-                    ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
-                }
-            }
-
-        }else {
-
-            addCircle(latLng, GEOFENCE_RADIUS);
-            addGeofence(latLng, GEOFENCE_RADIUS);
-        }
 
 
     }
@@ -964,7 +997,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
 
                     //assert mapFragment != null;
                     setUserLocationMarker(location);
-
                 }
             }
         });
@@ -1189,7 +1221,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
     }
 
     private void addCircle(LatLng latLng, float radius) {
-        latLng = destinationLoc;
 
         if (geofenceBounds == null) {
             CircleOptions circleOptions = new CircleOptions();
@@ -1221,6 +1252,37 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
     private void animateMyPlaceOut(){
 
         final View v = constraintLayout2;
+        animationHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                TranslateAnimation animate = new TranslateAnimation(0,0,0,-500);
+                animate.setDuration(500);
+                animate.setFillAfter(true);
+                v.startAnimation(animate);
+                v.setVisibility(View.GONE);
+            }
+        },5000);
+
+    }
+
+    private void animateTripIn(){
+        final View v = constraintLayout;
+        animationHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                TranslateAnimation animate = new TranslateAnimation(0,0,-500,0);
+                animate.setDuration(500);
+                animate.setFillAfter(true);
+                v.startAnimation(animate);
+                v.setVisibility(View.VISIBLE);
+            }
+        },250);
+    }
+    private void animateTripOut(){
+
+        final View v = constraintLayout;
         animationHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -1391,6 +1453,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         userLocationMarker = null;
 
     }public void Duration(){
+
+
         Object dataTransfer[] = new Object[3];
         String url = getDirectionsUrl();
         GetDirectionsData getDirectionsData = new GetDirectionsData();
@@ -1493,10 +1557,11 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
             durationDes = duration;
 
 
-            Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.checkered_flag);
+            Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.racing_flag);
             Bitmap smallMarker = Bitmap.createScaledBitmap(icon, 125, 125, false);
             BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
             if (markerDestination == null) {
+
                 markerDestination = map.addMarker(new MarkerOptions().position(destinationLoc).title("Duration = "+ duration).icon(smallMarkerIcon).snippet("Distance = "+ distance));
                 slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                 fitAllMarkers();
@@ -1513,7 +1578,187 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         }
     }
 
+public void endTrip(){
+    AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+            Home.this);
 
+    alertDialog.setMessage("Do you want to end your trip now?");
+    alertDialog.setTitle("Biyahe");
+    alertDialog.setIcon(R.drawable.jeepney);
+
+    alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+
+            animateTripOut();
+            slidingUpPanelLayout.setTouchEnabled(true);
+            startTrip.setVisibility(View.VISIBLE);
+            endTrip.setVisibility(View.GONE);
+
+            Pickup.remove();
+            markerOrigin.remove();
+            markerDestination.remove();
+
+            geofencingClient.removeGeofences(geofencingHelper.getPendingIntent()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+                    Log.d(TAG, "onSuccess: Existing Geofence Removed");
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.d(TAG, "onFailure: Error" );
+                }
+            });
+
+        }
+    });
+    alertDialog.setNegativeButton("No", null);
+
+    alertDialog.setMessage("Do you want to end your trip now?");
+    alertDialog.setTitle("Biyahe");
+    alertDialog.setIcon(R.drawable.jeepney);
+    alertDialog.show();
+
+}
+
+public void startStartTrip(){
+
+    animateTripIn();
+    startTrip.setVisibility(View.GONE);
+    endTrip.setVisibility(View.VISIBLE);
+
+    if (Build.VERSION.SDK_INT >= 29){
+
+        if (ContextCompat.checkSelfPermission(Home.this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            biyahe="biyahe";
+            PuDo = 0;
+            showJourney();
+            slidingUpPanelLayout.setTouchEnabled(false);
+
+            //addCircle(latLng, GEOFENCE_RADIUS);
+            //addGeofence(latLng, GEOFENCE_RADIUS);
+        }else {
+            if(ActivityCompat.shouldShowRequestPermissionRationale(Home.this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+
+                ActivityCompat.requestPermissions(Home.this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+
+            }else {
+                ActivityCompat.requestPermissions(Home.this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+            }
+        }
+
+    }else {
+
+        PuDo = 0;
+        slidingUpPanelLayout.setTouchEnabled(false);
+        biyahe="biyahe";
+        showJourney();
+        //addCircle(latLng, GEOFENCE_RADIUS);
+        //addGeofence(latLng, GEOFENCE_RADIUS);
+    }
+}
+
+    public void showJourney() {
+        reference = FirebaseDatabase.getInstance().getReference().child("location_information"); //Locate the Database in the Firebase
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                //Get the Value and set it to String
+                pickUpSt = snapshot.child("pup_luneta").child("way").child(biyahe).child("pickup").getValue().toString();
+                pickupRouteSt = snapshot.child("pup_luneta").child("way").child(biyahe).child("pu_route").getValue().toString();
+                dropOffSt = snapshot.child("pup_luneta").child("way").child(biyahe).child("dropoff").getValue().toString();
+                fareSt = snapshot.child("pup_luneta").child("way").child(biyahe).child("fare").getValue().toString();
+                nextRouteSt = snapshot.child("pup_luneta").child("way").child("biyahe2").child("pu_route").getValue().toString();
+                pu_lat = snapshot.child("pup_luneta").child("way").child(biyahe).child("pickupLat").getValue().toString();
+                pu_lng = snapshot.child("pup_luneta").child("way").child(biyahe).child("pickupLng").getValue().toString();
+                do_lat = snapshot.child("pup_luneta").child("way").child(biyahe).child("dropoffLat").getValue().toString();
+                do_lng = snapshot.child("pup_luneta").child("way").child(biyahe).child("dropoffLng").getValue().toString();
+
+                pu_latD = Double.parseDouble(pu_lat);
+                pu_lngD = Double.parseDouble(pu_lng);
+
+
+                puLatLng = new LatLng (pu_latD, pu_lngD);
+
+
+                do_latD = Double.parseDouble(do_lat);
+                do_lngD = Double.parseDouble(do_lng);
+
+                doLatLng = new LatLng(do_latD,do_lngD);
+
+                if(PuDo == 0){
+                    PuDoLatLng = puLatLng;
+                    setPuDoMarker();
+                    PuDo = 1;
+                }else if(PuDo == 1){
+                    PuDoLatLng = doLatLng;
+                    setPuDoMarker();
+                    PuDo= 0;
+                }
+
+                //Set the String Text to the Text View Variable
+                pickUp.setText(pickUpSt);
+                //pickupRoute.setText(pickupRouteSt);
+                dropOff.setText(dropOffSt);
+                fare.setText(fareSt);
+                nextRoute.setText(nextRouteSt);
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        puMarkerGeofence();
+
+    }
+    public void setPuDoMarker(){
+
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(PuDoLatLng);
+        markerOptions.title(pickUpSt);
+        markerOptions.snippet(pickupRouteSt);
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+
+        Pickup = map.addMarker(markerOptions);
+        fitAllMarkers();
+
+    }
+
+    public void puMarkerGeofence(){
+
+
+        if (Pickup != null){
+
+            Toast.makeText(this ,"Went IF", Toast.LENGTH_SHORT).show();
+
+            addCircle(puLatLng, GEOFENCE_RADIUS);
+            addGeofence(puLatLng, GEOFENCE_RADIUS);
+
+        }else {
+            mapHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+
+                    Toast.makeText(Home.this, "Went ELSE", Toast.LENGTH_SHORT).show();
+
+
+                    addCircle(destinationLoc, GEOFENCE_RADIUS);
+                    addGeofence(destinationLoc, GEOFENCE_RADIUS);
+
+                }
+            },2000);
+        }
+    }
+
+    public void switchMarkerDO(){
+        showJourney();
+    }
 
 
 }

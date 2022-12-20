@@ -24,11 +24,11 @@ public class Firebasee extends AppCompatActivity {
         setContentView(R.layout.activity_firebasee);
 
         //Set the variable to the id of textview in Layout
-        pickUp = findViewById(R.id.pickup);
-        pickupRoute = findViewById(R.id.pickupRoute);
-        dropOff = findViewById(R.id.dropoff);
-        nextRoute = findViewById(R.id.nextRoute);
-        fare = findViewById(R.id.fare);
+        pickUp = findViewById(R.id.pickup_fill);
+        //pickupRoute = findViewById(R.id.pic);
+        dropOff = findViewById(R.id.dropoff_fill);
+        nextRoute = findViewById(R.id.next_fill);
+        fare = findViewById(R.id.fare_fill);
 
         showJourney(); //Method to show the  Info in the Layout
     }

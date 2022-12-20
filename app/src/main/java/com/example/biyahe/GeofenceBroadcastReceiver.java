@@ -130,6 +130,8 @@ import java.util.List;
 
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
+    int PuDo;
+
     private static final String TAG = "GeofenceBroadcastReceiver";
 
     @Override
@@ -160,12 +162,18 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
                 notificationHelper.sendHighPriorityNotification("You are near the drop off location", "", Home.class);
                 break;
             case Geofence.GEOFENCE_TRANSITION_DWELL:
-                Toast.makeText(context, "Pickup Location reached.", Toast.LENGTH_SHORT).show();
-                notificationHelper.sendHighPriorityNotification("Pickup Location reached.", "", Home.class);
+                Toast.makeText(context, "Pickup/Dropoff Location reached.", Toast.LENGTH_SHORT).show();
+                notificationHelper.sendHighPriorityNotification("Pickup/Dropoff Location reached.", "", Home.class);
+
+                Home home = new Home();
+                home.showJourney();
+
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
-                Toast.makeText(context, "GEOFENCE_TRANSITION_EXIT", Toast.LENGTH_SHORT).show();
-                notificationHelper.sendHighPriorityNotification("GEOFENCE_TRANSITION_EXIT", "", Home.class);
+                Toast.makeText(context, "Leaving Pickup/Dropoff point.", Toast.LENGTH_SHORT).show();
+                notificationHelper.sendHighPriorityNotification("Leaving Pickup/Dropoff point.", "", Home.class);
+                home = new Home();
+                home.showJourney();
                 break;
         }
 
