@@ -12,6 +12,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewTreeViewModelKt;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -19,15 +20,19 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Icon;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -72,6 +77,7 @@ import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingEvent;
 import com.google.android.gms.location.GeofencingRequest;
@@ -99,6 +105,8 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -126,6 +134,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.maps.android.PolyUtil;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.checkerframework.checker.units.qual.C;
@@ -138,6 +147,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -145,18 +155,18 @@ import java.util.Locale;
 
 public class Home extends FragmentActivity implements OnMapReadyCallback{
 
+    String[] DList;
 
-
-    String biyahe;
-
-
-
-    Marker Pickup;
-
-
+    String biyahe, PUduration, PUdistance, StrToInt;
+    Marker Pickup, DropOff;
     DatabaseReference reference; //Declare Variable
-    TextView pickUp, pickupRoute, dropOff, nextRoute, fare; //Declare variable for Textviews
+    TextView pickUp, pickupRoute, dropOff, nextRoute, fare, distancePU; //Declare variable for Textviews
     String pickUpSt, pickupRouteSt, dropOffSt, nextRouteSt, fareSt, pu_lat, pu_lng, do_lat, do_lng; //Declare the String Variable
+    Polyline polyline;
+
+    List<Polyline> polylines = new ArrayList<Polyline>();
+
+    String status;
 
     double pu_latD;
     double pu_lngD;
@@ -168,6 +178,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
     LatLng PuDoLatLng;
 
     int PuDo;
+    int centerCtr = 1;
+    double DisPU;
 
     //Geofencing
     private GeofencingClient geofencingClient;
@@ -175,6 +187,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
     private float GEOFENCE_RADIUS = 100;
     private String GEOFENCE_ID = "GEOFENCE";
     Circle geofenceBounds;
+
+    Geofence HomeGeofence;
 
     private int BACKGROUND_LOCATION_ACCESS_REQUEST_CODE = 10002;
 
@@ -312,6 +326,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
     //Handler
     Handler mapHandler = new Handler();
     Handler animationHandler = new Handler();
+    Handler navHandler = new Handler();
+    Handler DistHandler = new Handler();
     int delayMillis = 5000;
 
     //Initialization of Strings
@@ -339,7 +355,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
 
         super.onCreate(savedInstanceState);
@@ -352,6 +367,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         dropOff = findViewById(R.id.dropoff_fill);
         nextRoute = findViewById(R.id.next_fill);
         fare = findViewById(R.id.fare_fill);
+        distancePU = findViewById(R.id.distance_fill);
+
 
         startTrip = findViewById(R.id.startTrip);
         startTrip.setVisibility(View.GONE);
@@ -527,6 +544,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         address2Field.setOnClickListener(startAutocompleteIntentListener2);
 //
 
+
     }
 
 
@@ -563,6 +581,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
                             Log.d(TAG, "onFailure: " + errorMessage);
                         }
                     });
+
+            HomeGeofence =geofence;
 
     }
     @Override
@@ -806,7 +826,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         map = googleMap;
         map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
 
-
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -843,6 +862,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         userLoc = latLng;
 
+
+
         if (userLocationMarker == null) {
             //Create a new marker
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -855,6 +876,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
+
+            map.setIndoorEnabled(true);
             map.setTrafficEnabled(true);
             map.setBuildingsEnabled(true);
             MarkerOptions markerOptions = new MarkerOptions();
@@ -864,9 +887,11 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
             BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
             markerOptions.rotation(location.getBearing());
             markerOptions.anchor((float) 0.5, (float) 0.5);
+            markerOptions.snippet("Current Location");
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
-            userLocationMarker = map.addMarker(markerOptions.title("My Location").icon(smallMarkerIcon));
+            userLocationMarker = map.addMarker(markerOptions.title("You are here").icon(smallMarkerIcon));
         } else {
+
             //use the previously created marker
             userLocationMarker.setPosition(latLng);
             userLocationMarker.setRotation(location.getBearing());
@@ -968,6 +993,13 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
 
     // Method to get Current Location
     private void explore() {
+
+        if (centerCtr == 1){
+            map.clear();
+            userLocationMarker = null;
+        }
+
+
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(Home.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
             return;
@@ -1481,6 +1513,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         return googleDirectionsUrl.toString();
     }
 
+
+
     public void startTrip(){
         if(originLoc !=null && destinationLoc !=null){
             startTrip.setVisibility(View.VISIBLE);
@@ -1571,14 +1605,185 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
                 fitAllMarkers();
 
             }
-
-
-
-
         }
     }
 
+    public class NavGetDirectionsData extends AsyncTask<Object, String, String> {
+
+
+        GoogleMap map;
+        String url;
+        String googleDirectionsData;
+        LatLng latLng;
+
+        @Override
+        protected String doInBackground(Object... objects) {
+            map = (GoogleMap) objects[0];
+            url = (String) objects[1];
+            latLng = (LatLng) objects[2];
+
+            DowloadURL dowloadURL= new DowloadURL();
+            try {
+                googleDirectionsData = dowloadURL.readURL(url);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return googleDirectionsData;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+
+            HashMap<String, String> directionsList = null;
+            DataParser parser = new DataParser();
+            directionsList = parser.parseNavDirections(s);
+            PUduration = directionsList.get("duration");
+            PUdistance = directionsList.get("distance");
+            DisPU = Double.parseDouble(PUdistance.replaceAll("[^\\.0123456789]",""));
+
+
+        }
+    }    public class DisplayPolyline extends AsyncTask<Object, String, String> {
+
+
+        GoogleMap map;
+        String url;
+        String googleDirectionsData;
+        LatLng latLng;
+
+        @Override
+        protected String doInBackground(Object... objects) {
+            map = (GoogleMap) objects[0];
+            url = (String) objects[1];
+            latLng = (LatLng) objects[2];
+
+            DowloadURL dowloadURL= new DowloadURL();
+            try {
+                googleDirectionsData = dowloadURL.readURL(url);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return googleDirectionsData;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+
+            String[] directionsList;
+            DataParser parser = new DataParser();
+            directionsList = parser.parsePolyline(s);
+            displayDirections(directionsList);
+
+        }
+
+        public void displayDirections (String[] directionsList) {
+                int count = directionsList.length;
+                for(int i = 0; i<count; i++){
+                    PolylineOptions options = new PolylineOptions();
+                    options.color(Color.BLUE);
+                    options.width(30);
+                    options.addAll(PolyUtil.decode(directionsList[i]));
+                    polylines.add(this.map.addPolyline(options));
+            }
+        }
+    }
+
+
+
+    public void NavDuration(){
+
+        Object dataTransfer[] = new Object[3];
+        String url = NavGetDirectionsUrl();
+        NavGetDirectionsData getDirectionsData = new NavGetDirectionsData();
+        dataTransfer[0] = map;
+        dataTransfer[1] = url;
+        dataTransfer[2] = new LatLng(puLatLng.latitude, puLatLng.longitude);
+        getDirectionsData.execute(dataTransfer);
+    }
+
+    private String NavGetDirectionsUrl(){
+
+
+        StringBuilder googleDirectionsUrl = new StringBuilder("https://maps.googleapis.com/maps/api/directions/json?");
+        googleDirectionsUrl.append("&origin="+locationUser.getLatitude()+","+locationUser.getLongitude());
+        googleDirectionsUrl.append("&destination="+pu_lat+","+pu_lng);
+        googleDirectionsUrl.append("&key="+"AIzaSyBzKLXS2uFOSVE1Lhr3AOkDn1OkbKfo01M");
+
+        return googleDirectionsUrl.toString();
+    }
+
+    public void DONavDuration(){
+
+        Object dataTransfer[] = new Object[3];
+        String url = DONavGetDirectionsUrl();
+        NavGetDirectionsData getDirectionsData = new NavGetDirectionsData();
+        dataTransfer[0] = map;
+        dataTransfer[1] = url;
+        dataTransfer[2] = new LatLng(doLatLng.latitude, doLatLng.longitude);
+        getDirectionsData.execute(dataTransfer);
+    }
+
+    private String DONavGetDirectionsUrl(){
+
+
+        StringBuilder googleDirectionsUrl = new StringBuilder("https://maps.googleapis.com/maps/api/directions/json?");
+        googleDirectionsUrl.append("&origin="+locationUser.getLatitude()+","+locationUser.getLongitude());
+        googleDirectionsUrl.append("&destination="+do_lat+","+do_lng);
+        googleDirectionsUrl.append("&key="+"AIzaSyBzKLXS2uFOSVE1Lhr3AOkDn1OkbKfo01M");
+
+        return googleDirectionsUrl.toString();
+    }
+
+    public void PolyDirections(){
+
+        if (PuDo == 0){
+
+            Object dataTransfer[] = new Object[3];
+            String url = PolyGetDirectionsUrl();
+            DisplayPolyline getDirectionsData = new DisplayPolyline();
+            dataTransfer[0] = map;
+            dataTransfer[1] = url;
+            dataTransfer[2] = new LatLng(puLatLng.latitude, puLatLng.longitude);
+            getDirectionsData.execute(dataTransfer);
+
+        }else if (PuDo == 1){
+
+            Object dataTransfer[] = new Object[3];
+            String url = PolyGetDirectionsUrl();
+            DisplayPolyline getDirectionsData = new DisplayPolyline();
+            dataTransfer[0] = map;
+            dataTransfer[1] = url;
+            dataTransfer[2] = new LatLng(doLatLng.latitude, doLatLng.longitude);
+            getDirectionsData.execute(dataTransfer);
+
+        }
+
+
+    }
+
+    private String PolyGetDirectionsUrl(){
+
+
+        StringBuilder googleDirectionsUrl = new StringBuilder("https://maps.googleapis.com/maps/api/directions/json?");
+        googleDirectionsUrl.append("&origin="+locationUser.getLatitude()+","+locationUser.getLongitude());
+
+        if (PuDo == 0){
+            googleDirectionsUrl.append("&destination="+pu_lat+","+pu_lng);
+        }else if (PuDo == 1){
+            googleDirectionsUrl.append("&destination="+do_lat+","+do_lng);
+        }
+        googleDirectionsUrl.append("&key="+"AIzaSyBzKLXS2uFOSVE1Lhr3AOkDn1OkbKfo01M");
+
+        return googleDirectionsUrl.toString();
+    }
+
+
+
 public void endTrip(){
+
+        centerCtr = 1;
     AlertDialog.Builder alertDialog = new AlertDialog.Builder(
             Home.this);
 
@@ -1592,12 +1797,46 @@ public void endTrip(){
 
             animateTripOut();
             slidingUpPanelLayout.setTouchEnabled(true);
-            startTrip.setVisibility(View.VISIBLE);
+            startTrip.setVisibility(View.GONE);
             endTrip.setVisibility(View.GONE);
+            address1Field.getText().clear();
+            address2Field.getText().clear();
 
             Pickup.remove();
+
+            Pickup = null;
+
+            if (dropOff != null){
+
+                DropOff.remove();
+
+                DropOff = null;
+            }
+
             markerOrigin.remove();
+
+            markerOrigin = null;
+
             markerDestination.remove();
+
+            markerDestination = null;
+
+            geofenceBounds.remove();
+
+            geofenceBounds = null;
+
+            PuDo = 0;
+
+            navHandler.removeCallbacks(PolyRunnable);
+            DistHandler.removeCallbacks(distRunnable);
+            DistHandler.removeCallbacks(DOdistRunnable);
+
+            for(Polyline line : polylines)
+            {
+                line.remove();
+            }
+            polylines.clear();
+
 
             geofencingClient.removeGeofences(geofencingHelper.getPendingIntent()).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
@@ -1632,7 +1871,7 @@ public void startStartTrip(){
 
         if (ContextCompat.checkSelfPermission(Home.this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED){
             biyahe="biyahe";
-            PuDo = 0;
+            centerCtr = 0;
             showJourney();
             slidingUpPanelLayout.setTouchEnabled(false);
 
@@ -1649,8 +1888,7 @@ public void startStartTrip(){
         }
 
     }else {
-
-        PuDo = 0;
+        centerCtr = 0;
         slidingUpPanelLayout.setTouchEnabled(false);
         biyahe="biyahe";
         showJourney();
@@ -1681,23 +1919,15 @@ public void startStartTrip(){
 
 
                 puLatLng = new LatLng (pu_latD, pu_lngD);
+                NavDurationRepeater();
 
 
                 do_latD = Double.parseDouble(do_lat);
                 do_lngD = Double.parseDouble(do_lng);
 
                 doLatLng = new LatLng(do_latD,do_lngD);
-
-                if(PuDo == 0){
-                    PuDoLatLng = puLatLng;
                     setPuDoMarker();
-                    PuDo = 1;
-                }else if(PuDo == 1){
-                    PuDoLatLng = doLatLng;
-                    setPuDoMarker();
-                    PuDo= 0;
-                }
-
+                    PuDo = 0;
                 //Set the String Text to the Text View Variable
                 pickUp.setText(pickUpSt);
                 //pickupRoute.setText(pickupRouteSt);
@@ -1716,27 +1946,61 @@ public void startStartTrip(){
 
         puMarkerGeofence();
 
+
     }
+
     public void setPuDoMarker(){
+        PolyDirections();
+        NavDistRepeater();
+        PolyRepeater();
+
 
         MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(PuDoLatLng);
-        markerOptions.title(pickUpSt);
-        markerOptions.snippet(pickupRouteSt);
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW));
+        markerOptions.position(puLatLng);
+        markerOptions.title(pickupRouteSt);
+        markerOptions.snippet("Pickup Point");
+        Bitmap icon = BitmapFactory.decodeResource(getResources(),R.drawable.bus_stop);
+        Bitmap marker = Bitmap.createScaledBitmap(icon,125, 245, false);
+        BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(marker);
 
-        Pickup = map.addMarker(markerOptions);
+        if (Pickup == null) {
+
+            Pickup = map.addMarker(markerOptions.icon(smallMarkerIcon));
+
+        } else {
+            Pickup.setPosition(PuDoLatLng);
+
+        }
+
+
+
+    }
+    public void setDoMarker(){
+
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(doLatLng);
+        markerOptions.title(dropOffSt);
+        markerOptions.snippet("Dropoff Point");
+        Bitmap icon = BitmapFactory.decodeResource(getResources(),R.drawable.flagged);
+        Bitmap marker = Bitmap.createScaledBitmap(icon,150, 150, false);
+        BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(marker);
+
+        if (DropOff == null) {
+
+            DropOff = map.addMarker(markerOptions.icon(smallMarkerIcon));
+
+        } else {
+            DropOff.setPosition(doLatLng);
+        }
+
+        doMarkerGeofence();
         fitAllMarkers();
-
     }
 
     public void puMarkerGeofence(){
 
 
         if (Pickup != null){
-
-            Toast.makeText(this ,"Went IF", Toast.LENGTH_SHORT).show();
-
             addCircle(puLatLng, GEOFENCE_RADIUS);
             addGeofence(puLatLng, GEOFENCE_RADIUS);
 
@@ -1745,20 +2009,119 @@ public void startStartTrip(){
                 @Override
                 public void run() {
 
-                    Toast.makeText(Home.this, "Went ELSE", Toast.LENGTH_SHORT).show();
-
-
-                    addCircle(destinationLoc, GEOFENCE_RADIUS);
-                    addGeofence(destinationLoc, GEOFENCE_RADIUS);
+                    addCircle(puLatLng, GEOFENCE_RADIUS);
+                    addGeofence(puLatLng, GEOFENCE_RADIUS);
 
                 }
             },2000);
         }
     }
 
+    public void doMarkerGeofence(){
+
+            mapHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    addCircle(doLatLng, GEOFENCE_RADIUS);
+                    addGeofence(doLatLng, GEOFENCE_RADIUS);
+                }
+            },10000);
+
+    }
+
     public void switchMarkerDO(){
-        showJourney();
+        PuDoLatLng = doLatLng;
+        setPuDoMarker();
+    }
+
+    public void NavDurationRepeater (){
+       navRunnable.run();
+
     }
 
 
+    private Runnable navRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+
+            NavDuration();
+
+            navHandler.postDelayed(this, 500);
+        }
+    };
+
+    public void PolyRepeater (){
+        PolyRunnable.run();
+
+    }
+
+
+    private Runnable PolyRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            for(Polyline line : polylines)
+            {
+                line.remove();
+            }
+            polylines.clear();
+            PolyDirections();
+            navHandler.postDelayed(this, 5000);
+        }
+    };
+
+    public void NavDistRepeater (){
+        distRunnable.run();
+
+    }
+
+
+    private Runnable distRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            distancePU.setText(" " + PUdistance + "\n Pickup");
+
+            if(DisPU <= 0.2 && DisPU != 0){
+                setDoMarker();
+                PuDo = 1;
+            }else if (DisPU>= 0.4 && DisPU<= 0.7 && PuDo == 1){
+            DONavDistRepeater();
+            }
+            DistHandler.postDelayed(this, 500);
+        }
+    };
+
+    public void DONavDistRepeater (){
+        DOdistRunnable.run();
+
+    }
+
+    private Runnable DOdistRunnable = new Runnable() {
+        @Override
+        public void run() {
+            DistHandler.removeCallbacks(distRunnable);
+
+            DONavDuration();
+            distancePU.setText(" " + PUdistance + "\n Dropoff");
+
+             //   if(DisPU <= 0.2 && DisPU != 0){
+              //  setDoMarker();
+               // if(DisPU>= 0.4 && DisPU <= 0.5){
+                //    DistHandler.removeCallbacks(DOdistRunnable);
+               // }
+            //}
+            DistHandler.postDelayed(this, 500);
+        }
+    };
+
+
 }
+
+
+
+
+
+
+

@@ -326,20 +326,36 @@
                 android:textSize="16sp"/>
 
             <TextView
-                android:id="@+id/fare_fill"
+                android:id="@+id/distance_fill"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
                 android:layout_alignBottom="@+id/fare_est"
-                android:layout_marginStart="3dp"
+                android:layout_marginStart="-303dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginBottom="0dp"
+                android:layout_marginBottom="21dp"
                 android:layout_toEndOf="@+id/fare_est"
-                android:hint="12.00"
+                android:hint="KM"
                 android:textAlignment="textStart"
                 android:textAllCaps="false"
                 android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
                 android:textColor="@color/black"
-                android:textSize="16sp"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_alignBottom="@+id/fare_est"
+                android:layout_marginStart="-303dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="-2dp"
+                android:layout_toEndOf="@+id/fare_est"
+                android:text="Distance"
+                android:textAlignment="textStart"
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                android:textColor="@color/black"
+                android:textSize="10sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -353,6 +369,23 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginBottom="0dp"
                 android:text="Fare: ₱"
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/fare_fill"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_alignBottom="@+id/fare_est"
+                android:layout_marginStart="3dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="0dp"
+                android:layout_toEndOf="@+id/fare_est"
+                android:hint="12.00"
+                android:textAlignment="textStart"
                 android:textAllCaps="false"
                 android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
                 android:textColor="@color/black"

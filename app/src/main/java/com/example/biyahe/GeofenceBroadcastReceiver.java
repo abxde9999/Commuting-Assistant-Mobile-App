@@ -3,6 +3,7 @@ package com.example.biyahe;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.Location;
 import android.util.Log;
 import android.widget.Toast;import androidx.activity.result.ActivityResult;
@@ -111,6 +112,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.common.eventbus.EventBus;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -130,7 +132,7 @@ import java.util.List;
 
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
-    int PuDo;
+
 
     private static final String TAG = "GeofenceBroadcastReceiver";
 
@@ -139,9 +141,7 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
         // TODO: This method is called when the BroadcastReceiver is receiving
         // an Intent broadcast.
 //        Toast.makeText(context, "Geofence triggered...", Toast.LENGTH_SHORT).show();
-
         NotificationHelper notificationHelper = new NotificationHelper(context);
-
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
 
         if (geofencingEvent.hasError()) {
@@ -159,23 +159,18 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 Toast.makeText(context, "You are near the drop off location.", Toast.LENGTH_SHORT).show();
-                notificationHelper.sendHighPriorityNotification("You are near the drop off location", "", Home.class);
+                notificationHelper.sendHighPriorityNotification("You are near the drop off location", "You are near the drop off location", Home.class);
                 break;
-            case Geofence.GEOFENCE_TRANSITION_DWELL:
-                Toast.makeText(context, "Pickup/Dropoff Location reached.", Toast.LENGTH_SHORT).show();
-                notificationHelper.sendHighPriorityNotification("Pickup/Dropoff Location reached.", "", Home.class);
 
-                Home home = new Home();
-                home.showJourney();
+            case Geofence.GEOFENCE_TRANSITION_DWELL:
+                Toast.makeText(context, "Pickup/Drop off Location reached.", Toast.LENGTH_SHORT).show();
+                notificationHelper.sendHighPriorityNotification("Pickup/Drop off Location reached.", "Pickup/Drop off Location reached.", Home.class);
 
                 break;
             case Geofence.GEOFENCE_TRANSITION_EXIT:
-                Toast.makeText(context, "Leaving Pickup/Dropoff point.", Toast.LENGTH_SHORT).show();
-                notificationHelper.sendHighPriorityNotification("Leaving Pickup/Dropoff point.", "", Home.class);
-                home = new Home();
-                home.showJourney();
+                Toast.makeText(context, "Leaving Pickup/Drop off point.", Toast.LENGTH_SHORT).show();
+                notificationHelper.sendHighPriorityNotification("Leaving Pickup/Drop off point.", "Leaving Pickup/Drop off point.", Home.class);
                 break;
         }
-
     }
 }

@@ -34,6 +34,7 @@ android {
     namespace 'com.example.biyahe'
 }
 
+
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.5.1'
@@ -59,6 +60,7 @@ dependencies {
     implementation 'com.android.volley:volley:1.1.0'
     implementation 'androidx.preference:preference:1.2.0'
     implementation 'com.android.support:design:28.0.0'
+    implementation 'com.google.maps.android:android-maps-utils:0.5+'
 
     //Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'

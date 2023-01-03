@@ -1,24 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cLayout"
     android:layout_width="match_parent"
     android:layout_height="118dp"
-    android:background="@color/quantum_amber300"
+    android:background="@drawable/rounder_corner3"
     android:textSize="14sp"
     android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/quantum_amber300"
+        android:background="@drawable/rounder_corner3"
         android:gravity="left">
 
         <ImageView
             android:layout_width="45dp"
             android:layout_height="45dp"
+            android:src="@drawable/puv_icon1"
             android:layout_marginStart="17dp"
             android:layout_marginTop="15dp"
-            android:src="@drawable/puv_icon1"></ImageView>
+            ></ImageView>
 
         <TextView
             android:id="@+id/pickup"
@@ -35,24 +37,22 @@
 
         <TextView
             android:id="@+id/pickup_fill"
-            android:layout_width="100dp"
+            android:layout_width="wrap_content"
             android:layout_height="30dp"
-            android:layout_marginStart="11dp"
+            android:layout_marginStart="135dp"
             android:layout_marginTop="10dp"
-            android:layout_toEndOf="@+id/pickup"
             android:hint="PUP-Divisoria"
             android:textAllCaps="false"
             android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
             android:textColor="@color/black"
-            android:textSize="12sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
-
         <TextView
             android:id="@+id/drop_off"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
-            android:layout_below="@+id/pickup"
             android:layout_marginStart="75dp"
+            android:layout_below="@+id/pickup"
             android:text="Drop-off: "
             android:textAllCaps="false"
             android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
@@ -70,15 +70,15 @@
             android:textAllCaps="false"
             android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
             android:textColor="@color/black"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/nxt_ride"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
-            android:layout_below="@+id/drop_off"
             android:layout_marginStart="75dp"
+            android:layout_below="@+id/drop_off"
             android:layout_marginTop="10dp"
             android:text="Next: "
             android:textAllCaps="false"
@@ -93,29 +93,44 @@
             android:layout_below="@id/dropoff_fill"
             android:layout_marginStart="120dp"
             android:layout_marginTop="10dp"
+            android:textColorLink="@color/quantum_grey"
             android:hint="Bacood-Quiapo"
             android:textAllCaps="false"
             android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
             android:textColor="@color/black"
-            android:textColorLink="@color/quantum_grey"
-            android:textSize="16sp" />
-
+            android:textSize="16sp"/>
 
         <TextView
-            android:id="@+id/fare_fill"
+            android:id="@+id/distance_fill"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:layout_alignBottom="@+id/fare_est"
-            android:layout_marginStart="3dp"
+            android:layout_marginStart="-303dp"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="0dp"
+            android:layout_marginBottom="21dp"
             android:layout_toEndOf="@+id/fare_est"
-            android:hint="12.00"
+            android:hint="KM"
             android:textAlignment="textStart"
             android:textAllCaps="false"
             android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
             android:textColor="@color/black"
-            android:textSize="16sp"
+            android:textSize="10sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_alignBottom="@+id/fare_est"
+            android:layout_marginStart="-303dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="-2dp"
+            android:layout_toEndOf="@+id/fare_est"
+            android:text="Distance"
+            android:textAlignment="textStart"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textColor="@color/black"
+            android:textSize="10sp"
             android:textStyle="bold" />
 
         <TextView
@@ -129,6 +144,23 @@
             android:layout_marginRight="20dp"
             android:layout_marginBottom="0dp"
             android:text="Fare: ₱"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/fare_fill"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_alignBottom="@+id/fare_est"
+            android:layout_marginStart="3dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="0dp"
+            android:layout_toEndOf="@+id/fare_est"
+            android:hint="12.00"
+            android:textAlignment="textStart"
             android:textAllCaps="false"
             android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
             android:textColor="@color/black"
