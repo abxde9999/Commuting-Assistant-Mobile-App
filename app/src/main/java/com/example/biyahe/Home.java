@@ -37,6 +37,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.media.audiofx.Equalizer;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -72,6 +73,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.biyahe.Utility.NetworkChangeListener;
 import com.example.biyahe.model.AutocompleteEditText;
 import com.google.android.gms.common.api.CommonStatusCodes;
 import com.google.android.gms.common.api.ApiException;
@@ -351,6 +353,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
     private FusedLocationProviderClient fusedLocationProviderClient;
     private static final int PERMISSION_REQUEST_CODE = 1000;
 
+    NetworkChangeListener networkChangeListener = new NetworkChangeListener(); //initialization of no wifi popup
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -542,11 +545,23 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         // Attach an Autocomplete intent to the Address 1 EditText field
         address1Field.setOnClickListener(startAutocompleteIntentListener);
         address2Field.setOnClickListener(startAutocompleteIntentListener2);
-//
-
 
     }
 
+    //Function for no wifi popup
+    @Override
+    protected void onStart(){
+        IntentFilter filter =new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        registerReceiver(networkChangeListener, filter);
+        super.onStart();
+    }
+
+    //Function for no wifi popup
+    @Override
+    protected void onStop() {
+        unregisterReceiver(networkChangeListener);
+        super.onStop();
+    }
 
     @SuppressLint("MissingPermission")
     private void addGeofence(LatLng latLng, float radius) {
