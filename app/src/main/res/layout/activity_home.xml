@@ -74,49 +74,28 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/useCurrentLoc"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignEnd="@id/autocomplete_address1"
-                        android:src="@drawable/currloc"
-                        app:backgroundTint="@color/quantum_amber300"
-                        android:layout_marginTop="21dp"
-                        app:fabCustomSize="24dp"
-                        app:rippleColor="#00FFFFFF" />
-
-                    <com.example.biyahe.model.AutocompleteEditText
-                        android:id="@+id/autocomplete_address1"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="20dp"
-                        android:layout_marginTop="20dp"
-                        android:drawableLeft="@drawable/ic_origin"
-                        android:outlineAmbientShadowColor="@color/black"
-                        android:autofillHints=""
-                        android:background="@android:color/background_light"
-                        android:drawablePadding="16dp"
-                        android:hint="Set Origin"
-                        android:imeOptions="actionNext"
-                        android:inputType="text"
-                        android:padding="13dp" />
-                </RelativeLayout>
-
-                <com.example.biyahe.model.AutocompleteEditText
-                    android:id="@+id/autocomplete_address2"
+                <AutoCompleteTextView
+                    android:id="@+id/searchTrip"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="20dp"
-                    android:layout_marginTop="10dp"
-                    android:autofillHints=""
+                    android:layout_marginTop="20dp"
+                    android:drawableLeft="@drawable/ic_search"
+                    android:outlineAmbientShadowColor="@color/black"
                     android:background="@android:color/background_light"
-                    android:drawableLeft="@drawable/ic_destination"
                     android:drawablePadding="16dp"
-                    android:hint="Set Destination"
-                    android:imeOptions="actionNext"
-                    android:inputType="text"
-                    android:padding="13dp" />
+                    android:hint="Search"
+                    android:padding="13dp"></AutoCompleteTextView>
 
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/listTrips"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/searchTrip"
+                    android:layout_margin="20dp">
+                </androidx.recyclerview.widget.RecyclerView>
+
+                </RelativeLayout>
             </LinearLayout>
 
         </LinearLayout>

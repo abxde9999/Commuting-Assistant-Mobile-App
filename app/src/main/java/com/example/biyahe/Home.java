@@ -13,6 +13,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewTreeViewModelKt;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -31,6 +33,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.ColorSpace;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Icon;
 import android.location.Address;
@@ -58,9 +61,13 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
@@ -131,10 +138,12 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.PolyUtil;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
@@ -149,13 +158,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-public class Home extends FragmentActivity implements OnMapReadyCallback{
+public class Home extends FragmentActivity implements OnMapReadyCallback {
 
     String[] DList;
 
@@ -231,7 +241,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
 
     //Nearby
     double nearbyLatitude, nearbyLongitude;
-    String nearbyPlace, durationDes,distanceDes;
+    String nearbyPlace, durationDes, distanceDes;
 
 
     LatLng Southwest = new LatLng(SouthWestLat, SouthWestLong);
@@ -337,7 +347,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
     String msgI;
 
 
-    ExtendedFloatingActionButton startTrip, hospitals, schools, restaurants,endTrip;
+    ExtendedFloatingActionButton startTrip, hospitals, schools, restaurants, endTrip;
     FloatingActionButton explore;
     BottomNavigationView bottomNav;
     Marker currentLocationMarker;
@@ -355,6 +365,12 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
 
     NetworkChangeListener networkChangeListener = new NetworkChangeListener(); //initialization of no wifi popup
 
+    //New search view
+    DatabaseReference ref;
+    private AutoCompleteTextView searchTrip;
+    private RecyclerView listTrips;
+
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -363,6 +379,15 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        //Initialize new search view
+        ref = FirebaseDatabase.getInstance().getReference("location_information");
+        searchTrip = (AutoCompleteTextView) findViewById(R.id.searchTrip);
+        listTrips = (RecyclerView) findViewById(R.id.listTrips);
+        RecyclerView.LayoutManager layoutManager= new LinearLayoutManager(this);
+        listTrips.setLayoutManager(layoutManager);
+
+        //Method for new search view
+        populateSearch();
 
         //Set the variable to the id of textview in Layout
         pickUp = findViewById(R.id.pickup_fill);
@@ -456,23 +481,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         onStartMap();
 
 
-
-
-
-
-
-
-        //Use Current Location
-        useCurrLoc = findViewById(R.id.useCurrentLoc);
-        useCurrLoc.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                useCurrLoc();
-            }
-        });
-
-
-
         // Get Location
 
 
@@ -486,12 +494,12 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
                         if (msgRc != "" && msgI != "") {
                             //Check permission
                             if (ContextCompat.checkSelfPermission(Home.this, Manifest.permission.SEND_SMS)
-                                    == PackageManager.PERMISSION_GRANTED){
+                                    == PackageManager.PERMISSION_GRANTED) {
                                 //When permission is granted
                                 //Create a Method
 
                                 sendSOS();
-                            }else{
+                            } else {
                                 //When Permission is not Granted
                                 //Request for Permission
                                 ActivityCompat.requestPermissions(Home.this, new String[]{Manifest.permission.SEND_SMS},
@@ -517,10 +525,10 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
                         startAutocompleteIntent3();
                         break;
                     case R.id.nearby:
-                        if (nearby == 0){
+                        if (nearby == 0) {
                             animateNearbyIn();
                             nearby = 1;
-                        }else {
+                        } else {
                             animateNearbyOut();
                             nearby = 0;
                         }
@@ -532,21 +540,141 @@ public class Home extends FragmentActivity implements OnMapReadyCallback{
         });
 
 
-
-//
-        Places.initialize(getApplicationContext(), "AIzaSyBzKLXS2uFOSVE1Lhr3AOkDn1OkbKfo01M");
-        // Retrieve a PlacesClient (previously initialized - see MainActivity)
-        placesClient = Places.createClient(this);
-
-        address1Field = findViewById(R.id.autocomplete_address1);
-        address2Field = findViewById(R.id.autocomplete_address2);
-
-
-        // Attach an Autocomplete intent to the Address 1 EditText field
-        address1Field.setOnClickListener(startAutocompleteIntentListener);
-        address2Field.setOnClickListener(startAutocompleteIntentListener2);
-
     }
+
+    //Method for new search view
+    private void populateSearch() {
+        ValueEventListener eventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    ArrayList<String> places = new ArrayList<>();
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        String p = ds.child("place").getValue(String.class);
+                        places.add(p);
+                    }
+                    ArrayAdapter adapter = new ArrayAdapter(getApplicationContext(), android.R.layout.simple_list_item_1, places);
+                    searchTrip.setAdapter(adapter);
+                    searchTrip.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            String selection = parent.getItemAtPosition(position).toString();
+                            getLocation_info(selection);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        ref.addListenerForSingleValueEvent(eventListener);
+    }
+
+    private void getLocation_info(String selection) {
+
+        Query query = ref.orderByChild("place").equalTo(selection);
+        ValueEventListener eventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    ArrayList<LocationDeails> locDetails = new ArrayList<>();
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        LocationDeails locationDeails = new LocationDeails(ds.child("place").getValue(String.class)
+                                , ds.getKey());
+                        locDetails.add(locationDeails);
+                    }
+                    MyAdapter adapter=new MyAdapter(locDetails, getApplicationContext());
+                    listTrips.setAdapter(adapter);
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        query.addListenerForSingleValueEvent(eventListener);
+    }
+
+    class LocationDeails {
+        public String getPlace() {
+            return place;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public String place;
+        public String key;
+
+        public LocationDeails(String place, String key) {
+            this.place = place;
+            this.key = key;
+        }
+    }
+
+    public static class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
+        private ArrayList<LocationDeails> mDataSet;
+        private Context mContext;
+
+        /**
+         * Provide a reference to the type of views that you are using
+         * (custom ViewHolder)
+         */
+        public static class ViewHolder extends RecyclerView.ViewHolder {
+            TextView place;
+            public ViewHolder(View v) {
+                super(v);
+                // Define click listener for the ViewHolder's View
+                place=(TextView)v.findViewById(R.id.place);
+            }
+
+        }
+
+        public MyAdapter(ArrayList<LocationDeails> myDataSet, Context mContext) {
+            this.mDataSet = myDataSet;
+            this.mContext = mContext;
+        }
+
+        // Create new views (invoked by the layout manager)
+        @Override
+        public MyAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+            LayoutInflater layoutInflater=LayoutInflater.from(parent.getContext());
+            View view=layoutInflater.inflate(R.layout.row_style,parent, false);
+            return new ViewHolder(view);
+        }
+
+        // Replace the contents of a view (invoked by the layout manager)
+        @Override
+        public void onBindViewHolder(ViewHolder holder, int position) {
+
+            LocationDeails thisplace=mDataSet.get(position);
+            holder.place.setText(thisplace.getPlace());
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(mContext,Home.class);
+                    intent.putExtra("key",thisplace.getKey());
+                    mContext.startActivity(intent);
+                }
+            });
+        }
+
+        // Return the size of your dataset (invoked by the layout manager)
+        @Override
+        public int getItemCount() {
+            return mDataSet.size();
+        }
+    }
+
+
+
 
     //Function for no wifi popup
     @Override

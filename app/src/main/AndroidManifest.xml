@@ -19,6 +19,13 @@
         android:theme="@style/Theme.Biyahe"
         tools:targetApi="31">
         <activity
+            android:name=".SearchTrip"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
             android:name=".Firebasee"
             android:exported="false">
             <meta-data
@@ -30,14 +37,15 @@
             android:name=".GeofenceBroadcastReceiver"
             android:enabled="true"
             android:exported="true" />
-
-        <!--<activity
+        <!--
+<activity
             android:name=".ProgrammaticAutocompleteToolbarActivity"
             android:exported="false">
             <meta-data
                 android:name="android.app.lib_name"
                 android:value="" />
-        </activity>-->
+        </activity>
+        -->
         <activity
             android:name=".AutocompleteAddressActivity"
             android:exported="false">

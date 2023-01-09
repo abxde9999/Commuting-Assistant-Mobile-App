@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SearchTrip">
+
+    <AutoCompleteTextView
+        android:id="@+id/searchTrips"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="20dp"
+        android:drawableLeft="@drawable/ic_search"
+        android:outlineAmbientShadowColor="@color/black"
+        android:background="@android:color/background_light"
+        android:drawablePadding="16dp"
+        android:hint="Search"
+        android:padding="13dp"></AutoCompleteTextView>
+    
+    <ListView
+        android:id="@+id/listTrip"
+        android:layout_below="@+id/searchTrips"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/background_color"></ListView>
+
+</RelativeLayout>
