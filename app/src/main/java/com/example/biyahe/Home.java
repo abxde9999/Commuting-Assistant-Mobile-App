@@ -580,11 +580,11 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    ArrayList<LocationDeails> locDetails = new ArrayList<>();
+                    ArrayList<LocationDetails> locDetails = new ArrayList<>();
                     for (DataSnapshot ds : snapshot.getChildren()) {
-                        LocationDeails locationDeails = new LocationDeails(ds.child("place").getValue(String.class)
+                        LocationDetails locationDetails = new LocationDetails(ds.child("place").getValue(String.class)
                                 , ds.getKey());
-                        locDetails.add(locationDeails);
+                        locDetails.add(locationDetails);
                     }
                     MyAdapter adapter=new MyAdapter(locDetails, getApplicationContext());
                     listTrips.setAdapter(adapter);
@@ -600,7 +600,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         query.addListenerForSingleValueEvent(eventListener);
     }
 
-    class LocationDeails {
+    class LocationDetails {
         public String getPlace() {
             return place;
         }
@@ -612,14 +612,14 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         public String place;
         public String key;
 
-        public LocationDeails(String place, String key) {
+        public LocationDetails(String place, String key) {
             this.place = place;
             this.key = key;
         }
     }
 
     public static class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
-        private ArrayList<LocationDeails> mDataSet;
+        private ArrayList<LocationDetails> mDataSet;
         private Context mContext;
 
         /**
@@ -636,7 +636,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
         }
 
-        public MyAdapter(ArrayList<LocationDeails> myDataSet, Context mContext) {
+        public MyAdapter(ArrayList<LocationDetails> myDataSet, Context mContext) {
             this.mDataSet = myDataSet;
             this.mContext = mContext;
         }
@@ -654,7 +654,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
 
-            LocationDeails thisplace=mDataSet.get(position);
+            LocationDetails thisplace=mDataSet.get(position);
             holder.place.setText(thisplace.getPlace());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
