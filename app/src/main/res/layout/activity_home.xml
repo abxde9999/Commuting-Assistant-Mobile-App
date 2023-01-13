@@ -52,23 +52,25 @@
                 android:orientation="vertical"
 
                 android:layout_marginTop="20dp">
+
                 <TextView
 
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="33dp"
-                android:textColor="@color/black"
-                android:textIsSelectable="true"
-                android:textSize="30sp"
-                android:textStyle="bold"
-                android:layout_marginLeft="20dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.763"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.666"
-                android:text="Trip\nPlanner"/>
+                    android:id="@+id/trip_planner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="33dp"
+                    android:text="Trip\nPlanner"
+                    android:textColor="@color/black"
+                    android:textIsSelectable="true"
+                    android:textSize="30sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.763"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.666" />
 
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -133,7 +135,7 @@
         android:id="@+id/startTrip"
 
         android:layout_width="151dp"
-        android:layout_height="58dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="550dp"
         android:layout_marginBottom="16dp"
         android:text="Start Trip!"
@@ -149,20 +151,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:rippleColor="@color/places_text_white_alpha_26" />
+
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/endTrip"
 
         android:layout_width="151dp"
-        android:layout_height="58dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="550dp"
         android:layout_marginBottom="16dp"
         android:text="End trip"
         android:textAlignment="center"
         android:textAllCaps="true"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:textColor="@color/quantum_white_100"
         android:textStyle="bold"
         app:backgroundTint="@color/quantum_deeporangeA400"
-        android:textColor="@color/quantum_white_100"
         app:icon="@drawable/jeepney2"
         app:layout_anchor="@+id/linearLayout2"
         app:layout_anchorGravity="end|top"
@@ -203,14 +206,14 @@
         app:layout_anchor="@id/btmAppBar"
         app:maxImageSize="35dp" />
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    <LinearLayout
         android:id="@+id/cLayout"
         android:layout_width="match_parent"
         android:layout_height="118dp"
         android:background="@drawable/rounder_corner3"
-        android:textSize="14sp"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:textSize="14sp">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -221,10 +224,9 @@
             <ImageView
                 android:layout_width="45dp"
                 android:layout_height="45dp"
-                android:src="@drawable/puv_icon1"
                 android:layout_marginStart="17dp"
                 android:layout_marginTop="15dp"
-                ></ImageView>
+                android:src="@drawable/puv_icon1"></ImageView>
 
             <TextView
                 android:id="@+id/pickup"
@@ -251,12 +253,13 @@
                 android:textColor="@color/black"
                 android:textSize="14sp"
                 android:textStyle="bold" />
+
             <TextView
                 android:id="@+id/drop_off"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
-                android:layout_marginStart="75dp"
                 android:layout_below="@+id/pickup"
+                android:layout_marginStart="75dp"
                 android:text="Drop-off: "
                 android:textAllCaps="false"
                 android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
@@ -281,8 +284,8 @@
                 android:id="@+id/nxt_ride"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
-                android:layout_marginStart="75dp"
                 android:layout_below="@+id/drop_off"
+                android:layout_marginStart="75dp"
                 android:layout_marginTop="10dp"
                 android:text="Next: "
                 android:textAllCaps="false"
@@ -297,22 +300,22 @@
                 android:layout_below="@id/dropoff_fill"
                 android:layout_marginStart="120dp"
                 android:layout_marginTop="10dp"
-                android:textColorLink="@color/quantum_grey"
                 android:hint="Bacood-Quiapo"
                 android:textAllCaps="false"
                 android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
                 android:textColor="@color/black"
-                android:textSize="16sp"/>
+                android:textColorLink="@color/quantum_grey"
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/distance_fill"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
+                android:layout_alignStart="@+id/nxt_ride"
                 android:layout_alignBottom="@+id/fare_est"
-                android:layout_marginStart="-303dp"
+                android:layout_marginStart="-58dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="21dp"
-                android:layout_toEndOf="@+id/fare_est"
                 android:hint="KM"
                 android:textAlignment="textStart"
                 android:textAllCaps="false"
@@ -324,11 +327,11 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
+                android:layout_alignStart="@+id/nxt_ride"
                 android:layout_alignBottom="@+id/fare_est"
-                android:layout_marginStart="-303dp"
+                android:layout_marginStart="-56dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="-2dp"
-                android:layout_toEndOf="@+id/fare_est"
                 android:text="Distance"
                 android:textAlignment="textStart"
                 android:textAllCaps="false"
@@ -341,12 +344,12 @@
                 android:id="@+id/fare_est"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
-                android:layout_alignStart="@+id/nxt_ride"
                 android:layout_alignBottom="@+id/nxt_ride"
-                android:layout_marginStart="194dp"
+                android:layout_marginStart="14dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="20dp"
                 android:layout_marginBottom="0dp"
+                android:layout_toEndOf="@+id/next_fill"
                 android:text="Fare: ₱"
                 android:textAllCaps="false"
                 android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
@@ -375,7 +378,6 @@
         </RelativeLayout>
 
     </LinearLayout>
-
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cLayout2"
@@ -406,7 +408,7 @@
             android:id="@+id/textView2"
             android:layout_width="211dp"
             android:layout_height="35dp"
-            android:text="Your are currently at:"
+            android:text="You are currently at:"
             android:textAllCaps="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textColor="@color/black"
