@@ -5,14 +5,12 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.ViewTreeViewModelKt;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,60 +18,41 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
+
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
+
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.ColorSpace;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Icon;
-import android.inputmethodservice.Keyboard;
-import android.inputmethodservice.KeyboardView;
+
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.media.audiofx.Equalizer;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
-import android.provider.Settings;
+
 import android.telephony.SmsManager;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
+
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
+
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.EditText;
+
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.PopupMenu;
-import android.widget.RelativeLayout;
-import android.widget.SearchView;
+
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -85,8 +64,6 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.biyahe.Utility.NetworkChangeListener;
 import com.example.biyahe.model.AutocompleteEditText;
-import com.google.android.gms.common.api.CommonStatusCodes;
-import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
@@ -125,21 +102,13 @@ import com.google.android.libraries.places.api.model.AddressComponent;
 import com.google.android.libraries.places.api.model.AddressComponents;
 import com.google.android.libraries.places.api.model.LocationRestriction;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.RectangularBounds;
-import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarView;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -147,18 +116,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-
-import org.checkerframework.checker.units.qual.C;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -194,7 +158,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     LatLng PuDoLatLng;
 
     int PuDo, swap, nav;
-    int ctr;
+    int ctr, mapLoad = 0;
     int centerCtr = 1;
     double DisPU;
 
@@ -747,11 +711,13 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
-        map.setIndoorEnabled(true);
-        map.setTrafficEnabled(true);
-        map.setBuildingsEnabled(true);
-        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
-
+        if(map == googleMap && mapLoad == 0){
+            map.setIndoorEnabled(true);
+            map.setTrafficEnabled(true);
+            map.setBuildingsEnabled(true);
+            map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
+            mapLoad = 1;
+        }
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(LocationResult locationResult) {
@@ -1298,11 +1264,12 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         }
         Task<Location> task = fusedLocationProviderClient.getLastLocation();
         task.addOnSuccessListener(new OnSuccessListener<Location>() {
+            Address address;
             @Override
             public void onSuccess(Location location) {
                 if (location != null) {
                     currentLocation = location;
-                    Address address = null;
+                    address = null;
                     Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
                     SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
                     mapFragment.getMapAsync(Home.this);
@@ -1315,10 +1282,22 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+
+
+                }
+                if (address != null){
                     currLoc.setText(address.getAddressLine(0));
                     //assert mapFragment != null;
                     setUserLocationMarker(location);
-
+                }else{
+                    navHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            currLoc.setText(address.getAddressLine(0));
+                            //assert mapFragment != null;
+                            setUserLocationMarker(location);
+                        }
+                    },2000);
                 }
             }
         });
