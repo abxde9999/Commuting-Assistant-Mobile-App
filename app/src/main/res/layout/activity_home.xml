@@ -41,17 +41,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="10dp"
+            android:background="@drawable/bg"
             android:focusable="false"
-            android:background="@drawable/round_corner2"
             app:layout_anchor="@id/btmAppBar">
 
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:layout_marginTop="20dp"
 
-                android:layout_marginTop="20dp">
+                android:orientation="vertical">
 
                 <TextView
 
@@ -76,30 +76,78 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                <AutoCompleteTextView
-                    android:id="@+id/searchTrip"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginTop="20dp"
-                    android:drawableLeft="@drawable/ic_search"
-                    android:outlineAmbientShadowColor="@color/black"
-                    android:background="@android:color/background_light"
-                    android:drawablePadding="16dp"
-                    android:hint="Search"
-                    android:padding="13dp"></AutoCompleteTextView>
+                    <AutoCompleteTextView
+                        android:id="@+id/searchTrip"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_marginTop="20dp"
+                        android:background="@android:color/background_light"
+                        android:drawableLeft="@drawable/ic_search"
+                        android:drawablePadding="16dp"
+                        android:hint="Search Routes"
+                        android:outlineAmbientShadowColor="@color/black"
+                        android:padding="13dp"></AutoCompleteTextView>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/listTrips"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/searchTrip"
-                    android:layout_margin="20dp">
-                </androidx.recyclerview.widget.RecyclerView>
-
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/listTrips"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/searchTrip"
+                        android:layout_margin="20dp"></androidx.recyclerview.widget.RecyclerView>
                 </RelativeLayout>
-            </LinearLayout>
 
+                <TextView
+                    android:id="@+id/slide_origin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="10dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/slide_dest"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="10dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/slide_fare"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="10dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                    android:id="@+id/confirm_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="16dp"
+                    android:text="Confirm"
+                    android:textAlignment="center"
+                    android:textAllCaps="true"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textStyle="bold"
+                    app:backgroundTint="@color/quantum_white_100"
+                    app:layout_anchor="@+id/linearLayout2"
+                    app:layout_anchorGravity="end|top"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:rippleColor="@color/quantum_amber300" />
+            </LinearLayout>
         </LinearLayout>
 
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>

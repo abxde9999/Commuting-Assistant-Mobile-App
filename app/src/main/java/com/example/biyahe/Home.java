@@ -42,6 +42,7 @@ import android.os.Looper;
 import android.telephony.SmsManager;
 import android.util.Log;
 
+import android.view.DragEvent;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -136,14 +137,14 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     String biyahe, NextRT, NullCheck, NRTcheck;
     Marker Pickup, DropOff;
     DatabaseReference reference; //Declare Variable
-    TextView pickUp, pickupRoute, dropOff, nextRoute, fare, distancePU; //Declare variable for Textviews
-    String pickUpSt, pickupRouteSt, dropOffSt, nextRouteSt, fareSt, pu_lat, pu_lng, do_lat, do_lng, o_lat, o_lng, d_lat, d_lng, trip_dest, trip_org; //Declare the String Variable
+    TextView pickUp, pickupRoute, dropOff, nextRoute, fare, distancePU, slide_origin, slide_dest, slide_fare; //Declare variable for Textviews
+    String pickUpSt, pickupRouteSt, dropOffSt, nextRouteSt, fareSt, pu_lat, pu_lng, do_lat, do_lng, o_lat, o_lng, d_lat, d_lng, trip_dest, trip_org, total_fare; //Declare the String Variable
 
     String PlaceKey, TripID;
 
 
     float distance, speed;
-    int meters, kmh;
+    int meters, kmh, fare_total;
 
 
     String status;
@@ -268,7 +269,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     String msgI;
 
 
-    ExtendedFloatingActionButton startTrip, hospitals, schools, restaurants, endTrip;
+    ExtendedFloatingActionButton startTrip, hospitals, schools, restaurants, endTrip, confirm;
     FloatingActionButton explore;
     BottomNavigationView bottomNav;
     Marker currentLocationMarker;
@@ -317,6 +318,11 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         nextRoute = findViewById(R.id.next_fill);
         fare = findViewById(R.id.fare_fill);
         distancePU = findViewById(R.id.distance_fill);
+        slide_origin = findViewById(R.id.slide_origin);
+        slide_dest = findViewById(R.id.slide_dest);
+        slide_fare = findViewById(R.id.slide_fare);
+        confirm = findViewById(R.id.confirm_button);
+        confirm.setVisibility(View.GONE);
 
 
         startTrip = findViewById(R.id.startTrip);
@@ -448,9 +454,15 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                     case R.id.nearby:
                         if (nearby == 0) {
                             animateNearbyIn();
+                            hospitals.setClickable(true);
+                            schools.setClickable(true);
+                            restaurants.setClickable(true);
                             nearby = 1;
                         } else {
                             animateNearbyOut();
+                            hospitals.setClickable(false);
+                            schools.setClickable(false);
+                            restaurants.setClickable(false);
                             nearby = 0;
                         }
                         break;
@@ -485,8 +497,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                             InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-                            imm.toggleSoftInput(InputMethodManager.HIDE_NOT_ALWAYS, 0);
-
+                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
                             String selection = parent.getItemAtPosition(position).toString();
                             getLocation_info(selection);
                         }
@@ -530,10 +541,23 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     }
 
     public void PlaceKeyShow(){
+        if(startTrip.getVisibility() == View.VISIBLE){
+            startTrip.setVisibility(View.GONE);
+        }
         biyahe = "biyahe";
         NextRT = "biyahe2";
         nav = 0;
         TripDataLoader();
+        confirm.setVisibility(View.VISIBLE);
+        confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Confirm();
+
+            }
+        });
+
+
         //Toast.makeText(this,PlaceKey, Toast.LENGTH_LONG).show();
     }
 
@@ -696,11 +720,9 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
         if (markerDestination == null) {
             markerDestination = map.addMarker(new MarkerOptions().position(destinationLoc).title(trip_dest).icon(smallMarkerIcon).snippet("Destination"));
-            slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             fitAllMarkers();
         } else {
             markerDestination.setPosition(destinationLoc);
-            slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             fitAllMarkers();
 
         }
@@ -1021,13 +1043,12 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
         speed = locationUser.getSpeed();
 
-        kmh = (int) (speed / 3.6);
+        kmh = (int) (speed * 3.6);
 
         distance = results[0];
 
         meters = (int) (distance / 1000);
-
-        Toast.makeText(this, String.valueOf(kmh), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, Integer.toString(kmh) ,Toast.LENGTH_SHORT).show();
     }
 
     // Power Save Map Tracking.
@@ -1396,9 +1417,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
 
     public void startTrip() {
-
-        slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-
         if (originLoc != null && destinationLoc != null) {
             startTrip.setVisibility(View.VISIBLE);
             Duration();
@@ -1475,11 +1493,9 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                 if (markerDestination == null) {
 
                     markerDestination = map.addMarker(new MarkerOptions().position(destinationLoc).title("Duration = " + duration).icon(smallMarkerIcon).snippet("Distance = " + distance));
-                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                     fitAllMarkers();
                 } else {
                     markerDestination.setPosition(destinationLoc);
-                    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
                     fitAllMarkers();
 
                 }
@@ -1500,10 +1516,20 @@ public void tripFinished(){
         @Override
         public void onClick(DialogInterface dialog, int which) {
 
+            bottomNav.getMenu().findItem(R.id.nearby).setEnabled(true);
+            bottomNav.getMenu().findItem(R.id.nearby).setCheckable(true);
+
+
             animateTripOut();
             slidingUpPanelLayout.setTouchEnabled(true);
             startTrip.setVisibility(View.GONE);
             endTrip.setVisibility(View.GONE);
+
+
+            slide_origin.setText(null);
+            slide_dest.setText(null);
+            slide_fare.setText(null);
+            confirm.setVisibility(View.GONE);
 
             Pickup.remove();
 
@@ -1575,6 +1601,14 @@ public void endTrip(){
         @Override
         public void onClick(DialogInterface dialog, int which) {
 
+            bottomNav.getMenu().findItem(R.id.nearby).setEnabled(true);
+            bottomNav.getMenu().findItem(R.id.nearby).setCheckable(true);
+
+            slide_origin.setText(null);
+            slide_dest.setText(null);
+            slide_fare.setText(null);
+            confirm.setVisibility(View.GONE);
+
             animateTripOut();
             slidingUpPanelLayout.setTouchEnabled(true);
             startTrip.setVisibility(View.GONE);
@@ -1644,6 +1678,9 @@ public void startStartTrip(){
     animateTripIn();
     startTrip.setVisibility(View.GONE);
     endTrip.setVisibility(View.VISIBLE);
+    slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+    bottomNav.getMenu().findItem(R.id.nearby).setEnabled(false);
+    bottomNav.getMenu().findItem(R.id.nearby).setCheckable(false);
 
     biyahe = "biyahe";
 
@@ -1701,6 +1738,20 @@ public void startStartTrip(){
                     d_lng = snapshot.child(PlaceKey).child("destinationLng").getValue().toString();
                     trip_dest = snapshot.child(PlaceKey).child("destination").getValue().toString();
 
+
+
+                    if(snapshot.child(PlaceKey).child("way").child("biyahe").getValue().toString() != "false"){
+                        fare_total = Integer.parseInt(snapshot.child(PlaceKey).child("way").child("biyahe").child("fare").getValue().toString());
+                        if(snapshot.child(PlaceKey).child("way").child("biyahe2").getValue().toString() != "false"){
+                            fare_total = Integer.parseInt(snapshot.child(PlaceKey).child("way").child("biyahe").child("fare").getValue().toString()) + Integer.parseInt(snapshot.child(PlaceKey).child("way").child("biyahe2").child("fare").getValue().toString());
+                            if(snapshot.child(PlaceKey).child("way").child("biyahe3").getValue().toString() != "false"){
+                                fare_total = Integer.parseInt(snapshot.child(PlaceKey).child("way").child("biyahe").child("fare").getValue().toString()) + Integer.parseInt(snapshot.child(PlaceKey).child("way").child("biyahe2").child("fare").getValue().toString()) + Integer.parseInt(snapshot.child(PlaceKey).child("way").child("biyahe3").child("fare").getValue().toString());
+                            }
+                        }
+                    }
+
+                    total_fare = Integer.toString(fare_total);
+
                     NRTcheck = snapshot.child(PlaceKey).child("way").child(NextRT).getValue().toString();
                     if(NRTcheck != "false"){
                         nextRouteSt = snapshot.child(PlaceKey).child("way").child(NextRT).child("pu_route").getValue().toString();
@@ -1733,6 +1784,12 @@ public void startStartTrip(){
     }
 
     public void Nav() {
+        slide_origin.setText("Origin: " + trip_org);
+        slide_dest.setText("Destination: " + trip_dest);
+        slide_fare.setText("Fare Estimate: ₱" + total_fare);
+    }
+    public void Confirm(){
+        slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         showOrigin();
         showDestination();
         startTrip();
@@ -1874,7 +1931,7 @@ public void startStartTrip(){
                 swap = 1;
                 DONavDistRepeater();
                 DistHandler.removeCallbacks(distRunnable);
-            }else if (kmh >= 15 && distance>= 200 && distance<= 700){
+            }else if (kmh >= 25 && distance>= 200 && distance<= 700){
                 setDoMarker();
                 doMarkerGeofence();
                 PuDo = 1;

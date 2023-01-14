@@ -4,69 +4,120 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
     tools:context=".Firebasee">
 
-
-    <TextView
-        android:id="@+id/pickup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="38dp"
-        android:layout_marginTop="91dp"
-        android:hint="Pickup"
-        android:textColorHint="@color/black"
-        android:textSize="20dp" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg"
+        android:focusable="false"
+        app:layout_anchor="@id/btmAppBar">
 
 
-    <TextView
-        android:id="@+id/pickupRoute"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="170dp"
-        android:hint="Pickup Route"
-        android:textColorHint="@color/black"
-        android:textSize="20dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
 
-    <TextView
-        android:id="@+id/dropoff"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="35dp"
-        android:layout_marginTop="243dp"
-        android:hint="Dropoff"
-        android:textColorHint="@color/black"
-        android:textSize="20dp" />
+            android:orientation="vertical">
 
+            <TextView
 
-    <TextView
-        android:id="@+id/nextRoute"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="382dp"
-        android:hint="Next Route"
-        android:textColorHint="@color/black"
-        android:textSize="20dp" />
+                android:id="@+id/trip_planner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="33dp"
+                android:text="Trip\nPlanner"
+                android:textColor="@color/black"
+                android:textIsSelectable="true"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.763"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.666" />
 
-    <TextView
-        android:id="@+id/fare"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="37dp"
-        android:layout_marginTop="308dp"
-        android:hint="Fare"
-        android:textColorHint="@color/black"
-        android:textSize="20dp" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <AutoCompleteTextView
+                    android:id="@+id/searchTrip"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@android:color/background_light"
+                    android:drawableLeft="@drawable/ic_search"
+                    android:drawablePadding="16dp"
+                    android:hint="Search Routes"
+                    android:outlineAmbientShadowColor="@color/black"
+                    android:padding="13dp"></AutoCompleteTextView>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/listTrips"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/searchTrip"
+                    android:layout_margin="20dp"></androidx.recyclerview.widget.RecyclerView>
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                android:text="Origin: "
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                android:text="Destination: "
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="10dp"
+                android:text="Fare Estimate: "
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textSize="25sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                android:id="@+id/confirm_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="16dp"
+                android:text="Confirm"
+                android:textAlignment="center"
+                android:textAllCaps="true"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                android:textStyle="bold"
+                app:backgroundTint="@color/quantum_white_100"
+                app:layout_anchor="@+id/linearLayout2"
+                app:layout_anchorGravity="end|top"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:rippleColor="@color/quantum_amber300" />
+        </LinearLayout>
+    </LinearLayout>
 
 </RelativeLayout>
