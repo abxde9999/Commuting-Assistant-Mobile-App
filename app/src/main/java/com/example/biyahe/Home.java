@@ -485,7 +485,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                             InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
-                            imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+                            imm.toggleSoftInput(InputMethodManager.HIDE_NOT_ALWAYS, 0);
 
                             String selection = parent.getItemAtPosition(position).toString();
                             getLocation_info(selection);
@@ -1748,7 +1748,7 @@ public void startStartTrip(){
         //pickupRoute.setText(pickupRouteSt);
         dropOff.setText(dropOffSt);
         fare.setText(fareSt);
-        nextRoute.setText(nextRouteSt);
+        nextRoute.setText(pickupRouteSt);
         NavDurationRepeater();
         puMarkerGeofence();
     }
@@ -1868,6 +1868,7 @@ public void startStartTrip(){
             if(distance <= 200 && distance != 0 && PuDo == 0){
                 setDoMarker();
                 doMarkerGeofence();
+                nextRoute.setText(nextRouteSt);
                 PuDo = 1;
             }else if (distance>= 400 && distance<= 500 && PuDo == 1){
                 swap = 1;
@@ -1878,6 +1879,7 @@ public void startStartTrip(){
                 doMarkerGeofence();
                 PuDo = 1;
                 swap = 1;
+                nextRoute.setText(nextRouteSt);
                 DONavDistRepeater();
                 DistHandler.removeCallbacks(distRunnable);
             }else if(NullCheck == "false" && ctr == 0){
@@ -1896,9 +1898,7 @@ public void startStartTrip(){
 
     public void DONavDistRepeater (){
         DOdistRunnable.run();
-
     }
-
     private Runnable DOdistRunnable = new Runnable() {
         @Override
         public void run() {
