@@ -177,7 +177,7 @@ public class ProgrammaticAutocompleteToolbarActivity extends AppCompatActivity {
 
     private void geocodePlaceAndDisplay(AutocompletePrediction placePrediction) {
         // Construct the request URL
-        final String apiKey = "AIzaSyBzKLXS2uFOSVE1Lhr3AOkDn1OkbKfo01M";
+        final String apiKey = "AIzaSyA9y3TlxDiPcFrRXML4EbjGeJqr7h6f308";
         final String url = "https://maps.googleapis.com/maps/api/geocode/json?place_id=%s&key=%s";
         final String requestURL = String.format(url, placePrediction.getPlaceId(), apiKey);
 

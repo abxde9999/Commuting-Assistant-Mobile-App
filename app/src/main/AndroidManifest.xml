@@ -80,7 +80,6 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyA9y3TlxDiPcFrRXML4EbjGeJqr7h6f308" />
-
         <activity
             android:name=".ForgotPassword"
             android:exported="true" />

@@ -221,8 +221,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     private static final String TAG2 = "ADDRESS_AUTOCOMPLETE";
     private static final String TAG = "MapsActivity";
     private static final String MAP_FRAGMENT_TAG = "MAP";
-    private AutocompleteEditText address1Field;
-    private AutocompleteEditText address2Field;
     private AutocompleteEditText address3Field;
     private LatLng coordinates;
     private boolean checkProximity = false;
@@ -498,6 +496,9 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             }
         });
 
+        Places.initialize(getApplicationContext(), "AIzaSyA9y3TlxDiPcFrRXML4EbjGeJqr7h6f308");
+        // Retrieve a PlacesClient (previously initialized - see MainActivity)
+        placesClient = Places.createClient(this);
 
     }
 
@@ -653,7 +654,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         // Build the autocomplete intent with field, country, and type filters applied
         Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
                 .setCountry("PH")
-                .setLocationBias(RectangularBounds.newInstance(Southwest, Northeast))
                 .build(this);
         startAutocomplete3.launch(intent);
     }
@@ -708,8 +708,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             searchMarker = map.addMarker(new MarkerOptions().position(latLng).title(address).icon(smallMarkerIcon));
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
         }
-
-
 
     }
 
@@ -1044,35 +1042,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         map.animateCamera(cu);
     }
 
-    public void useCurrLoc() {
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(Home.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
-            return;
-        }
-        Task<Location> task = fusedLocationProviderClient.getLastLocation();
-        task.addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    currentLocation = location;
-                    Address address = null;
-                    Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
-
-                    try {
-                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                        address = addresses.get(0);
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    address1Field.setText(address.getAddressLine(0));
-                    originLoc = new LatLng(address.getLatitude(), address.getLongitude());
-
-                }
-            }
-        });
-    }
 
     public void calcDistance() {
 
@@ -1462,7 +1431,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    useCurrLoc();
                     mapHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
