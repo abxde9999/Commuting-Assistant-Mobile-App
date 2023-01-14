@@ -749,6 +749,9 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
+        map.setIndoorEnabled(true);
+        map.setTrafficEnabled(true);
+        map.setBuildingsEnabled(true);
         map.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
 
         locationCallback = new LocationCallback() {
@@ -786,9 +789,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     private void setUserLocationMarker(Location location) {
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
         userLoc = latLng;
-
-
-
         if (userLocationMarker == null) {
             //Create a new marker
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -801,10 +801,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                 // for ActivityCompat#requestPermissions for more details.
                 return;
             }
-
-            map.setIndoorEnabled(true);
-            map.setTrafficEnabled(true);
-            map.setBuildingsEnabled(true);
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
             Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.navigation);
@@ -1170,7 +1166,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         RequestQueue queue = Volley.newRequestQueue(Home.this);
         String url = "https://maps.googleapis.com/maps/api/distancematrix/" +
                 "json?origins=" + locationJsonObject.getString("origin") + "&destinations=" + locationJsonObject.getString("destination") + "&mode=driving&" +
-                "language=en-EN&sensor=false" + "&key=" + "AIzaSyBzKLXS2uFOSVE1Lhr3AOkDn1OkbKfo01M";
+                "language=en-EN&sensor=false" + "&key=" + "AIzaSyA9y3TlxDiPcFrRXML4EbjGeJqr7h6f308";
 
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
@@ -1370,7 +1366,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         googlePlaceUrl.append("&radius="+PROXIMITY_RADIUS);
         googlePlaceUrl.append("&type="+nearbyPlace);
         googlePlaceUrl.append("&sensor=true");
-        googlePlaceUrl.append("&key="+"AIzaSyBzKLXS2uFOSVE1Lhr3AOkDn1OkbKfo01M");
+        googlePlaceUrl.append("&key="+"AIzaSyA9y3TlxDiPcFrRXML4EbjGeJqr7h6f308");
 
         nearbyLatitude = latitude;
         nearbyLongitude = longitude;
