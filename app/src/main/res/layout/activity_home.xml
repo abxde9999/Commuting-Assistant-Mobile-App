@@ -95,7 +95,32 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/searchTrip"
                         android:layout_margin="20dp"></androidx.recyclerview.widget.RecyclerView>
+
                 </RelativeLayout>
+
+
+                <com.google.android.material.bottomnavigation.BottomNavigationView
+                    android:id="@+id/routePicker"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="#D7FFFFFF"
+                    android:foregroundGravity="center"
+                    android:theme="@style/Theme.AppCompat"
+                    app:itemIconTint="?android:attr/textColorPrimaryInverseDisableOnly"
+                    app:itemRippleColor="@color/quantum_amber300"
+                    app:itemTextColor="?android:attr/textColorSecondaryInverseNoDisable"
+                    app:menu="@menu/menu" />
+                <TextView
+                    android:id="@+id/route_selected"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_gravity="center"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/slide_origin"
@@ -103,8 +128,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="10dp"
+                    android:text=""
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textSize="25sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -113,8 +139,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="10dp"
+                    android:text=""
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textSize="25sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -123,8 +150,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="10dp"
+                    android:text=""
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textSize="25sp"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
 
                 <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
@@ -149,6 +177,7 @@
                     app:rippleColor="@color/quantum_amber300" />
             </LinearLayout>
         </LinearLayout>
+
 
     </com.sothree.slidinguppanel.SlidingUpPanelLayout>
     <LinearLayout
@@ -226,10 +255,7 @@
         android:id="@+id/btmAppBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        app:fabCradleMargin="10dp"
-        app:fabCradleRoundedCornerRadius="30dp"
-        app:fabCradleVerticalOffset="10dp">
+        android:layout_gravity="bottom">
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/bottomNav"

@@ -2,10 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/search"
-        android:icon="@drawable/ic_search"
-        android:title="@string/search"
-        app:actionViewClass="android.widget.SearchView"
-        app:showAsAction="collapseActionView|ifRoom" />
+<item
+    android:id="@+id/one"
+    android:icon="@drawable/one"
+    android:title="Route One"
+    app:actionViewClass="android.widget.SearchView"
+    app:showAsAction="collapseActionView|ifRoom" />
+<item
+    android:id="@+id/two"
+    android:icon="@drawable/two"
+    android:title="Route Two"
+    app:actionViewClass="android.widget.SearchView"
+    app:showAsAction="collapseActionView|ifRoom" />
+<item
+    android:id="@+id/three"
+    android:icon="@drawable/three"
+    android:title="Route Three"
+    app:actionViewClass="android.widget.SearchView"
+    app:showAsAction="collapseActionView|ifRoom" />
 </menu>
