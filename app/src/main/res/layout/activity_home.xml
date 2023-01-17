@@ -119,31 +119,50 @@
                     android:layout_marginTop="10dp"
                     android:layout_gravity="center"
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textSize="20sp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/slide_origin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginTop="10dp"
-                    android:text=""
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <TextView
-                    android:id="@+id/slide_dest"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginTop="10dp"
-                    android:text=""
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
+                    <TextView
+                        android:id="@+id/slide_origin"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="10dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
 
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/switch_place"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/slide_origin"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginStart="325dp"
+                        android:layout_marginTop="-24dp"
+                        android:src="@drawable/swap"
+                        app:backgroundTint="@color/quantum_white_100"
+                        app:rippleColor="@color/quantum_amber300"
+                        app:maxImageSize="35dp"
+                        android:tooltipText="Switch Origin/Destination"/>
+
+                    <TextView
+                        android:id="@+id/slide_dest"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/slide_origin"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginStart="19dp"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="10dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </RelativeLayout>
                 <TextView
                     android:id="@+id/slide_fare"
                     android:layout_width="wrap_content"
@@ -152,7 +171,7 @@
                     android:layout_marginTop="10dp"
                     android:text=""
                     android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textSize="20sp"
+                    android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
@@ -160,7 +179,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="16dp"
                     android:text="Confirm"
@@ -271,10 +289,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_origin"
-        android:text="Re-center"
+        android:tooltipText="Re-center"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         android:textAllCaps="true"
-        android:layout_marginBottom="55dp"
+        android:layout_marginBottom="65dp"
         app:backgroundTint="@color/background_color"
         app:rippleColor="@color/quantum_amber300"
         app:layout_anchor="@id/btmAppBar"

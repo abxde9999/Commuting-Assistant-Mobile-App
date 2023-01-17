@@ -144,7 +144,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
 
     float distance, speed;
-    int meters, kmh, fare_total;
+    int meters, kmh, fare_total, distanceDest;
 
 
     String status;
@@ -162,7 +162,9 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     int PuDo, swap, nav;
     int ctr, mapLoad = 0;
     int centerCtr = 1;
-    double DisPU;
+    boolean placeSwitch = false;
+
+    int biyaheNullCheck;
 
     //Geofencing
     private GeofencingClient geofencingClient;
@@ -263,6 +265,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     Handler animationHandler = new Handler();
     Handler navHandler = new Handler();
     Handler DistHandler = new Handler();
+    Handler delayHandler = new Handler();
     int delayMillis = 5000;
 
     //Initialization of Strings
@@ -271,7 +274,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
 
     ExtendedFloatingActionButton startTrip, hospitals, schools, restaurants, endTrip, confirm;
-    FloatingActionButton explore;
+    FloatingActionButton explore, switchPlace;
     BottomNavigationView bottomNav, pickRoute;
     Marker currentLocationMarker;
     Marker markerOrigin;
@@ -326,6 +329,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         confirm.setVisibility(View.GONE);
         route_selected = findViewById(R.id.route_selected);
 
+        switchPlace = findViewById(R.id.switch_place);
+        switchPlace.setVisibility(View.GONE);
 
         startTrip = findViewById(R.id.startTrip);
         startTrip.setVisibility(View.GONE);
@@ -586,7 +591,13 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             }
         });
 
-
+        switchPlace.setVisibility(View.VISIBLE);
+        switchPlace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switchPlace();
+            }
+        });
         //Toast.makeText(this,PlaceKey, Toast.LENGTH_LONG).show();
     }
 
@@ -725,7 +736,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             searchMarker = map.addMarker(new MarkerOptions().position(latLng).title(address).icon(smallMarkerIcon));
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
         }
-
     }
 
     // [START maps_solutions_android_autocomplete_map_add]
@@ -752,8 +762,9 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             fitAllMarkers();
         } else {
             markerDestination.setPosition(destinationLoc);
+            markerDestination.setTitle(trip_dest);
+            markerDestination.setSnippet("Destination");
             fitAllMarkers();
-
         }
     }
 
@@ -1063,6 +1074,9 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     public void calcDistance() {
 
         float[] results = new float[1];
+        float[] results2 = new float[1];
+
+        Location.distanceBetween(locationUser.getLatitude(), locationUser.getLongitude(), destinationLoc.latitude, destinationLoc.longitude, results2);
 
         if(swap == 0){
             Location.distanceBetween(locationUser.getLatitude(), locationUser.getLongitude(), pu_latD, pu_lngD, results);
@@ -1070,11 +1084,15 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             Location.distanceBetween(locationUser.getLatitude(), locationUser.getLongitude(), do_latD, do_lngD, results);
         }
 
+
+
         speed = locationUser.getSpeed();
 
         kmh = (int) (speed * 3.6);
 
         distance = results[0];
+
+        distanceDest = (int) (results2[0]/ 1000);
 
         meters = (int) (distance / 1000);
         //Toast.makeText(this, Integer.toString(kmh) ,Toast.LENGTH_SHORT).show();
@@ -1651,6 +1669,10 @@ public void endTrip(){
             slide_fare.setText(null);
             confirm.setVisibility(View.GONE);
 
+            switchPlace.setVisibility(View.GONE);
+
+            placeSwitch = false;
+
             animateTripOut();
             slidingUpPanelLayout.setTouchEnabled(true);
             startTrip.setVisibility(View.GONE);
@@ -1724,73 +1746,108 @@ public void startStartTrip(){
     bottomNav.getMenu().findItem(R.id.nearby).setEnabled(false);
     bottomNav.getMenu().findItem(R.id.nearby).setCheckable(false);
 
-    biyahe = "biyahe";
+    if(placeSwitch == false){
+        biyahe = "biyahe";
+    }else if(placeSwitch == true){
 
-    if (Build.VERSION.SDK_INT >= 29){
+        if(biyaheNullCheck == 1){
+            biyahe = "biyahe2";
+        }else if(biyaheNullCheck == 2){
+            biyahe = "biyahe";
+        }else{
+            biyahe = "biyahe3";
+        }
+    }
+    TripDataLoader();
 
-        if (ContextCompat.checkSelfPermission(Home.this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED){
-            centerCtr = 0;
-            showJourney();
-            slidingUpPanelLayout.setTouchEnabled(false);
+    delayHandler.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+            if (Build.VERSION.SDK_INT >= 29){
 
-            //addCircle(latLng, GEOFENCE_RADIUS);
-            //addGeofence(latLng, GEOFENCE_RADIUS);
-        }else {
-            if(ActivityCompat.shouldShowRequestPermissionRationale(Home.this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+                if (ContextCompat.checkSelfPermission(Home.this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED){
+                    centerCtr = 0;
+                    showJourney();
+                    slidingUpPanelLayout.setTouchEnabled(false);
 
-                ActivityCompat.requestPermissions(Home.this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                    //addCircle(latLng, GEOFENCE_RADIUS);
+                    //addGeofence(latLng, GEOFENCE_RADIUS);
+                }else {
+                    if(ActivityCompat.shouldShowRequestPermissionRationale(Home.this, Manifest.permission.ACCESS_BACKGROUND_LOCATION)) {
+
+                        ActivityCompat.requestPermissions(Home.this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+
+                    }else {
+                        ActivityCompat.requestPermissions(Home.this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                    }
+                }
 
             }else {
-                ActivityCompat.requestPermissions(Home.this, new String[] {Manifest.permission.ACCESS_BACKGROUND_LOCATION}, BACKGROUND_LOCATION_ACCESS_REQUEST_CODE);
+                centerCtr = 0;
+                slidingUpPanelLayout.setTouchEnabled(false);
+                showJourney();
+                //addCircle(latLng, GEOFENCE_RADIUS);
+                //addGeofence(latLng, GEOFENCE_RADIUS);
             }
         }
-
-    }else {
-        centerCtr = 0;
-        slidingUpPanelLayout.setTouchEnabled(false);
-        showJourney();
-        //addCircle(latLng, GEOFENCE_RADIUS);
-        //addGeofence(latLng, GEOFENCE_RADIUS);
-    }
+    }, 500);
 }
 
     public void WayOne(){
 
+        if(placeSwitch == true){
+            if(biyaheNullCheck == 1){
+                biyahe = "biyahe2";
+            }else if(biyaheNullCheck == 2){
+                biyahe = "biyahe";
+            }else{
+                biyahe = "biyahe3";
+            }
+        }else{
+            biyahe = "biyahe";
+        }
         TripDataLoader();
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(
-                Home.this);
 
-        alertDialog.setPositiveButton("Select Route", new DialogInterface.OnClickListener() {
+        delayHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+                        Home.this);
 
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Nav();
-                way_route = "way";
-                route_selected.setHint("Route Selected: Route 1");
+                alertDialog.setPositiveButton("Select Route", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Nav();
+                        way_route = "way";
+                        route_selected.setHint("Route Selected: Route 1");
+                    }
+                });
+                alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(way_route == "way"){
+                            Way = "way";
+                            TripDataLoader();
+                            Nav();
+                        }else if(way_route == "way2"){
+                            Way = "way2";
+                            TripDataLoader();
+                            Nav();
+                        }else if(way_route == "way3"){
+                            Way = "way3";
+                            TripDataLoader();
+                            Nav();
+                        }
+                    }
+                });
+                alertDialog.setMessage("Pick up: " + pickUpSt + "\nTrip: " + pickupRouteSt + "\nDropoff: " + dropOffSt + "\nNext Trip: " + nextRouteSt);
+                alertDialog.setTitle("Route 1: " + trip);
+                alertDialog.setIcon(R.drawable.one_yellow);
+                alertDialog.show();
             }
-        });
-        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if(way_route == "way"){
-                    Way = "way";
-                    TripDataLoader();
-                    Nav();
-                }else if(way_route == "way2"){
-                    Way = "way2";
-                    TripDataLoader();
-                    Nav();
-                }else if(way_route == "way3"){
-                    Way = "way3";
-                    TripDataLoader();
-                    Nav();
-                }
-            }
-        });
-        alertDialog.setMessage("Pick up: " + pickUpSt + "\nTrip: " + pickupRouteSt + "\nDropoff: " + dropOffSt + "\nNext Trip: " + nextRouteSt);
-        alertDialog.setTitle("Route 1: " + trip);
-        alertDialog.setIcon(R.drawable.one_yellow);
-        alertDialog.show();
+        },500);
+
     }
     public void WayTwo(){
 
@@ -1875,73 +1932,127 @@ public void startStartTrip(){
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                NullCheck = snapshot.child(PlaceKey).child("way").child(biyahe).getValue().toString();
+
+                if(snapshot.child(PlaceKey).child("way").getValue().toString() == "false"){
+                    pickRoute.getMenu().findItem(R.id.one).setEnabled(false);
+                }
+                if(snapshot.child(PlaceKey).child("way2").getValue().toString() == "false"){
+                    pickRoute.getMenu().findItem(R.id.two).setEnabled(false);
+                }
+                if(snapshot.child(PlaceKey).child("way3").getValue().toString() == "false"){
+                    pickRoute.getMenu().findItem(R.id.three).setEnabled(false);
+                }
+
+                if(biyahe != "biyahe4" || biyahe != "biyahe0"){
+                    NullCheck = snapshot.child(PlaceKey).child("way").child(biyahe).getValue().toString();
+                }else{
+                    NullCheck = "false";
+                }
 
                 if(NullCheck != "false") {
+                    if(placeSwitch == false){
+                        pickUpSt = snapshot.child(PlaceKey).child(Way).child(biyahe).child("pickup").getValue().toString();
+                        pickupRouteSt = snapshot.child(PlaceKey).child(Way).child(biyahe).child("pu_route").getValue().toString();
+                        dropOffSt = snapshot.child(PlaceKey).child(Way).child(biyahe).child("dropoff").getValue().toString();
+                        fareSt = snapshot.child(PlaceKey).child(Way).child(biyahe).child("fare").getValue().toString();
+                        pu_lat = snapshot.child(PlaceKey).child(Way).child(biyahe).child("pickupLat").getValue().toString();
+                        pu_lng = snapshot.child(PlaceKey).child(Way).child(biyahe).child("pickupLng").getValue().toString();
+                        do_lat = snapshot.child(PlaceKey).child(Way).child(biyahe).child("dropoffLat").getValue().toString();
+                        do_lng = snapshot.child(PlaceKey).child(Way).child(biyahe).child("dropoffLng").getValue().toString();
+
+                        trip = snapshot.child(PlaceKey).child("place").getValue().toString();
+                        o_lat = snapshot.child(PlaceKey).child("originLat").getValue().toString();
+                        o_lng = snapshot.child(PlaceKey).child("originLng").getValue().toString();
+                        trip_org = snapshot.child(PlaceKey).child("origin").getValue().toString();
+                        d_lat = snapshot.child(PlaceKey).child("destinationLat").getValue().toString();
+                        d_lng = snapshot.child(PlaceKey).child("destinationLng").getValue().toString();
+                        trip_dest = snapshot.child(PlaceKey).child("destination").getValue().toString();
+
+                        NRTcheck = snapshot.child(PlaceKey).child(Way).child(NextRT).getValue().toString();
+                        if(NRTcheck != "false"){
+                            nextRouteSt = snapshot.child(PlaceKey).child(Way).child(NextRT).child("pu_route").getValue().toString();
+                        }else if(NRTcheck == "false"){
+                            nextRouteSt = trip_dest;
+                        }
+
+                        pu_latD = Double.parseDouble(pu_lat);
+                        pu_lngD = Double.parseDouble(pu_lng);
+                        puLatLng = new LatLng (pu_latD, pu_lngD);
+                        do_latD = Double.parseDouble(do_lat);
+                        do_lngD = Double.parseDouble(do_lng);
+                        doLatLng = new LatLng(do_latD,do_lngD);
+
+                    }else if (placeSwitch == true){
+                        dropOffSt = snapshot.child(PlaceKey).child(Way).child(biyahe).child("pickup").getValue().toString();
+                        pickupRouteSt = snapshot.child(PlaceKey).child(Way).child(biyahe).child("pu_route").getValue().toString();
+                        pickUpSt = snapshot.child(PlaceKey).child(Way).child(biyahe).child("dropoff").getValue().toString();
+                        fareSt = snapshot.child(PlaceKey).child(Way).child(biyahe).child("fare").getValue().toString();
+                        do_lat = snapshot.child(PlaceKey).child(Way).child(biyahe).child("pickupLat").getValue().toString();
+                        do_lng = snapshot.child(PlaceKey).child(Way).child(biyahe).child("pickupLng").getValue().toString();
+                        pu_lat = snapshot.child(PlaceKey).child(Way).child(biyahe).child("dropoffLat").getValue().toString();
+                        pu_lng = snapshot.child(PlaceKey).child(Way).child(biyahe).child("dropoffLng").getValue().toString();
+
+                        trip = snapshot.child(PlaceKey).child("place").getValue().toString();
+                        d_lat = snapshot.child(PlaceKey).child("originLat").getValue().toString();
+                        d_lng = snapshot.child(PlaceKey).child("originLng").getValue().toString();
+                        trip_dest = snapshot.child(PlaceKey).child("origin").getValue().toString();
+                        o_lat = snapshot.child(PlaceKey).child("destinationLat").getValue().toString();
+                        o_lng = snapshot.child(PlaceKey).child("destinationLng").getValue().toString();
+                        trip_org = snapshot.child(PlaceKey).child("destination").getValue().toString();
+
+
+                        if(NextRT == "biyahe4" || NextRT == "biyahe0"){
+                            NRTcheck = "false";
+                        }else{
+                            NRTcheck = snapshot.child(PlaceKey).child(Way).child(NextRT).getValue().toString();
+                        }
+
+                        if(NRTcheck != "false"){
+                            nextRouteSt = snapshot.child(PlaceKey).child(Way).child(NextRT).child("pu_route").getValue().toString();
+                        }else if(NRTcheck == "false"){
+                            nextRouteSt = trip_dest;
+                        }
+
+                        if(snapshot.child(PlaceKey).child(Way).child("biyahe3").getValue().toString() == "false"){
+
+                            biyaheNullCheck = 1;
+
+                            if(snapshot.child(PlaceKey).child(Way).child("biyahe2").getValue().toString() == "false"){
+
+                                biyaheNullCheck = 2;
+
+                            }
+                        }
+
+                        pu_latD = Double.parseDouble(pu_lat);
+                        pu_lngD = Double.parseDouble(pu_lng);
+                        puLatLng = new LatLng (pu_latD, pu_lngD);
+                        do_latD = Double.parseDouble(do_lat);
+                        do_lngD = Double.parseDouble(do_lng);
+                        doLatLng = new LatLng(do_latD,do_lngD);
+
+                    }
                     //Get the Value and set it to String
-                    pickUpSt = snapshot.child(PlaceKey).child(Way).child(biyahe).child("pickup").getValue().toString();
-                    pickupRouteSt = snapshot.child(PlaceKey).child(Way).child(biyahe).child("pu_route").getValue().toString();
-                    dropOffSt = snapshot.child(PlaceKey).child(Way).child(biyahe).child("dropoff").getValue().toString();
-                    fareSt = snapshot.child(PlaceKey).child(Way).child(biyahe).child("fare").getValue().toString();
-                    pu_lat = snapshot.child(PlaceKey).child(Way).child(biyahe).child("pickupLat").getValue().toString();
-                    pu_lng = snapshot.child(PlaceKey).child(Way).child(biyahe).child("pickupLng").getValue().toString();
-                    do_lat = snapshot.child(PlaceKey).child(Way).child(biyahe).child("dropoffLat").getValue().toString();
-                    do_lng = snapshot.child(PlaceKey).child(Way).child(biyahe).child("dropoffLng").getValue().toString();
 
-                    trip = snapshot.child(PlaceKey).child("place").getValue().toString();
-                    o_lat = snapshot.child(PlaceKey).child("originLat").getValue().toString();
-                    o_lng = snapshot.child(PlaceKey).child("originLng").getValue().toString();
-                    trip_org = snapshot.child(PlaceKey).child("origin").getValue().toString();
-                    d_lat = snapshot.child(PlaceKey).child("destinationLat").getValue().toString();
-                    d_lng = snapshot.child(PlaceKey).child("destinationLng").getValue().toString();
-                    trip_dest = snapshot.child(PlaceKey).child("destination").getValue().toString();
-
-
-                    if(snapshot.child(PlaceKey).child("way").child("biyahe").getValue().toString() != "false"){
+                    if(snapshot.child(PlaceKey).child(Way).child("biyahe").getValue().toString() != "false"){
                         fare_total = Integer.parseInt(snapshot.child(PlaceKey).child(Way).child("biyahe").child("fare").getValue().toString());
-                        if(snapshot.child(PlaceKey).child("way").child("biyahe2").getValue().toString() != "false"){
-                            fare_total = Integer.parseInt(snapshot.child(PlaceKey).child(Way).child("biyahe").child("fare").getValue().toString()) + Integer.parseInt(snapshot.child(PlaceKey).child("way").child("biyahe2").child("fare").getValue().toString());
-                            if(snapshot.child(PlaceKey).child("way").child("biyahe3").getValue().toString() != "false"){
-                                fare_total = Integer.parseInt(snapshot.child(PlaceKey).child(Way).child("biyahe").child("fare").getValue().toString()) + Integer.parseInt(snapshot.child(PlaceKey).child("way").child("biyahe2").child("fare").getValue().toString()) + Integer.parseInt(snapshot.child(PlaceKey).child("way").child("biyahe3").child("fare").getValue().toString());
+                        if(snapshot.child(PlaceKey).child(Way).child("biyahe2").getValue().toString() != "false"){
+                            fare_total = Integer.parseInt(snapshot.child(PlaceKey).child(Way).child("biyahe").child("fare").getValue().toString()) + Integer.parseInt(snapshot.child(PlaceKey).child(Way).child("biyahe2").child("fare").getValue().toString());
+                            if(snapshot.child(PlaceKey).child(Way).child("biyahe3").getValue().toString() != "false"){
+                                fare_total = Integer.parseInt(snapshot.child(PlaceKey).child(Way).child("biyahe").child("fare").getValue().toString()) + Integer.parseInt(snapshot.child(PlaceKey).child(Way).child("biyahe2").child("fare").getValue().toString()) + Integer.parseInt(snapshot.child(PlaceKey).child(Way).child("biyahe3").child("fare").getValue().toString());
                             }
                         }
                     }
 
+
+
+                    originLoc = new LatLng(Double.parseDouble(o_lat),Double.parseDouble(o_lng));
+                    destinationLoc = new LatLng(Double.parseDouble(d_lat),Double.parseDouble(d_lng));
+
+
+
                     total_fare = Integer.toString(fare_total);
-
-                    NRTcheck = snapshot.child(PlaceKey).child("way").child(NextRT).getValue().toString();
-                    if(NRTcheck != "false"){
-                        nextRouteSt = snapshot.child(PlaceKey).child(Way).child(NextRT).child("pu_route").getValue().toString();
-                    }else if(NRTcheck == "false"){
-                        nextRouteSt = trip_dest;
-                    }
-
-
-
-
-                    if(snapshot.child(PlaceKey).child("way").getValue().toString() == "false"){
-                        pickRoute.getMenu().findItem(R.id.one).setEnabled(false);
-                    }
-                    if(snapshot.child(PlaceKey).child("way2").getValue().toString() == "false"){
-                        pickRoute.getMenu().findItem(R.id.two).setEnabled(false);
-                    }
-                    if(snapshot.child(PlaceKey).child("way3").getValue().toString() == "false"){
-                        pickRoute.getMenu().findItem(R.id.three).setEnabled(false);
-                    }
-
-
                 }
-
-
-                originLoc = new LatLng(Double.parseDouble(o_lat),Double.parseDouble(o_lng));
-                destinationLoc = new LatLng(Double.parseDouble(d_lat),Double.parseDouble(d_lng));
-
-                pu_latD = Double.parseDouble(pu_lat);
-                pu_lngD = Double.parseDouble(pu_lng);
-                puLatLng = new LatLng (pu_latD, pu_lngD);
-                do_latD = Double.parseDouble(do_lat);
-                do_lngD = Double.parseDouble(do_lng);
-                doLatLng = new LatLng(do_latD,do_lngD);
 
                 if (nav == 0){
                     Nav();
@@ -2056,6 +2167,21 @@ public void startStartTrip(){
 
     }
 
+    public void switchPlace(){
+
+        if(placeSwitch == false){
+            nav = 0;
+            placeSwitch = true;
+            TripDataLoader();
+
+        }else{
+            nav = 0;
+            placeSwitch = false;
+            TripDataLoader();
+        }
+
+    }
+
 
     public void NavDurationRepeater (){
        navRunnable.run();
@@ -2110,7 +2236,7 @@ public void startStartTrip(){
                 nextRoute.setText(nextRouteSt);
                 DONavDistRepeater();
                 DistHandler.removeCallbacks(distRunnable);
-            }else if(NullCheck == "false" && ctr == 0){
+            }else if(NullCheck == "false" && ctr == 0 || distanceDest <= 200 && distanceDest!= 0){
                 ctr = 1;
                 DistHandler.postDelayed(new Runnable() {
                     @Override
@@ -2137,33 +2263,93 @@ public void startStartTrip(){
             distancePU.setText(" " + Math.round(distance) + " m" + "\n Dropoff");
 
             if(distance <= 200 && distance != 0){
-                if(biyahe == "biyahe"){
-                    biyahe = "biyahe2";
-                    NextRT = "biyahe3";
-                    TripDataLoader();
-                    setPuDoMarker();
-                    swap = 0;
-                    PuDo = 0;
-                    DistHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            showJourney();
-                        }
-                    },1000);
-                }else if(biyahe == "biyahe2"){
-                    biyahe = "biyahe3";
-                    NextRT = "biyahe4";
-                    TripDataLoader();
-                    setPuDoMarker();
-                    swap = 0;
-                    PuDo = 0;
-                    DistHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            showJourney();
-                        }
-                    },1000);
+
+                if(placeSwitch == false){
+                    if(biyahe == "biyahe"){
+                        biyahe = "biyahe2";
+                        NextRT = "biyahe3";
+                        TripDataLoader();
+                        setPuDoMarker();
+                        swap = 0;
+                        PuDo = 0;
+                        DistHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                showJourney();
+                            }
+                        },1000);
+                    }else if(biyahe == "biyahe2"){
+                        biyahe = "biyahe3";
+                        NextRT = "biyahe4";
+                        TripDataLoader();
+                        setPuDoMarker();
+                        swap = 0;
+                        PuDo = 0;
+                        DistHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                showJourney();
+                            }
+                        },1000);
+                    }
+                    else if(biyahe == "biyahe3"){
+                        biyahe = "biyahe4";
+                        NextRT = "biyahe0";
+                        TripDataLoader();
+                        setPuDoMarker();
+                        swap = 0;
+                        PuDo = 0;
+                        DistHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                showJourney();
+                            }
+                        },1000);
+                    }
+                }else if(placeSwitch == true){
+                    if(biyahe == "biyahe"){
+                        biyahe = "biyahe0";
+                        NextRT = "biyahe4";
+                        TripDataLoader();
+                        setPuDoMarker();
+                        swap = 0;
+                        PuDo = 0;
+                        DistHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                showJourney();
+                            }
+                        },1000);
+                    }else if(biyahe == "biyahe2"){
+                        biyahe = "biyahe";
+                        NextRT = "biyahe0";
+                        TripDataLoader();
+                        setPuDoMarker();
+                        swap = 0;
+                        PuDo = 0;
+                        DistHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                showJourney();
+                            }
+                        },1000);
+                    }
+                    else if(biyahe == "biyahe3"){
+                        biyahe = "biyahe2";
+                        NextRT = "biyahe";
+                        TripDataLoader();
+                        setPuDoMarker();
+                        swap = 0;
+                        PuDo = 0;
+                        DistHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                showJourney();
+                            }
+                        },1000);
+                    }
                 }
+
             }
             DistHandler.postDelayed(this, 500);
         }

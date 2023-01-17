@@ -77,51 +77,76 @@
                 android:layout_marginRight="10dp"
                 android:background="#D7FFFFFF"
                 android:foregroundGravity="center"
-
                 android:theme="@style/Theme.AppCompat"
                 app:itemIconTint="?android:attr/textColorPrimaryInverseDisableOnly"
                 app:itemRippleColor="@color/quantum_amber300"
-                app:itemTextColor="?android:attr/textColorPrimaryInverseDisableOnly"
+                app:itemTextColor="?android:attr/textColorSecondaryInverseNoDisable"
                 app:menu="@menu/menu" />
             <TextView
                 android:id="@+id/route_selected"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Route Selected: "
                 android:layout_gravity="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textSize="20sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/slide_origin"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="10dp"
+                    android:text="Origin"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/slide_origin"
+                    android:layout_marginStart="346dp"
+                    android:layout_marginTop="-27dp"
+                    android:src="@drawable/swap"
+                    app:backgroundTint="@color/quantum_white_100"
+                    app:maxImageSize="35dp"
+                    app:rippleColor="@color/quantum_amber300" />
+
+                <TextView
+                    android:id="@+id/slide_dest"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/slide_origin"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginStart="19dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="223dp"
+
+                    android:text="Destination"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+
+
             <TextView
+                android:id="@+id/slide_fare"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="10dp"
                 android:text=""
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="10dp"
-                android:text=""
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textSize="20sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="10dp"
-                android:text=""
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textSize="20sp"
+                android:textSize="15sp"
                 android:textStyle="bold" />
 
             <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
