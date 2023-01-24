@@ -52,6 +52,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import android.widget.TextView;
@@ -124,6 +125,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -138,13 +140,14 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     Marker Pickup, DropOff;
     DatabaseReference reference; //Declare Variable
     TextView pickUp, pickupRoute, dropOff, nextRoute, fare, distancePU, slide_origin, slide_dest, slide_fare, route_selected; //Declare variable for Textviews
-    String pickUpSt, pickupRouteSt, dropOffSt, nextRouteSt, fareSt, pu_lat, pu_lng, do_lat, do_lng, o_lat, o_lng, d_lat, d_lng, trip_dest, trip_org, total_fare, trip, way_route; //Declare the String Variable
+    ImageView mode;
+    String pickUpSt, pickupRouteSt, dropOffSt, nextRouteSt, fareSt, pu_lat, pu_lng, do_lat, do_lng, o_lat, o_lng, d_lat, d_lng, trip_dest, trip_org, total_fare, trip, way_route, transpo_mode, mode_t, nextTranspo; //Declare the String Variable
 
     String PlaceKey, TripID;
 
 
-    float distance, speed;
-    int meters, kmh, fare_total, distanceDest;
+    float distance, speed, d_distance;
+    int meters, kmh, fare_total;
 
 
     String status;
@@ -328,6 +331,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         confirm = findViewById(R.id.confirm_button);
         confirm.setVisibility(View.GONE);
         route_selected = findViewById(R.id.route_selected);
+        mode = findViewById(R.id.mode);
 
         switchPlace = findViewById(R.id.switch_place);
         switchPlace.setVisibility(View.GONE);
@@ -753,7 +757,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     }
 
     public void showDestination() {
-        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.checkered_flag);
+        Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.racing_flag);
         Bitmap smallMarker = Bitmap.createScaledBitmap(icon, 125, 125, false);
         BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
 
@@ -1038,6 +1042,38 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         }
     }
 
+    public void fitPuDo(){
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+//the include method will calculate the min and max bound.
+
+        if (Pickup != null && DropOff == null) {
+            builder.include(Pickup.getPosition());
+            builder.include(userLocationMarker.getPosition());
+        } else if (Pickup == null && DropOff != null) {
+            builder.include(DropOff.getPosition());
+            builder.include(userLocationMarker.getPosition());
+        } else if (Pickup == null && DropOff == null) {
+            builder.include(userLocationMarker.getPosition());
+        } else if (userLocationMarker == null && Pickup != null) {
+            builder.include(Pickup.getPosition());
+        } else if (userLocationMarker == null && DropOff != null) {
+            builder.include(DropOff.getPosition());
+        } else {
+            builder.include(Pickup.getPosition());
+            builder.include(DropOff.getPosition());
+            builder.include(userLocationMarker.getPosition());
+        }
+        LatLngBounds bounds = builder.build();
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+        int padding = (int) (width * 0.35); // offset from edges of the map 10% of screen
+
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+
+        map.animateCamera(cu);
+    }
+
     public void fitAllMarkers() {
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
 
@@ -1092,10 +1128,9 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
         distance = results[0];
 
-        distanceDest = (int) (results2[0]/ 1000);
+        d_distance = results2[0];
 
         meters = (int) (distance / 1000);
-        //Toast.makeText(this, Integer.toString(kmh) ,Toast.LENGTH_SHORT).show();
     }
 
     // Power Save Map Tracking.
@@ -1380,7 +1415,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                             //assert mapFragment != null;
                             setUserLocationMarker(location);
                         }
-                    },2000);
+                    },4000);
                 }
             }
         });
@@ -1447,7 +1482,104 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         Toast.makeText(Home.this, "Showing nearby Restaurants", Toast.LENGTH_LONG).show();
         userLocationMarker = null;
 
-    }public void Duration(){
+    }
+
+
+    public class GetNearbyPlacesData extends AsyncTask<Object, String, String> {
+
+        String googlePlacesData;
+        GoogleMap map;
+        String url;
+        @Override
+        protected String doInBackground(Object... objects) {
+
+            map = (GoogleMap) objects[0];
+            url = (String) objects[1];
+
+            DowloadURL dowloadURL= new DowloadURL();
+            try {
+                googlePlacesData = dowloadURL.readURL(url);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return googlePlacesData;
+
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            List<HashMap<String, String>> nearbyPlacesList = null;
+            DataParser parser = new DataParser();
+            nearbyPlacesList = parser.parse(s);
+            showNearbyPlaces(nearbyPlacesList);
+        }
+
+        private void showNearbyPlaces(List<HashMap<String, String>> nearbyPlaceList){
+
+
+
+            for (int i =0; i<nearbyPlaceList.size(); i++){
+
+                MarkerOptions markerOptions = new MarkerOptions();
+                HashMap<String, String> googlePlace = nearbyPlaceList.get(i);
+
+                String placeName = googlePlace.get("place_name");
+                String vicinity = googlePlace.get("vicinity");
+                double lat = Double.parseDouble(googlePlace.get("lat"));
+                double lng = Double.parseDouble(googlePlace.get("lng"));
+
+                BitmapDescriptor smallMarkerIcon;
+
+                if(nearbyPlace == "hospital"){
+                    Bitmap icon = BitmapFactory.decodeResource(getResources(),R.drawable.hosp);
+                    Bitmap marker = Bitmap.createScaledBitmap(icon,150, 150, false);
+                    smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(marker);markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.hosp));
+                    LatLng latLng = new LatLng(lat, lng);
+                    markerOptions.position(latLng);
+                    markerOptions.title(placeName);
+                    markerOptions.snippet(vicinity);
+
+                    map.addMarker(markerOptions.icon(smallMarkerIcon));
+                    map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                    map.animateCamera(CameraUpdateFactory.zoomTo(15));
+                }else if(nearbyPlace == "restaurant"){
+                    Bitmap icon = BitmapFactory.decodeResource(getResources(),R.drawable.rest);
+                    Bitmap marker = Bitmap.createScaledBitmap(icon,150, 150, false);
+                    smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(marker);markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.rest));
+                    LatLng latLng = new LatLng(lat, lng);
+                    markerOptions.position(latLng);
+                    markerOptions.title(placeName);
+                    markerOptions.snippet(vicinity);
+
+                    map.addMarker(markerOptions.icon(smallMarkerIcon));
+                    map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                    map.animateCamera(CameraUpdateFactory.zoomTo(15));
+                }else if(nearbyPlace == "school"){
+                    Bitmap icon = BitmapFactory.decodeResource(getResources(),R.drawable.library);
+                    Bitmap marker = Bitmap.createScaledBitmap(icon,150, 150, false);
+                    smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(marker);
+
+                    LatLng latLng = new LatLng(lat, lng);
+                    markerOptions.position(latLng);
+                    markerOptions.title(placeName);
+                    markerOptions.snippet(vicinity);
+
+                    map.addMarker(markerOptions.icon(smallMarkerIcon));
+                    map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                    map.animateCamera(CameraUpdateFactory.zoomTo(15));
+                }
+
+            }
+        }
+
+    }
+
+
+
+
+
+    public void Duration(){
 
 
         Object dataTransfer[] = new Object[3];
@@ -1510,72 +1642,27 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             alertDialog.show();
         }
         }
-
-        public class GetDirectionsData extends AsyncTask<Object, String, String> {
-
-
-            GoogleMap map;
-            String url;
-            String googleDirectionsData;
-            String duration, distance;
-            LatLng latLng;
-
-            @Override
-            protected String doInBackground(Object... objects) {
-                map = (GoogleMap) objects[0];
-                url = (String) objects[1];
-                latLng = (LatLng) objects[2];
-
-                DowloadURL dowloadURL = new DowloadURL();
-                try {
-                    googleDirectionsData = dowloadURL.readURL(url);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                return googleDirectionsData;
-            }
-
-            @Override
-            protected void onPostExecute(String s) {
-
-                HashMap<String, String> directionsList = null;
-                DataParser parser = new DataParser();
-                directionsList = parser.parseDirections(s);
-                duration = directionsList.get("duration");
-                distance = directionsList.get("distance");
-
-                distanceDes = distance;
-                durationDes = duration;
-
-
-                Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.racing_flag);
-                Bitmap smallMarker = Bitmap.createScaledBitmap(icon, 125, 125, false);
-                BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
-                if (markerDestination == null) {
-
-                    markerDestination = map.addMarker(new MarkerOptions().position(destinationLoc).title("Duration = " + duration).icon(smallMarkerIcon).snippet("Distance = " + distance));
-                    fitAllMarkers();
-                } else {
-                    markerDestination.setPosition(destinationLoc);
-                    fitAllMarkers();
-
-                }
-            }
-        }
 public void tripFinished(){
 
+
+    DistHandler.removeCallbacks(DOdistRunnable);
     DistHandler.removeCallbacks(distRunnable);
+
 
     AlertDialog.Builder alertDialog = new AlertDialog.Builder(
             Home.this);
 
-    alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+    alertDialog.setPositiveButton("Okay", new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
 
+            switchPlace.setVisibility(View.GONE);
+
             bottomNav.getMenu().findItem(R.id.nearby).setEnabled(true);
             bottomNav.getMenu().findItem(R.id.nearby).setCheckable(true);
+            bottomNav.getMenu().findItem(R.id.search).setEnabled(true);
+            bottomNav.getMenu().findItem(R.id.search).setCheckable(true);
+
             pickRoute.setVisibility(View.GONE);
 
             route_selected.setHint("");
@@ -1596,7 +1683,7 @@ public void tripFinished(){
 
             Pickup = null;
 
-            if (dropOff != null){
+            if (DropOff != null){
 
                 DropOff.remove();
 
@@ -1636,14 +1723,8 @@ public void tripFinished(){
 
         }
     });
-    alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            NavDistRepeater();
-        }
-    });
 
-    alertDialog.setMessage("Have you already reached your destination?");
+    alertDialog.setMessage("You have reached your destination.");
     alertDialog.setTitle("Biyahe");
     alertDialog.setIcon(R.drawable.jeepney);
     alertDialog.show();
@@ -1660,6 +1741,8 @@ public void endTrip(){
 
             bottomNav.getMenu().findItem(R.id.nearby).setEnabled(true);
             bottomNav.getMenu().findItem(R.id.nearby).setCheckable(true);
+            bottomNav.getMenu().findItem(R.id.search).setEnabled(true);
+            bottomNav.getMenu().findItem(R.id.search).setCheckable(true);
             pickRoute.setVisibility(View.GONE);
 
             route_selected.setHint("");
@@ -1745,6 +1828,8 @@ public void startStartTrip(){
     slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
     bottomNav.getMenu().findItem(R.id.nearby).setEnabled(false);
     bottomNav.getMenu().findItem(R.id.nearby).setCheckable(false);
+    bottomNav.getMenu().findItem(R.id.search).setEnabled(false);
+    bottomNav.getMenu().findItem(R.id.search).setCheckable(false);
 
     if(placeSwitch == false){
         biyahe = "biyahe";
@@ -1841,7 +1926,7 @@ public void startStartTrip(){
                         }
                     }
                 });
-                alertDialog.setMessage("Pick up: " + pickUpSt + "\nTrip: " + pickupRouteSt + "\nDropoff: " + dropOffSt + "\nNext Trip: " + nextRouteSt);
+                alertDialog.setMessage("Pick up: " + pickUpSt + "\nTrip: " + pickupRouteSt + " (" + transpo_mode + ")" + "\nDropoff: " + dropOffSt + "\nNext Trip: " + nextRouteSt + " (" + nextTranspo + ")");
                 alertDialog.setTitle("Route 1: " + trip);
                 alertDialog.setIcon(R.drawable.one_yellow);
                 alertDialog.show();
@@ -1851,79 +1936,113 @@ public void startStartTrip(){
     }
     public void WayTwo(){
 
+        if(placeSwitch == true){
+            if(biyaheNullCheck == 1){
+                biyahe = "biyahe2";
+            }else if(biyaheNullCheck == 2){
+                biyahe = "biyahe";
+            }else{
+                biyahe = "biyahe3";
+            }
+        }else{
+            biyahe = "biyahe";
+        }
         TripDataLoader();
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(
-                Home.this);
 
-        alertDialog.setPositiveButton("Select Route", new DialogInterface.OnClickListener() {
+        delayHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+                        Home.this);
 
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Nav();
-                way_route = "way2";
-                route_selected.setHint("Route Selected: Route 2");
+                alertDialog.setPositiveButton("Select Route", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Nav();
+                        way_route = "way";
+                        route_selected.setHint("Route Selected: Route 2");
+                    }
+                });
+                alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(way_route == "way"){
+                            Way = "way";
+                            TripDataLoader();
+                            Nav();
+                        }else if(way_route == "way2"){
+                            Way = "way2";
+                            TripDataLoader();
+                            Nav();
+                        }else if(way_route == "way3"){
+                            Way = "way3";
+                            TripDataLoader();
+                            Nav();
+                        }
+                    }
+                });
+                alertDialog.setMessage("Pick up: " + pickUpSt + "\nTrip: " + pickupRouteSt + " (" + transpo_mode + ")" + "\nDropoff: " + dropOffSt + "\nNext Trip: " + nextRouteSt + " (" + nextTranspo + ")");
+                alertDialog.setTitle("Route 1: " + trip);
+                alertDialog.setIcon(R.drawable.one_yellow);
+                alertDialog.show();
             }
-        });
-        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if(way_route == "way"){
-                    Way = "way";
-                    TripDataLoader();
-                    Nav();
-                }else if(way_route == "way2"){
-                    Way = "way2";
-                    TripDataLoader();
-                    Nav();
-                }else if(way_route == "way3"){
-                    Way = "way3";
-                    TripDataLoader();
-                    Nav();
-                }
-            }
-        });
-        alertDialog.setMessage("Pick up: " + pickUpSt + "\nTrip: " + pickupRouteSt + "\nDropoff: " + dropOffSt + "\nNext Trip: " + nextRouteSt);
-        alertDialog.setTitle("Route 2: " + trip);
-        alertDialog.setIcon(R.drawable.two_yellow);
-        alertDialog.show();
+        },500);
     }
     public void WayThree(){
 
+        if(placeSwitch == true){
+            if(biyaheNullCheck == 1){
+                biyahe = "biyahe2";
+            }else if(biyaheNullCheck == 2){
+                biyahe = "biyahe";
+            }else{
+                biyahe = "biyahe3";
+            }
+        }else{
+            biyahe = "biyahe";
+        }
         TripDataLoader();
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(
-                Home.this);
 
-        alertDialog.setPositiveButton("Select Route", new DialogInterface.OnClickListener() {
+        delayHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(
+                        Home.this);
 
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Nav();
-                way_route = "way3";
-                route_selected.setHint("Route Selected: Route 3");
+                alertDialog.setPositiveButton("Select Route", new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Nav();
+                        way_route = "way";
+                        route_selected.setHint("Route Selected: Route 3");
+                    }
+                });
+                alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if(way_route == "way"){
+                            Way = "way";
+                            TripDataLoader();
+                            Nav();
+                        }else if(way_route == "way2"){
+                            Way = "way2";
+                            TripDataLoader();
+                            Nav();
+                        }else if(way_route == "way3"){
+                            Way = "way3";
+                            TripDataLoader();
+                            Nav();
+                        }
+                    }
+                });
+                alertDialog.setMessage("Pick up: " + pickUpSt + "\nTrip: " + pickupRouteSt + " (" + transpo_mode + ")" + "\nDropoff: " + dropOffSt + "\nNext Trip: " + nextRouteSt + " (" + nextTranspo + ")");
+                alertDialog.setTitle("Route 1: " + trip);
+                alertDialog.setIcon(R.drawable.one_yellow);
+                alertDialog.show();
             }
-        });
-        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if(way_route == "way"){
-                    Way = "way";
-                    TripDataLoader();
-                    Nav();
-                }else if(way_route == "way2"){
-                    Way = "way2";
-                    TripDataLoader();
-                    Nav();
-                }else if(way_route == "way3"){
-                    Way = "way3";
-                    TripDataLoader();
-                    Nav();
-                }
-            }
-        });
-        alertDialog.setMessage("Pick up: " + pickUpSt + "\nTrip: " + pickupRouteSt + "\nDropoff: " + dropOffSt + "\nNext Trip: " + nextRouteSt);
-        alertDialog.setTitle("Route 3: " + trip);
-        alertDialog.setIcon(R.drawable.three_yellow);
-        alertDialog.show();
+        },500);
     }
     public void TripDataLoader(){
 
@@ -1959,6 +2078,7 @@ public void startStartTrip(){
                         pu_lng = snapshot.child(PlaceKey).child(Way).child(biyahe).child("pickupLng").getValue().toString();
                         do_lat = snapshot.child(PlaceKey).child(Way).child(biyahe).child("dropoffLat").getValue().toString();
                         do_lng = snapshot.child(PlaceKey).child(Way).child(biyahe).child("dropoffLng").getValue().toString();
+                        transpo_mode = snapshot.child(PlaceKey).child(Way).child(biyahe).child("transportation").getValue().toString();
 
                         trip = snapshot.child(PlaceKey).child("place").getValue().toString();
                         o_lat = snapshot.child(PlaceKey).child("originLat").getValue().toString();
@@ -1971,8 +2091,10 @@ public void startStartTrip(){
                         NRTcheck = snapshot.child(PlaceKey).child(Way).child(NextRT).getValue().toString();
                         if(NRTcheck != "false"){
                             nextRouteSt = snapshot.child(PlaceKey).child(Way).child(NextRT).child("pu_route").getValue().toString();
+                            nextTranspo = snapshot.child(PlaceKey).child(Way).child(NextRT).child("transportation").getValue().toString();
                         }else if(NRTcheck == "false"){
                             nextRouteSt = trip_dest;
+                            nextTranspo = "Walk";
                         }
 
                         pu_latD = Double.parseDouble(pu_lat);
@@ -1991,6 +2113,7 @@ public void startStartTrip(){
                         do_lng = snapshot.child(PlaceKey).child(Way).child(biyahe).child("pickupLng").getValue().toString();
                         pu_lat = snapshot.child(PlaceKey).child(Way).child(biyahe).child("dropoffLat").getValue().toString();
                         pu_lng = snapshot.child(PlaceKey).child(Way).child(biyahe).child("dropoffLng").getValue().toString();
+                        transpo_mode = snapshot.child(PlaceKey).child(Way).child(biyahe).child("transportation").getValue().toString();
 
                         trip = snapshot.child(PlaceKey).child("place").getValue().toString();
                         d_lat = snapshot.child(PlaceKey).child("originLat").getValue().toString();
@@ -2009,8 +2132,10 @@ public void startStartTrip(){
 
                         if(NRTcheck != "false"){
                             nextRouteSt = snapshot.child(PlaceKey).child(Way).child(NextRT).child("pu_route").getValue().toString();
+                            nextTranspo = snapshot.child(PlaceKey).child(Way).child(NextRT).child("transportation").getValue().toString();
                         }else if(NRTcheck == "false"){
                             nextRouteSt = trip_dest;
+                            nextTranspo = "Walk";
                         }
 
                         if(snapshot.child(PlaceKey).child(Way).child("biyahe3").getValue().toString() == "false"){
@@ -2058,6 +2183,7 @@ public void startStartTrip(){
                     Nav();
                     nav = 1;
                 }
+
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -2082,14 +2208,17 @@ public void startStartTrip(){
         PuDo = 0;
         swap = 0;
         ctr = 0;
+        mode_t = "Walk";
         //Set the String Text to the Text View Variable
         pickUp.setText(pickUpSt);
         //pickupRoute.setText(pickupRouteSt);
         dropOff.setText(dropOffSt);
         fare.setText(fareSt);
         nextRoute.setText(pickupRouteSt);
+        switchDashboard();
         NavDurationRepeater();
         puMarkerGeofence();
+        fitPuDo();
     }
 
     public void setPuDoMarker(){
@@ -2111,6 +2240,7 @@ public void startStartTrip(){
             Pickup.setTitle(pickupRouteSt);
             Pickup.setSnippet("Pickup Point");
         }
+        fitPuDo();
 
     }
     public void setDoMarker(){
@@ -2132,7 +2262,7 @@ public void startStartTrip(){
             DropOff.setTitle(dropOffSt);
             DropOff.setSnippet("Dropoff Point");
         }
-        fitAllMarkers();
+        fitPuDo();
     }
 
     public void puMarkerGeofence(){
@@ -2182,6 +2312,25 @@ public void startStartTrip(){
 
     }
 
+    public void switchDashboard(){
+
+        switch(mode_t){
+            case "Walk":
+                mode.setImageResource(R.drawable.walking);
+                mode.setTooltipText("Walk to: "+ pickUpSt);
+                break;
+            case "Jeepney":
+                mode.setImageResource(R.drawable.jeepney2);
+                mode.setTooltipText("Ride: "+ pickupRouteSt + " " + transpo_mode + " going to " + dropOffSt);
+                break;
+            case "Bus":
+                mode.setImageResource(R.drawable.bus_icon);
+                mode.setTooltipText("Ride: "+ pickupRouteSt + " " + transpo_mode + " going to " + dropOffSt);
+                break;
+        }
+
+    }
+
 
     public void NavDurationRepeater (){
        navRunnable.run();
@@ -2215,36 +2364,49 @@ public void startStartTrip(){
         @Override
         public void run() {
 
-            DistHandler.removeCallbacks(DOdistRunnable);
 
-            distancePU.setText(" " + Math.round(distance) + " m" + "\n Pickup");
+            DistHandler.removeCallbacks(DOdistRunnable);
+            DecimalFormat df = new DecimalFormat("0.00");
+            if(distance >= 1000){
+                float dist = distance/1000;
+                distancePU.setText(" " + (df.format(dist))+ " km" + "\n Pickup");
+            }else{
+                distancePU.setText(" " + Math.round(distance) + " m" + "\n Pickup");
+            }
 
             if(distance <= 200 && distance != 0 && PuDo == 0){
                 setDoMarker();
                 doMarkerGeofence();
                 nextRoute.setText(nextRouteSt);
                 PuDo = 1;
+                mode_t = transpo_mode;
+                switchDashboard();
             }else if (distance>= 400 && distance<= 500 && PuDo == 1){
                 swap = 1;
                 DONavDistRepeater();
                 DistHandler.removeCallbacks(distRunnable);
-            }else if (kmh >= 25 && distance>= 200 && distance<= 700){
+            }else if (kmh >= 25 && distance>= 200 && distance<= 700 && PuDo == 0){
                 setDoMarker();
                 doMarkerGeofence();
                 PuDo = 1;
                 swap = 1;
                 nextRoute.setText(nextRouteSt);
+                mode_t = transpo_mode;
+                switchDashboard();
+
                 DONavDistRepeater();
                 DistHandler.removeCallbacks(distRunnable);
-            }else if(NullCheck == "false" && ctr == 0 || distanceDest <= 200 && distanceDest!= 0){
+            }else if(NullCheck == "false" && ctr == 0 || d_distance <= 200 && d_distance !=0 && ctr == 0){
                 ctr = 1;
                 DistHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
                         tripFinished();
-                        DistHandler.removeCallbacks(distRunnable);
+                        if(DropOff != null){
+                            DropOff.remove();
+                        }
                     }
-                },1000);
+                },2000);
             }
             DistHandler.postDelayed(this, 500);
         }
@@ -2260,7 +2422,13 @@ public void startStartTrip(){
             DistHandler.removeCallbacks(distRunnable);
 
             //DONavDuration();
-            distancePU.setText(" " + Math.round(distance) + " m" + "\n Dropoff");
+            DecimalFormat df = new DecimalFormat("0.00");
+            if(distance >= 1000){
+                float dist = distance/1000;
+                distancePU.setText(" " + (df.format(dist))+ " km" + "\n Dropoff");
+            }else{
+                distancePU.setText(" " + Math.round(distance) + " m" + "\n Dropoff");
+            }
 
             if(distance <= 200 && distance != 0){
 

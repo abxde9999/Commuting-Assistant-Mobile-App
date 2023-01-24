@@ -314,6 +314,7 @@
             android:gravity="left">
 
             <ImageView
+                android:id="@+id/mode"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
                 android:layout_marginStart="17dp"
