@@ -147,7 +147,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
 
     float distance, speed, d_distance;
-    int meters, kmh, fare_total;
+    int meters, kmh;
+    float fare_total;
 
 
     String status;
@@ -1151,9 +1152,15 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                     mapFragment.getMapAsync(Home.this);
                     //assert mapFragment != null;
                     setUserLocationMarker(location);
-                    myPlace();
-                    animateMyPlaceIn();
-                    animateMyPlaceOut();
+
+                    delayHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            myPlace();
+                            animateMyPlaceIn();
+                            animateMyPlaceOut();
+                        }
+                    },2000);
                 }
             }
         });
@@ -1380,12 +1387,15 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             ActivityCompat.requestPermissions(Home.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
             return;
         }
+
         Task<Location> task = fusedLocationProviderClient.getLastLocation();
         task.addOnSuccessListener(new OnSuccessListener<Location>() {
             Address address;
             @Override
             public void onSuccess(Location location) {
                 if (location != null) {
+
+
                     currentLocation = location;
                     address = null;
                     Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
@@ -1400,8 +1410,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
-
                 }
                 if (address != null){
                     currLoc.setText(address.getAddressLine(0));
@@ -2160,11 +2168,11 @@ public void startStartTrip(){
                     //Get the Value and set it to String
 
                     if(snapshot.child(PlaceKey).child(Way).child("biyahe").getValue().toString() != "false"){
-                        fare_total = Integer.parseInt(snapshot.child(PlaceKey).child(Way).child("biyahe").child("fare").getValue().toString());
+                        fare_total = Float.parseFloat(snapshot.child(PlaceKey).child(Way).child("biyahe").child("fare").getValue().toString());
                         if(snapshot.child(PlaceKey).child(Way).child("biyahe2").getValue().toString() != "false"){
-                            fare_total = Integer.parseInt(snapshot.child(PlaceKey).child(Way).child("biyahe").child("fare").getValue().toString()) + Integer.parseInt(snapshot.child(PlaceKey).child(Way).child("biyahe2").child("fare").getValue().toString());
+                            fare_total = Float.parseFloat(snapshot.child(PlaceKey).child(Way).child("biyahe").child("fare").getValue().toString()) + Float.parseFloat(snapshot.child(PlaceKey).child(Way).child("biyahe2").child("fare").getValue().toString());
                             if(snapshot.child(PlaceKey).child(Way).child("biyahe3").getValue().toString() != "false"){
-                                fare_total = Integer.parseInt(snapshot.child(PlaceKey).child(Way).child("biyahe").child("fare").getValue().toString()) + Integer.parseInt(snapshot.child(PlaceKey).child(Way).child("biyahe2").child("fare").getValue().toString()) + Integer.parseInt(snapshot.child(PlaceKey).child(Way).child("biyahe3").child("fare").getValue().toString());
+                                fare_total = Float.parseFloat(snapshot.child(PlaceKey).child(Way).child("biyahe").child("fare").getValue().toString()) + Float.parseFloat(snapshot.child(PlaceKey).child(Way).child("biyahe2").child("fare").getValue().toString()) + Float.parseFloat(snapshot.child(PlaceKey).child(Way).child("biyahe3").child("fare").getValue().toString());
                             }
                         }
                     }
@@ -2175,8 +2183,7 @@ public void startStartTrip(){
                     destinationLoc = new LatLng(Double.parseDouble(d_lat),Double.parseDouble(d_lng));
 
 
-
-                    total_fare = Integer.toString(fare_total);
+                    total_fare = Float.toString(fare_total);
                 }
 
                 if (nav == 0){
@@ -2194,7 +2201,8 @@ public void startStartTrip(){
     public void Nav() {
         slide_origin.setText("Origin: " + trip_org);
         slide_dest.setText("Destination: " + trip_dest);
-        slide_fare.setText("Fare Estimate: ₱" + total_fare);
+        DecimalFormat df = new DecimalFormat("0.00");
+        slide_fare.setText("Fare Estimate: ₱" + (df.format(fare_total)) );
     }
     public void Confirm(){
         slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
