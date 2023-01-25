@@ -2417,7 +2417,7 @@ public void startStartTrip(){
                 switchDashboard();
             }else if (d_distance <= 200 && d_distance !=0 && ctr == 1 )
                 ctr = 2;
-                if(d_distance <= 150 && d_distance !=0){
+                if(d_distance <= 100 && d_distance !=0){
 
                     DistHandler.postDelayed(new Runnable() {
                         @Override
