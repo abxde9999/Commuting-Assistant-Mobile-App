@@ -789,10 +789,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
-                Log.d(TAG, "onLocationResult: " + locationResult.getLastLocation());
+                startLocationUpdates();
                 if (map != null) {
-
-                    startLocationUpdates();
                     locationUser = locationResult.getLastLocation();
                     setUserLocationMarker(locationResult.getLastLocation());
                 }
@@ -835,7 +833,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
             Bitmap icon = BitmapFactory.decodeResource(getResources(), R.drawable.navigation);
-            Bitmap smallMarker = Bitmap.createScaledBitmap(icon, 125, 125, false);
+            Bitmap smallMarker = Bitmap.createScaledBitmap(icon, 75, 75, false);
             BitmapDescriptor smallMarkerIcon = BitmapDescriptorFactory.fromBitmap(smallMarker);
             markerOptions.rotation(location.getBearing());
             markerOptions.anchor((float) 0.5, (float) 0.5);
@@ -907,39 +905,34 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             ActivityCompat.requestPermissions(Home.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
             return;
         }
-        Task<Location> task = fusedLocationProviderClient.getLastLocation();
-        task.addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                if (location != null) {
-                    currentLocation = location;
-                    Address address = null;
-                    Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
 
-                    try {
-                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                        address = addresses.get(0);
+        Location location;
 
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+        location = locationUser;
 
-                    if (!msgRc.isEmpty() && !msgI.isEmpty()) {
+        if (location != null) {
+            Address address = null;
+            Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
 
-                        //Initialize SMS Manager
-                        SmsManager smsManager = SmsManager.getDefault();
-                        //Send Msg
-                        smsManager.sendTextMessage(msgRc, null, msgI + "\n" + "Latitude: " + address.getLatitude() + "\nLongitude: " + address.getLongitude() + "\nAddress: " + address.getAddressLine(0), null, null);
-                    } else {
+            try {
+                List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                address = addresses.get(0);
 
-                        Toast.makeText(Home.this, "Please enter a message.", Toast.LENGTH_SHORT).show();
-                    }
-
-                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        });
 
+            if (!msgRc.isEmpty() && !msgI.isEmpty()) {
+                //Initialize SMS Manager
+                SmsManager smsManager = SmsManager.getDefault();
+                //Send Msg
+                smsManager.sendTextMessage(msgRc, null, msgI + "\n" + "Latitude: " + address.getLatitude() + "\nLongitude: " + address.getLongitude() + "\nAddress: " + address.getAddressLine(0), null, null);
+            } else {
 
+                Toast.makeText(Home.this, "Please enter a message.", Toast.LENGTH_SHORT).show();
+            }
+
+        }
     }
 
 
@@ -1068,7 +1061,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         LatLngBounds bounds = builder.build();
         int width = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels;
-        int padding = (int) (width * 0.35); // offset from edges of the map 10% of screen
+        int padding = (int) (width * 0.10); // offset from edges of the map 10% of screen
 
         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
 
@@ -1119,10 +1112,9 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             Location.distanceBetween(locationUser.getLatitude(), locationUser.getLongitude(), pu_latD, pu_lngD, results);
         }else if(swap == 1){
             Location.distanceBetween(locationUser.getLatitude(), locationUser.getLongitude(), do_latD, do_lngD, results);
+        }else if(swap == 2) {
+            Location.distanceBetween(locationUser.getLatitude(), locationUser.getLongitude(), originLat, originLong, results);
         }
-
-
-
         speed = locationUser.getSpeed();
 
         kmh = (int) (speed * 3.6);
@@ -2325,7 +2317,11 @@ public void startStartTrip(){
         switch(mode_t){
             case "Walk":
                 mode.setImageResource(R.drawable.walking);
-                mode.setTooltipText("Walk to: "+ pickUpSt);
+                if (swap == 2){
+                    mode.setTooltipText("Walk to: "+ trip_dest);
+                }else{
+                    mode.setTooltipText("Walk to: "+ pickUpSt);
+                }
                 break;
             case "Jeepney":
                 mode.setImageResource(R.drawable.jeepney2);
@@ -2377,9 +2373,18 @@ public void startStartTrip(){
             DecimalFormat df = new DecimalFormat("0.00");
             if(distance >= 1000){
                 float dist = distance/1000;
-                distancePU.setText(" " + (df.format(dist))+ " km" + "\n Pickup");
-            }else{
-                distancePU.setText(" " + Math.round(distance) + " m" + "\n Pickup");
+                float d_dist = d_distance/1000;
+                if(swap == 2){
+                    distancePU.setText(" " + (df.format(d_dist))+ " km" + "\n Destination");
+                }else{
+                    distancePU.setText(" " + (df.format(dist))+ " km" + "\n Pickup");
+                }
+            }else if (distance >= 1000){
+                    distancePU.setText(" " + Math.round(distance) + " m" + "\n Pickup");
+            }else if (d_distance >= 1000){
+                if(swap == 2) {
+                    distancePU.setText(" " + Math.round(d_distance) + " m" + "\n Destination");
+                }
             }
 
             if(distance <= 200 && distance != 0 && PuDo == 0){
@@ -2406,16 +2411,22 @@ public void startStartTrip(){
                 DistHandler.removeCallbacks(distRunnable);
             }else if(NullCheck == "false" && ctr == 0 || d_distance <= 200 && d_distance !=0 && ctr == 0){
                 ctr = 1;
-                DistHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        tripFinished();
-                        if(DropOff != null){
-                            DropOff.remove();
+                swap = 2;
+                mode_t = "Walk";
+                nextRoute.setText(trip_dest);
+                switchDashboard();
+            }else if (d_distance <= 200 && d_distance !=0 && ctr == 1 )
+                if(d_distance <= 100 && d_distance !=0){
+                    DistHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            tripFinished();
+                            if(DropOff != null){
+                                DropOff.remove();
+                            }
                         }
-                    }
-                },2000);
-            }
+                    },10000);
+                }
             DistHandler.postDelayed(this, 500);
         }
     };
@@ -2437,7 +2448,6 @@ public void startStartTrip(){
             }else{
                 distancePU.setText(" " + Math.round(distance) + " m" + "\n Dropoff");
             }
-
             if(distance <= 200 && distance != 0){
 
                 if(placeSwitch == false){
