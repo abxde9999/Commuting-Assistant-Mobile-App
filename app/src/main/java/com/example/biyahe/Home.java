@@ -2392,6 +2392,7 @@ public void startStartTrip(){
 
     private Runnable distRunnable = new Runnable() {
 
+        @SuppressLint("SuspiciousIndentation")
         @Override
         public void run() {
 
@@ -2402,15 +2403,15 @@ public void startStartTrip(){
                 float dist = distance/1000;
                 float d_dist = d_distance/1000;
                 if(swap == 2){
-                    distancePU.setText(" " + (df.format(d_dist))+ " km" + "\n Destination");
+                    distancePU.setText(" " + (df.format(d_dist))+ " km" + "\n Destination\n Distance");
                 }else{
-                    distancePU.setText(" " + (df.format(dist))+ " km" + "\n Pickup");
+                    distancePU.setText(" " + (df.format(dist))+ " km" + "\n Pickup\n Distance");
                 }
             }else if (distance >= 1000){
-                    distancePU.setText(" " + Math.round(distance) + " m" + "\n Pickup");
+                    distancePU.setText(" " + Math.round(distance) + " m" + "\n Pickup\n Distance");
             }else if (d_distance >= 1000){
                 if(swap == 2) {
-                    distancePU.setText(" " + Math.round(d_distance) + " m" + "\n Destination");
+                    distancePU.setText(" " + Math.round(d_distance) + " m" + "\n Destination\n Distance");
                 }
             }
 
@@ -2473,9 +2474,9 @@ public void startStartTrip(){
             DecimalFormat df = new DecimalFormat("0.00");
             if(distance >= 1000){
                 float dist = distance/1000;
-                distancePU.setText(" " + (df.format(dist))+ " km" + "\n Dropoff");
+                distancePU.setText(" " + (df.format(dist))+ " km" + "\n Dropoff\n Distance");
             }else{
-                distancePU.setText(" " + Math.round(distance) + " m" + "\n Dropoff");
+                distancePU.setText(" " + Math.round(distance) + " m" + "\n Dropoff\n Distance");
             }
             if(distance <= 200 && distance != 0){
 

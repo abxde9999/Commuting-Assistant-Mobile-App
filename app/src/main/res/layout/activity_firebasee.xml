@@ -8,168 +8,164 @@
     tools:context=".Firebasee">
 
     <LinearLayout
+        android:id="@+id/cLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/bg"
-        android:focusable="false"
-        app:layout_anchor="@id/btmAppBar">
+        android:layout_height="118dp"
+        android:background="@drawable/rounder_corner3"
+        android:orientation="vertical"
+        android:textSize="14sp">
 
-
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/rounder_corner3"
+            android:gravity="left">
 
-            android:orientation="vertical">
+            <ImageView
+                android:id="@+id/mode"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:layout_marginStart="17dp"
+                android:layout_marginTop="15dp"
+                android:src="@drawable/puv_icon1"></ImageView>
 
             <TextView
-
-                android:id="@+id/trip_planner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="33dp"
-                android:text="Trip\nPlanner"
+                android:id="@+id/pickup"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginStart="75dp"
+                android:layout_marginTop="10dp"
+                android:text="Pickup:"
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
                 android:textColor="@color/black"
-                android:textIsSelectable="true"
-                android:textSize="30sp"
-                android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.763"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.666" />
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <AutoCompleteTextView
-                    android:id="@+id/searchTrip"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="20dp"
-                    android:layout_marginTop="20dp"
-                    android:background="@android:color/background_light"
-                    android:drawableLeft="@drawable/ic_search"
-                    android:drawablePadding="16dp"
-                    android:hint="Search Routes"
-                    android:outlineAmbientShadowColor="@color/black"
-                    android:padding="13dp"></AutoCompleteTextView>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/listTrips"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/searchTrip"
-                    android:layout_margin="20dp"></androidx.recyclerview.widget.RecyclerView>
-
-            </RelativeLayout>
-
-
-            <com.google.android.material.bottomnavigation.BottomNavigationView
-                android:id="@+id/routePicker"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:background="#D7FFFFFF"
-                android:foregroundGravity="center"
-                android:theme="@style/Theme.AppCompat"
-                app:itemIconTint="?android:attr/textColorPrimaryInverseDisableOnly"
-                app:itemRippleColor="@color/quantum_amber300"
-                app:itemTextColor="?android:attr/textColorSecondaryInverseNoDisable"
-                app:menu="@menu/menu" />
-            <TextView
-                android:id="@+id/route_selected"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_gravity="center"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textSize="15sp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:id="@+id/slide_origin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginTop="10dp"
-                    android:text="Origin"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/slide_origin"
-                    android:layout_marginStart="346dp"
-                    android:layout_marginTop="-27dp"
-                    android:src="@drawable/swap"
-                    app:backgroundTint="@color/quantum_white_100"
-                    app:maxImageSize="35dp"
-                    app:rippleColor="@color/quantum_amber300" />
-
-                <TextView
-                    android:id="@+id/slide_dest"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/slide_origin"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginStart="19dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="223dp"
-
-                    android:text="Destination"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
-            </RelativeLayout>
-
-
-
             <TextView
-                android:id="@+id/slide_fare"
-                android:layout_width="wrap_content"
+                android:id="@+id/pickup_fill"
+                android:layout_width="265dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
+                android:layout_marginStart="3dp"
                 android:layout_marginTop="10dp"
-                android:text=""
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textSize="15sp"
+                android:layout_toEndOf="@+id/pickup"
+                android:hint="PUP-Divisoria"
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                android:textColor="@color/black"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
-            <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-                android:id="@+id/confirm_button"
+            <TextView
+                android:id="@+id/drop_off"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:layout_height="30dp"
+                android:layout_below="@+id/pickup"
+                android:layout_marginStart="75dp"
+                android:text="Drop-off: "
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
+            <TextView
+                android:id="@+id/dropoff_fill"
+                android:layout_width="251dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="3dp"
+                android:layout_marginTop="40dp"
+                android:layout_toEndOf="@+id/drop_off"
+                android:hint="Recto"
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/nxt_ride"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_below="@+id/drop_off"
+                android:layout_marginStart="75dp"
+                android:layout_marginTop="6dp"
+                android:text="Next: "
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                android:textColor="@color/quantum_grey"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/next_fill"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_below="@+id/drop_off"
+                android:layout_alignStart="@+id/nxt_ride"
+                android:layout_marginStart="34dp"
+                android:layout_marginTop="6dp"
+                android:hint="Bacood-Quiapo"
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                android:textColor="@color/black"
+                android:textColorLink="@color/quantum_grey"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/distance_fill"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_alignStart="@+id/nxt_ride"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="-58dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginBottom="16dp"
-                android:text="Confirm"
-                android:textAlignment="center"
-                android:textAllCaps="true"
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                android:textStyle="bold"
-                app:backgroundTint="@color/quantum_white_100"
-                app:layout_anchor="@+id/linearLayout2"
-                app:layout_anchorGravity="end|top"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:rippleColor="@color/quantum_amber300" />
-        </LinearLayout>
+                android:layout_marginBottom="11dp"
+                android:hint="KM"
+                android:textAlignment="textStart"
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                android:textColor="@color/black"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/fare_est"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_alignBottom="@+id/nxt_ride"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="75dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="-17dp"
+                android:text="Fare: ₱"
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/fare_fill"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_alignBottom="@+id/fare_est"
+                android:layout_marginStart="3dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="0dp"
+                android:layout_toEndOf="@+id/fare_est"
+                android:hint="12.00"
+                android:textAlignment="textStart"
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+
+        </RelativeLayout>
+
     </LinearLayout>
 
 </RelativeLayout>
