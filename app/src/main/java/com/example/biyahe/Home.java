@@ -20,6 +20,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -32,13 +33,16 @@ import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
+import android.provider.Settings;
 import android.telephony.SmsManager;
 import android.util.Log;
 
@@ -175,6 +179,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     private GeofencingHelper geofencingHelper;
     private float GEOFENCE_RADIUS = 200;
     private String GEOFENCE_ID = "GEOFENCE";
+    private LocationManager locationManager;
     Circle geofenceBounds;
 
     Geofence HomeGeofence;
@@ -303,7 +308,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        statusCheck();
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
 
         super.onCreate(savedInstanceState);
@@ -511,6 +516,35 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         // Retrieve a PlacesClient (previously initialized - see MainActivity)
         placesClient = Places.createClient(this);
 
+    }
+
+    public void statusCheck() {
+        final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            buildAlertMessageNoGps();
+
+        }
+    }
+
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Biyahe");
+        builder.setIcon(R.drawable.currloc);
+        builder.setMessage("Your GPS seems to be disabled, Location Services are needed for the features of this app to work, do you want to enable it? ")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
     }
 
     //Method for new search view
@@ -884,17 +918,9 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             //When permission is Granted
             //Call Method
             sendSOS();
-        } else {
-            //When permission is Denied
-            //Display Toast
-            Toast.makeText(this, "Permission Denied, Please Grant!", Toast.LENGTH_SHORT).show();
         }
         if (requestCode == BACKGROUND_LOCATION_ACCESS_REQUEST_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this, "Location Permission Granted", Toast.LENGTH_SHORT).show();
-        } else {
-            //When permission is Denied
-            //Display Toast
-            Toast.makeText(this, "Permission Denied, Please Grant!", Toast.LENGTH_SHORT).show();
         }
     }
 
