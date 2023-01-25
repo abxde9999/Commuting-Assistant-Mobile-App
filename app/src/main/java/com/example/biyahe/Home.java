@@ -541,6 +541,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                     public void onClick(final DialogInterface dialog, final int id) {
                         dialog.cancel();
+                        statusCheck();
                     }
                 });
         final AlertDialog alert = builder.create();
