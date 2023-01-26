@@ -21,6 +21,7 @@ import android.app.AlertDialog;
 
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -44,6 +45,7 @@ import android.os.Looper;
 
 import android.provider.Settings;
 import android.telephony.SmsManager;
+import android.text.format.Time;
 import android.util.Log;
 
 import android.view.DragEvent;
@@ -70,6 +72,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.biyahe.Utility.NetworkChangeListener;
 import com.example.biyahe.model.AutocompleteEditText;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
@@ -129,33 +132,42 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
 public class Home extends FragmentActivity implements OnMapReadyCallback {
 
-    String[] DList;
+
+    int additionalHour = 0;
+    int additionalMinute = 0;
+    int additionalSeconds = 0;
+    int ave_speed = 0;
+
+    float total_added = 0;
+    float d_dist;
+
 
     String biyahe, NextRT, NullCheck, NRTcheck, Way;
     Marker Pickup, DropOff;
     DatabaseReference reference; //Declare Variable
-    TextView pickUp, pickupRoute, dropOff, nextRoute, fare, distancePU, slide_origin, slide_dest, slide_fare, route_selected; //Declare variable for Textviews
+    TextView pickUp, pickupRoute, dropOff, nextRoute, fare, distancePU, slide_origin, slide_dest, slide_fare, route_selected, ETA; //Declare variable for Textviews
     ImageView mode;
     String pickUpSt, pickupRouteSt, dropOffSt, nextRouteSt, fareSt, pu_lat, pu_lng, do_lat, do_lng, o_lat, o_lng, d_lat, d_lng, trip_dest, trip_org, total_fare, trip, way_route, transpo_mode, mode_t, nextTranspo; //Declare the String Variable
 
-    String PlaceKey, TripID;
-
+    String PlaceKey;
 
     float distance, speed, d_distance;
     int meters, kmh;
     float fare_total;
-
-
-    String status;
 
     double pu_latD;
     double pu_lngD;
@@ -164,7 +176,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     double do_lngD;
     LatLng doLatLng;
 
-    LatLng PuDoLatLng;
     boolean doubleBackToExitPressedOnce = false;
 
     int PuDo, swap, nav;
@@ -179,7 +190,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     private GeofencingHelper geofencingHelper;
     private float GEOFENCE_RADIUS = 200;
     private String GEOFENCE_ID = "GEOFENCE";
-    private LocationManager locationManager;
     Circle geofenceBounds;
 
     Geofence HomeGeofence;
@@ -275,6 +285,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     Handler navHandler = new Handler();
     Handler DistHandler = new Handler();
     Handler delayHandler = new Handler();
+    Handler speedHandler = new Handler();
     int delayMillis = 5000;
 
     //Initialization of Strings
@@ -338,6 +349,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         confirm.setVisibility(View.GONE);
         route_selected = findViewById(R.id.route_selected);
         mode = findViewById(R.id.mode);
+        ETA = findViewById(R.id.ETA);
 
         switchPlace = findViewById(R.id.switch_place);
         switchPlace.setVisibility(View.GONE);
@@ -706,6 +718,64 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             HomeGeofence =geofence;
 
     }
+
+
+    public class GeofencingHelper extends ContextWrapper {
+
+        private static final String TAG = "GeofencingHelper";
+        PendingIntent pendingIntent;
+
+
+        public GeofencingHelper(Context base) {
+            super(base);
+        }
+
+        public GeofencingRequest getGeofencingRequest(Geofence geofence) {
+            return new GeofencingRequest.Builder()
+                    .addGeofence(geofence)
+                    .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER | GeofencingRequest.INITIAL_TRIGGER_DWELL)
+                    .build();
+        }
+
+        public Geofence getGeofence(String ID, LatLng latLng, float radius, int transitionTypes) {
+            return new Geofence.Builder()
+                    .setCircularRegion(latLng.latitude, latLng.longitude, radius)
+                    .setRequestId(ID)
+                    .setTransitionTypes(transitionTypes)
+                    .setLoiteringDelay(5000)
+                    .setExpirationDuration(Geofence.NEVER_EXPIRE)
+                    .build();
+        }
+
+        public PendingIntent getPendingIntent() {
+            if (pendingIntent != null) {
+                return pendingIntent;
+            }
+            Intent intent = new Intent(this,GeofenceBroadcastReceiver.class);
+            pendingIntent = PendingIntent.getBroadcast(this, 2607, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            return pendingIntent;
+        }
+
+        public String getErrorString(Exception e) {
+            if (e instanceof ApiException) {
+                ApiException apiException = (ApiException) e;
+                switch (apiException.getStatusCode()) {
+                    case GeofenceStatusCodes
+                            .GEOFENCE_NOT_AVAILABLE:
+                        return "GEOFENCE_NOT_AVAILABLE";
+                    case GeofenceStatusCodes
+                            .GEOFENCE_TOO_MANY_GEOFENCES:
+                        return "GEOFENCE_TOO_MANY_GEOFENCES";
+                    case GeofenceStatusCodes
+                            .GEOFENCE_TOO_MANY_PENDING_INTENTS:
+                        return "GEOFENCE_TOO_MANY_PENDING_INTENTS";
+                }
+            }
+            return e.getLocalizedMessage();
+        }
+
+    }
     //
     //AutoComplete Destination
 
@@ -965,13 +1035,10 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
     // Method to get Current Location
     private void explore() {
-
         if (centerCtr == 1){
             map.clear();
             userLocationMarker = null;
         }
-
-
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(Home.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
             return;
@@ -982,24 +1049,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             public void onSuccess(Location location) {
                 if (location != null) {
                     currentLocation = location;
-                    Address address = null;
-
-                    Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
-
-                    try {
-                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                        address = addresses.get(0);
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
                     LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
                     map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
-                    mapFragment.getMapAsync(Home.this);
-
-
-                    //assert mapFragment != null;
                     setUserLocationMarker(location);
                 }
             }
@@ -1143,6 +1194,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             Location.distanceBetween(locationUser.getLatitude(), locationUser.getLongitude(), originLat, originLong, results);
         }
         speed = locationUser.getSpeed();
+
+        kmh = 0;
 
         kmh = (int) (speed * 3.6);
 
@@ -1671,6 +1724,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         }
 public void tripFinished(){
 
+    map.setPadding(0,0,0,0);
+
 
     DistHandler.removeCallbacks(DOdistRunnable);
     DistHandler.removeCallbacks(distRunnable);
@@ -1734,7 +1789,8 @@ public void tripFinished(){
             DistHandler.removeCallbacks(distRunnable);
             DistHandler.removeCallbacks(DOdistRunnable);
             navHandler.removeCallbacks(navRunnable);
-
+            speedHandler.removeCallbacks(ETARunnable);
+            speedHandler.removeCallbacks(speedRunnable);
 
             geofencingClient.removeGeofences(geofencingHelper.getPendingIntent()).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
@@ -1765,6 +1821,8 @@ public void endTrip(){
     alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
+
+            map.setPadding(0,0,0,0);
 
             bottomNav.getMenu().findItem(R.id.nearby).setEnabled(true);
             bottomNav.getMenu().findItem(R.id.nearby).setCheckable(true);
@@ -1813,6 +1871,8 @@ public void endTrip(){
             DistHandler.removeCallbacks(distRunnable);
             DistHandler.removeCallbacks(DOdistRunnable);
             navHandler.removeCallbacks(navRunnable);
+            speedHandler.removeCallbacks(ETARunnable);
+            speedHandler.removeCallbacks(speedRunnable);
 
 
             geofencingClient.removeGeofences(geofencingHelper.getPendingIntent()).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -1848,6 +1908,11 @@ public void endTrip(){
 }
 
 public void startStartTrip(){
+
+    map.setPadding(0,300,0,0);
+
+    total_added = 0;
+    ave_speed = 0;
 
     animateTripIn();
     startTrip.setVisibility(View.GONE);
@@ -1903,6 +1968,8 @@ public void startStartTrip(){
             }
         }
     }, 500);
+    speedRepeat();
+    ETARepeat();
 }
 
     public void WayOne(){
@@ -2230,6 +2297,22 @@ public void startStartTrip(){
         startTrip();
     }
 
+    public void ETA(){
+
+        Calendar calendar = Calendar.getInstance();
+        DateFormat df = new SimpleDateFormat("h:mm a");
+        calendar.add(Calendar.HOUR, additionalHour);
+        calendar.add(Calendar.MINUTE, additionalMinute);
+        String date = df.format(calendar.getTime());
+
+        ETA.setText("ETA: " + date);
+
+        total_added = 0;
+        additionalHour = 0;
+        additionalMinute = 0;
+        additionalSeconds = 0;
+    }
+
     public void showJourney() {
         setPuDoMarker();
         PuDo = 0;
@@ -2401,15 +2484,15 @@ public void startStartTrip(){
             DecimalFormat df = new DecimalFormat("0.00");
             if(distance >= 1000){
                 float dist = distance/1000;
-                float d_dist = d_distance/1000;
+                d_dist = d_distance/1000;
                 if(swap == 2){
                     distancePU.setText(" " + (df.format(d_dist))+ " km" + "\n Destination\n Distance");
                 }else{
                     distancePU.setText(" " + (df.format(dist))+ " km" + "\n Pickup\n Distance");
                 }
-            }else if (distance >= 1000){
+            }else if (distance <= 1000){
                     distancePU.setText(" " + Math.round(distance) + " m" + "\n Pickup\n Distance");
-            }else if (d_distance >= 1000){
+            }else if (d_distance <= 1000){
                 if(swap == 2) {
                     distancePU.setText(" " + Math.round(d_distance) + " m" + "\n Destination\n Distance");
                 }
@@ -2568,6 +2651,54 @@ public void startStartTrip(){
 
             }
             DistHandler.postDelayed(this, 500);
+        }
+    };
+    public void speedRepeat (){
+        speedRunnable.run();
+    }
+    private Runnable speedRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+
+            ave_speed = kmh + ave_speed;
+
+            speedHandler.postDelayed(this, 1000);
+        }
+    };
+
+    public void ETARepeat(){
+        ETARunnable.run();
+    }
+
+    private Runnable ETARunnable = new Runnable() {
+        @Override
+        public void run() {
+            speedHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    ave_speed = ave_speed / 60;
+
+                    total_added = d_dist / ave_speed;
+
+                    //seconds
+
+                    total_added = total_added * 3600;
+
+                    additionalHour = (int) total_added / 3600;
+                    total_added = total_added - (additionalHour * 3600);
+
+                    additionalMinute = (int) total_added / 60;
+                    total_added = total_added - (additionalMinute * 60);
+
+                    ETA();
+
+                    ave_speed = 0;
+                }
+            },60000);
+                //do your code here
+
+            speedHandler.postDelayed(this, 60000);
         }
     };
 }

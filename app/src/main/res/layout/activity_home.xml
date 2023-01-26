@@ -298,7 +298,6 @@
         app:layout_anchor="@id/btmAppBar"
         app:maxImageSize="35dp" />
 
-
     <LinearLayout
         android:id="@+id/cLayout"
         android:layout_width="match_parent"
@@ -317,7 +316,8 @@
                 android:id="@+id/mode"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
-                android:layout_marginStart="17dp"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="15dp"
                 android:layout_marginTop="15dp"
                 android:src="@drawable/puv_icon1"></ImageView>
 
@@ -386,8 +386,9 @@
                 android:text="Next: "
                 android:textAllCaps="false"
                 android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
-                android:textColor="@color/quantum_grey"
-                android:textSize="12sp" />
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/next_fill"
@@ -395,24 +396,24 @@
                 android:layout_height="30dp"
                 android:layout_below="@+id/drop_off"
                 android:layout_alignStart="@+id/nxt_ride"
-                android:layout_marginStart="34dp"
+                android:layout_marginStart="36dp"
                 android:layout_marginTop="6dp"
                 android:hint="Bacood-Quiapo"
                 android:textAllCaps="false"
                 android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
                 android:textColor="@color/black"
                 android:textColorLink="@color/quantum_grey"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/distance_fill"
                 android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:layout_alignStart="@+id/nxt_ride"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@+id/mode"
                 android:layout_alignParentBottom="true"
-                android:layout_marginStart="-57dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="20dp"
+                android:layout_marginStart="3dp"
+                android:layout_marginBottom="18dp"
                 android:hint="KM"
                 android:textAlignment="textStart"
                 android:textAllCaps="false"
@@ -426,11 +427,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
                 android:layout_alignBottom="@+id/nxt_ride"
-                android:layout_alignParentStart="true"
-                android:layout_marginStart="75dp"
+                android:layout_marginStart="30dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="20dp"
-                android:layout_marginBottom="-17dp"
+                android:layout_marginBottom="0dp"
+                android:layout_toEndOf="@+id/next_fill"
                 android:text="Fare: ₱"
                 android:textAllCaps="false"
                 android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
@@ -455,11 +456,28 @@
                 android:textSize="12sp"
                 android:textStyle="bold" />
 
+            <TextView
+                android:id="@+id/ETA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/nxt_ride"
+                android:layout_alignBottom="@+id/fare_est"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="-15dp"
+                android:layout_toEndOf="@+id/mode"
+                android:hint="ETA: Calculating..."
+                android:textAlignment="textStart"
+                android:textAllCaps="false"
+                android:textAppearance="@style/TextAppearance.Material3.TitleSmall"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:textStyle="bold"/>
+
 
         </RelativeLayout>
 
     </LinearLayout>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cLayout2"
         android:layout_width="match_parent"
