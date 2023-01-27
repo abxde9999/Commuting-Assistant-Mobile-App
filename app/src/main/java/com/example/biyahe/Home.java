@@ -139,7 +139,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
 
     String biyahe, NextRT, NullCheck, NRTcheck, Way;
-    Marker Pickup, DropOff;
+    Marker Pickup, DropOff, Nearby;
     DatabaseReference reference; //Declare Variable
     TextView pickUp, pickupRoute, dropOff, nextRoute, fare, distancePU, slide_origin, slide_dest, slide_fare, route_selected, ETA; //Declare variable for Textviews
     ImageView mode;
@@ -886,7 +886,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         };
 
         startLocationUpdates();
-        explore.setVisibility(View.GONE);
         map.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
             @Override
             public void onCameraMoveStarted(int i) {
@@ -1614,7 +1613,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                     markerOptions.title(placeName);
                     markerOptions.snippet(vicinity);
 
-                    map.addMarker(markerOptions.icon(smallMarkerIcon));
+                    Nearby = map.addMarker(markerOptions.icon(smallMarkerIcon));
                     map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                     map.animateCamera(CameraUpdateFactory.zoomTo(15));
                 }else if(nearbyPlace == "restaurant"){
@@ -1626,7 +1625,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                     markerOptions.title(placeName);
                     markerOptions.snippet(vicinity);
 
-                    map.addMarker(markerOptions.icon(smallMarkerIcon));
+                    Nearby = map.addMarker(markerOptions.icon(smallMarkerIcon));
                     map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                     map.animateCamera(CameraUpdateFactory.zoomTo(15));
                 }else if(nearbyPlace == "school"){
@@ -1639,7 +1638,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                     markerOptions.title(placeName);
                     markerOptions.snippet(vicinity);
 
-                    map.addMarker(markerOptions.icon(smallMarkerIcon));
+                    Nearby = map.addMarker(markerOptions.icon(smallMarkerIcon));
                     map.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                     map.animateCamera(CameraUpdateFactory.zoomTo(15));
                 }
@@ -2319,12 +2318,12 @@ public void startStartTrip(){
             }
         });
         slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        if(nearby == 1){
+        if(nearby == 1 || Nearby != null){
             map.clear();
             userLocationMarker = null;
             animateNearbyOut();
             nearby = 0;
-
+            Nearby = null;
             delayHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
