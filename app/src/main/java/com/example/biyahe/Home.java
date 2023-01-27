@@ -506,12 +506,15 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                             hospitals.setClickable(true);
                             schools.setClickable(true);
                             restaurants.setClickable(true);
+                            bottomNav.getMenu().findItem(R.id.nearby).setChecked(true);
                             nearby = 1;
                         } else {
                             animateNearbyOut();
                             hospitals.setClickable(false);
                             schools.setClickable(false);
                             restaurants.setClickable(false);
+                            bottomNav.getMenu().findItem(R.id.sos).setChecked(true);
+                            bottomNav.getMenu().findItem(R.id.nearby).setChecked(false);
                             nearby = 0;
                         }
                         break;
@@ -940,7 +943,9 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             userLocationAccuracyCircle.setCenter(latLng);
             userLocationAccuracyCircle.setRadius(location.getAccuracy());
         }
-        bottomNav.getMenu().findItem(R.id.sos).setChecked(true);
+        if(bottomNav.getMenu().findItem(R.id.nearby).isChecked() != true || nearby == 0){
+            bottomNav.getMenu().findItem(R.id.sos).setChecked(true);
+        }
 
     }
 
