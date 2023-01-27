@@ -425,6 +425,12 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         });
 
         explore = findViewById(R.id.explore);
+        explore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                explore();
+            }
+        });
         onStartMap();
 
 
@@ -626,22 +632,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         TripDataLoader();
         route_selected.setHint("Route Selected: Route 1");
         pickRoute.setVisibility(View.VISIBLE);
-        confirm.setVisibility(View.VISIBLE);
-        confirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Confirm();
 
-            }
-        });
-
-        switchPlace.setVisibility(View.VISIBLE);
-        switchPlace.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switchPlace();
-            }
-        });
         //Toast.makeText(this,PlaceKey, Toast.LENGTH_LONG).show();
     }
 
@@ -895,18 +886,11 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         };
 
         startLocationUpdates();
-
         explore.setVisibility(View.GONE);
         map.setOnCameraMoveStartedListener(new GoogleMap.OnCameraMoveStartedListener() {
             @Override
             public void onCameraMoveStarted(int i) {
                 explore.setVisibility(View.VISIBLE);
-                explore.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        explore();
-                    }
-                });
             }
         });
 
@@ -1026,11 +1010,27 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
 
     // Method to get Current Location
-    private void explore() {
-        if (markerOrigin != null){
-            markerOrigin = null;
-            markerDestination = null;
+
+    private void center() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(Home.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
+            return;
         }
+        Task<Location> task = fusedLocationProviderClient.getLastLocation();
+        task.addOnSuccessListener(new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if (location != null) {
+                    currentLocation = location;
+                    LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 18));
+                    setUserLocationMarker(location);
+                }
+            }
+        });
+    }
+
+    private void explore() {
         if (centerCtr == 1){
             map.clear();
             userLocationMarker = null;
@@ -1797,8 +1797,14 @@ public void tripFinished(){
                     Log.d(TAG, "onFailure: Error" );
                 }
             });
-
+            explore.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    explore();
+                }
+            });
         }
+
     });
 
     alertDialog.setMessage("You have reached your destination.");
@@ -1889,6 +1895,12 @@ public void endTrip(){
                 DropOff = null;
             }
 
+            explore.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    explore();
+                }
+            });
 
         }
     });
@@ -1902,10 +1914,6 @@ public void endTrip(){
 }
 
 public void startStartTrip(){
-
-    showOrigin();
-    showDestination();
-
     map.setPadding(0,300,0,0);
 
     total_added = 0;
@@ -2286,27 +2294,55 @@ public void startStartTrip(){
         slide_dest.setText("Destination: " + trip_dest);
         DecimalFormat df = new DecimalFormat("0.00");
         slide_fare.setText("Fare Estimate: ₱" + (df.format(fare_total)) );
+        confirm.setVisibility(View.VISIBLE);
+        confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Confirm();
+
+            }
+        });
+
+        switchPlace.setVisibility(View.VISIBLE);
+        switchPlace.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switchPlace();
+            }
+        });
     }
     public void Confirm(){
+        explore.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                center();
+            }
+        });
         slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        map.clear();
-        userLocationMarker = null;
         if(nearby == 1){
+            map.clear();
+            userLocationMarker = null;
             animateNearbyOut();
             nearby = 0;
+
+            delayHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    showOrigin();
+                    showDestination();
+                    startTrip();
+                }
+            },1000);
+        }else{
+            showOrigin();
+            showDestination();
+            startTrip();
         }
         bottomNav.getMenu().findItem(R.id.nearby).setEnabled(false);
         bottomNav.getMenu().findItem(R.id.nearby).setCheckable(false);
         bottomNav.getMenu().findItem(R.id.search).setEnabled(false);
         bottomNav.getMenu().findItem(R.id.search).setCheckable(false);
-        delayHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                showOrigin();
-                showDestination();
-                startTrip();
-            }
-        },1000);
+
     }
 
     public void ETA(){
