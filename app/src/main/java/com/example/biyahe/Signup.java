@@ -95,7 +95,7 @@ public class Signup extends AppCompatActivity {
         }
 
         if (!PASSWORD.matcher(password).matches()) {
-            Toast.makeText(this, "password must be atleast 8 characters, must contain uc, lc, sc & numeric", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "must be at least 8 characters and must have a uppercase letter, lowercase letter, special character, and number", Toast.LENGTH_SHORT).show();
             return;
         }
 
