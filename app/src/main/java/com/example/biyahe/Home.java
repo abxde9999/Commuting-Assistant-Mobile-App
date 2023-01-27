@@ -940,6 +940,8 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             userLocationAccuracyCircle.setCenter(latLng);
             userLocationAccuracyCircle.setRadius(location.getAccuracy());
         }
+        bottomNav.getMenu().findItem(R.id.sos).setChecked(true);
+
     }
 
     private void startLocationUpdates() {
@@ -2318,7 +2320,7 @@ public void startStartTrip(){
             }
         });
         slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        if(nearby == 1 || Nearby != null){
+        if(nearby == 1 || Nearby != null || searchMarker != null){
             map.clear();
             userLocationMarker = null;
             animateNearbyOut();
@@ -2341,7 +2343,6 @@ public void startStartTrip(){
         bottomNav.getMenu().findItem(R.id.nearby).setCheckable(false);
         bottomNav.getMenu().findItem(R.id.search).setEnabled(false);
         bottomNav.getMenu().findItem(R.id.search).setCheckable(false);
-
     }
 
     public void ETA(){
