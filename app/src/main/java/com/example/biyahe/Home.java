@@ -1,68 +1,54 @@
 package com.example.biyahe;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
-
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-
-import android.provider.Settings;
 import android.telephony.SmsManager;
-import android.text.format.Time;
 import android.util.Log;
-
-import android.view.DragEvent;
 import android.view.MenuItem;
 import android.view.View;
-
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -77,17 +63,13 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofenceStatusCodes;
 import com.google.android.gms.location.GeofencingClient;
-import com.google.android.gms.location.GeofencingEvent;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationSettingsRequest.Builder;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.Priority;
-import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -95,7 +77,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -125,8 +106,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -134,12 +117,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -329,6 +310,15 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         //Initialize new search view
         ref = FirebaseDatabase.getInstance().getReference("location_information");
         searchTrip = (AutoCompleteTextView) findViewById(R.id.searchTrip);
+        searchTrip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(nearby == 1){
+                    animateNearbyOut();
+                    nearby = 0;
+                }
+            }
+        });
         listTrips = (RecyclerView) findViewById(R.id.listTrips);
         RecyclerView.LayoutManager layoutManager= new LinearLayoutManager(this);
         listTrips.setLayoutManager(layoutManager);
@@ -566,6 +556,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
         ValueEventListener eventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+
                 if (snapshot.exists()) {
                     ArrayList<String> places = new ArrayList<>();
                     for (DataSnapshot ds : snapshot.getChildren()) {
@@ -1036,6 +1027,10 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
 
     // Method to get Current Location
     private void explore() {
+        if (markerOrigin != null){
+            markerOrigin = null;
+            markerDestination = null;
+        }
         if (centerCtr == 1){
             map.clear();
             userLocationMarker = null;
@@ -1908,6 +1903,9 @@ public void endTrip(){
 
 public void startStartTrip(){
 
+    showOrigin();
+    showDestination();
+
     map.setPadding(0,300,0,0);
 
     total_added = 0;
@@ -2291,9 +2289,24 @@ public void startStartTrip(){
     }
     public void Confirm(){
         slidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-        showOrigin();
-        showDestination();
-        startTrip();
+        map.clear();
+        userLocationMarker = null;
+        if(nearby == 1){
+            animateNearbyOut();
+            nearby = 0;
+        }
+        bottomNav.getMenu().findItem(R.id.nearby).setEnabled(false);
+        bottomNav.getMenu().findItem(R.id.nearby).setCheckable(false);
+        bottomNav.getMenu().findItem(R.id.search).setEnabled(false);
+        bottomNav.getMenu().findItem(R.id.search).setCheckable(false);
+        delayHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                showOrigin();
+                showDestination();
+                startTrip();
+            }
+        },1000);
     }
 
     public void ETA(){

@@ -510,7 +510,6 @@
             android:layout_height="35dp"
             android:text="You are currently at:"
             android:textAllCaps="true"
-            android:layout_marginLeft="10dp"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textColor="@color/black"
             android:textSize="16sp"
