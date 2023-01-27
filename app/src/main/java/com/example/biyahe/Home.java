@@ -1225,13 +1225,12 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                     mapFragment.getMapAsync(Home.this);
                     //assert mapFragment != null;
                     setUserLocationMarker(location);
-
+                    myPlace();
                     delayHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            myPlace();
-                            animateMyPlaceIn();
-                            animateMyPlaceOut();
+                                animateMyPlaceIn();
+                                animateMyPlaceOut();
                         }
                     },2000);
                 }
@@ -1468,35 +1467,36 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             public void onSuccess(Location location) {
                 if (location != null) {
 
-
                     currentLocation = location;
                     address = null;
                     Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
                     SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
                     mapFragment.getMapAsync(Home.this);
                     //assert mapFragment != null;
+                    delayHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                List<Address> addresses = geocoder.getFromLocation(currentLocation.getLatitude(),currentLocation.getLongitude(), 1);
+                                address = addresses.get(0);
 
-                    try {
-                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(), 1);
-                        address = addresses.get(0);
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    },500);
                 }
                 if (address != null){
                     currLoc.setText(address.getAddressLine(0));
                     //assert mapFragment != null;
-                    setUserLocationMarker(location);
                 }else{
                     navHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             currLoc.setText(address.getAddressLine(0));
                             //assert mapFragment != null;
-                            setUserLocationMarker(location);
                         }
-                    },4000);
+                    },500);
                 }
             }
         });
@@ -2698,10 +2698,10 @@ public void startStartTrip(){
                     speedCTR = 0;
                     ave_speed = 0;
                 }
-            },60000);
+            },30000);
                 //do your code here
 
-            speedHandler.postDelayed(this, 60000);
+            speedHandler.postDelayed(this, 30000);
         }
     };
 }
