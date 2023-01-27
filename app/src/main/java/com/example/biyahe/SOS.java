@@ -31,7 +31,7 @@ public class SOS extends AppCompatActivity {
 
     //Initialization
     EditText etPhone,etMessage,etReceiver;
-    Button btSend,btChangeRec,btSaveRec,btSaveSMS;
+    Button btSend,btSaveRec,btSaveSMS;
     TextView tvMsgRec, tvMsgInp;
 
     @Override
@@ -43,7 +43,6 @@ public class SOS extends AppCompatActivity {
         etReceiver = findViewById(R.id.et_receiver);
         etMessage = findViewById(R.id.et_message);
         btSend = findViewById(R.id.et_send);
-        btChangeRec = findViewById(R.id.et_change);
         btSaveRec = findViewById(R.id.et_changeRec);
         btSaveSMS = findViewById(R.id.et_changeSMS);
         tvMsgRec = findViewById(R.id.tv_msgRec);
@@ -52,6 +51,8 @@ public class SOS extends AppCompatActivity {
 
         UpdateRec();
         UpdateSMS();
+
+        Toast.makeText(this, "When you're done editing, just press the back button to go back on the app.", Toast.LENGTH_LONG).show();
 
         btSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -69,15 +70,6 @@ public class SOS extends AppCompatActivity {
                     ActivityCompat.requestPermissions(SOS.this, new String[]{Manifest.permission.SEND_SMS},
                             100);
                 }
-            }
-        });
-
-        btChangeRec.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //OpenHome();
-                Intent intent = new Intent(SOS.this, Home.class);
-                startActivity(intent);
             }
         });
         btSaveRec.setOnClickListener(new View.OnClickListener() {

@@ -151,6 +151,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
     int additionalMinute = 0;
     int additionalSeconds = 0;
     int ave_speed = 0;
+    int speedCTR = 0;
 
     float total_added = 0;
     float d_dist;
@@ -2662,6 +2663,7 @@ public void startStartTrip(){
         public void run() {
 
             ave_speed = kmh + ave_speed;
+            speedCTR = speedCTR + 1;
 
             speedHandler.postDelayed(this, 1000);
         }
@@ -2677,7 +2679,7 @@ public void startStartTrip(){
             speedHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    ave_speed = ave_speed / 60;
+                    ave_speed = ave_speed / speedCTR;
 
                     total_added = d_dist / ave_speed;
 
@@ -2693,6 +2695,7 @@ public void startStartTrip(){
 
                     ETA();
 
+                    speedCTR = 0;
                     ave_speed = 0;
                 }
             },60000);
