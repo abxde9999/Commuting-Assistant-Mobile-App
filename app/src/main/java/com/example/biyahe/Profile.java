@@ -47,7 +47,7 @@ public class Profile extends AppCompatActivity {
     private TextView profileName, profileEmail, profilePhone;
     private String full_name, email_address, phone_num;
     private FirebaseAuth authProfile;
-    Button logoutButton, settings;
+    Button logoutButton, settings, goback;
     FloatingActionButton refresh;
 
 
@@ -79,6 +79,14 @@ public class Profile extends AppCompatActivity {
                         Intent.FLAG_ACTIVITY_CLEAR_TASK |
                         Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
+                finish();
+            }
+        });
+
+        goback = findViewById(R.id.et_goback);
+        goback.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
                 finish();
             }
         });

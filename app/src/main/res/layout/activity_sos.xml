@@ -57,7 +57,7 @@
     <EditText
         android:id="@+id/et_message"
         android:layout_width="match_parent"
-        android:layout_height="124dp"
+        android:layout_height="112dp"
         android:layout_marginTop="8dp"
         android:background="@android:drawable/editbox_background"
         android:gravity="top"
@@ -81,6 +81,15 @@
         android:layout_marginTop="10dp"
         android:backgroundTint="@color/quantum_black_100"
         android:text="Test SEND" />
+
+    <Button
+        android:id="@+id/et_change"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="@color/quantum_black_100"
+        android:text="Return to homescreen" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="93dp"

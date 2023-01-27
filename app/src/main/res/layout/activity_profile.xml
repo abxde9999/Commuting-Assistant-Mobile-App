@@ -23,8 +23,8 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"
-            android:backgroundTint="@color/white"
-            android:background="@drawable/rounder_corner3">
+            android:background="@drawable/rounder_corner3"
+            android:backgroundTint="@color/white">
 
             <ImageView
                 android:id="@+id/profilePic"
@@ -118,6 +118,7 @@
             app:maxImageSize="35dp"
             app:rippleColor="@color/quantum_amber300" />
 
+
         <Button
             android:id="@+id/et_settings"
             android:layout_width="123dp"
@@ -126,11 +127,25 @@
             android:layout_alignParentEnd="true"
             android:layout_gravity="center_horizontal"
             android:layout_marginHorizontal="125dp"
-            android:layout_marginStart="118dp"
+            android:layout_marginStart="201dp"
             android:layout_marginTop="450dp"
-            android:layout_marginEnd="118dp"
-            android:text="SOS Settings"
-            android:backgroundTint="@color/quantum_black_100"/>
+            android:layout_marginEnd="35dp"
+            android:backgroundTint="@color/quantum_black_100"
+            android:text="SOS Settings" />
+
+        <Button
+            android:id="@+id/et_goback"
+            android:layout_width="123dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginHorizontal="125dp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="450dp"
+            android:layout_marginEnd="201dp"
+            android:backgroundTint="@color/quantum_black_100"
+            android:text="Return to map" />
 
         <RelativeLayout
             android:layout_width="155dp"
@@ -141,8 +156,8 @@
             android:layout_marginStart="182dp"
             android:layout_marginTop="189dp"
             android:layout_marginEnd="23dp"
-            android:backgroundTint="@color/white"
-            android:background="@drawable/rounder_corner3">
+            android:background="@drawable/rounder_corner3"
+            android:backgroundTint="@color/white">
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -183,8 +198,8 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="16dp"
             android:layout_marginTop="189dp"
-            android:backgroundTint="@color/white"
-            android:background="@drawable/rounder_corner3">
+            android:background="@drawable/rounder_corner3"
+            android:backgroundTint="@color/white">
 
             <RelativeLayout
                 android:layout_width="wrap_content"
@@ -200,10 +215,9 @@
 
                     <ImageView
                         android:id="@+id/loc"
-                        android:src="@drawable/ic_loc"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        />
+                        android:src="@drawable/ic_loc" />
 
                     <TextView
                         android:id="@+id/country"
@@ -231,8 +245,8 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="16dp"
             android:layout_marginTop="266dp"
-            android:backgroundTint="@color/white"
-            android:background="@drawable/rounder_corner3">
+            android:background="@drawable/rounder_corner3"
+            android:backgroundTint="@color/white">
 
             <RelativeLayout
                 android:layout_width="wrap_content"
