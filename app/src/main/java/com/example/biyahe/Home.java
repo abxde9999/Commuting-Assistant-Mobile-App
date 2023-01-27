@@ -1466,8 +1466,6 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
             @Override
             public void onSuccess(Location location) {
                 if (location != null) {
-
-                    currentLocation = location;
                     address = null;
                     Geocoder geocoder = new Geocoder(Home.this, Locale.getDefault());
                     SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapFragment);
@@ -1477,7 +1475,7 @@ public class Home extends FragmentActivity implements OnMapReadyCallback {
                         @Override
                         public void run() {
                             try {
-                                List<Address> addresses = geocoder.getFromLocation(currentLocation.getLatitude(),currentLocation.getLongitude(), 1);
+                                List<Address> addresses = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(), 1);
                                 address = addresses.get(0);
 
                             } catch (IOException e) {
@@ -2679,24 +2677,27 @@ public void startStartTrip(){
             speedHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    ave_speed = ave_speed / speedCTR;
+                    if(ave_speed != 0){
+                        ave_speed = ave_speed / speedCTR;
+                        total_added = d_dist / ave_speed;
 
-                    total_added = d_dist / ave_speed;
+                        //seconds
 
-                    //seconds
+                        total_added = total_added * 3600;
 
-                    total_added = total_added * 3600;
+                        additionalHour = (int) total_added / 3600;
+                        total_added = total_added - (additionalHour * 3600);
 
-                    additionalHour = (int) total_added / 3600;
-                    total_added = total_added - (additionalHour * 3600);
+                        additionalMinute = (int) total_added / 60;
+                        total_added = total_added - (additionalMinute * 60);
 
-                    additionalMinute = (int) total_added / 60;
-                    total_added = total_added - (additionalMinute * 60);
+                        ETA();
 
-                    ETA();
-
-                    speedCTR = 0;
-                    ave_speed = 0;
+                        speedCTR = 0;
+                        ave_speed = 0;
+                    }else{
+                        ETA.setText("ETA: No Movement");
+                    }
                 }
             },30000);
                 //do your code here
