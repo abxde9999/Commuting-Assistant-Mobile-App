@@ -61,8 +61,8 @@ This project is about a map-based Android mobile application that aims to addres
     <td align="center">SOS Settings</td>
   </tr>
   <tr>
-    <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/2d6eb447-806f-41f2-b3f0-e8f034eb791f" width="300" height="500"></td>
     <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/fb076939-251e-42a0-a877-47a03c908f33" width="300" height="500"></td>
     <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/b65a787e-1a38-4225-bdbb-52ecbbff81a5" width="300" height="500"></td>
+    <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/2d6eb447-806f-41f2-b3f0-e8f034eb791f" width="300" height="500"></td>
   </tr>
  </table>
