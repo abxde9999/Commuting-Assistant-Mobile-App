@@ -15,5 +15,54 @@ This project is about a map-based Android mobile application that aims to addres
   </tr>
  </table>
 
+ <table>
+  <tr>
+    <td align="center">Home Screen</td>
+    <td align="center">Home Screen 2</td>
+    <td align="center">Start Trip</td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/ace4359b-50e6-444f-b59a-944496cd2e68" width="300" height="500"></td>
+    <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/b9ba7435-8e3c-4b36-a230-e86bb88a7ef3" width="300" height="500"></td>
+    <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/07fbaf5f-9855-4799-828e-893a82485176" width="300" height="500"></td>
+  </tr>
+ </table>
 
+ <table>
+  <tr>
+    <td align="center">Trip Planner</td>
+    <td align="center">Trip Planner 2</td>
+    <td align="center">Trip Planner 3</td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/36614b13-835b-4815-ba2c-1082dcd32862" width="300" height="500"></td>
+    <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/6579fc2c-bc62-4c5c-a212-10739124b4db" width="300" height="500"></td>
+    <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/f9412ec5-0c7f-4a6a-bcd0-a7dd721308bf" width="300" height="500"></td>
+  </tr>
+ </table>
 
+ <table>
+  <tr>
+    <td align="center">Trip Planner 4</td>
+    <td align="center">Ongoing Trip</td>
+    <td align="center">End Trip</td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/a0ed14b9-d449-4d2a-a091-60d65b06ca5c" width="300" height="500"></td>
+    <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/568b62f8-1dc2-4079-bcda-f3d5717e50cc" width="300" height="500"></td>
+    <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/94a23364-3557-46ac-8f38-5be4a7060409" width="300" height="500"></td>
+  </tr>
+ </table>
+
+  <table>
+  <tr>
+    <td align="center">Nearby</td>
+    <td align="center">SOS</td>
+    <td align="center">Profile Screen</td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/fb076939-251e-42a0-a877-47a03c908f33" width="300" height="500"></td>
+    <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/2d6eb447-806f-41f2-b3f0-e8f034eb791f" width="300" height="500"></td>
+    <td><img src="https://github.com/abxde9999/Commuting-Assistant-Mobile-App/assets/103562421/b65a787e-1a38-4225-bdbb-52ecbbff81a5" width="300" height="500"></td>
+  </tr>
+ </table>
